@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { AnalysisService } from './analysis.service';
 import { CreateAnalysisDto } from './dto/create-analysis.dto';
 import { UpdateAnalysisDto } from './dto/update-analysis.dto';
+import { FindAnalysisDto } from './dto/find-analysis.dto';
 
 @Controller('analysis')
 export class AnalysisController {
@@ -11,7 +12,12 @@ export class AnalysisController {
   create(@Body() createAnalysisDto: CreateAnalysisDto) {
     return this.analysisService.create(createAnalysisDto);
   }
-
+  @Post()
+  findByScope(@Body() findAnalysis: FindAnalysisDto) {
+    if(findAnalysis.platform == 'discord') {
+      return this.analysisService.findByDiscordScope(findAnalysis.scope.serverId, findAnalysis.scope.channelId);
+    }
+  }
   @Get()
   findAll() {
     return this.analysisService.findAll();

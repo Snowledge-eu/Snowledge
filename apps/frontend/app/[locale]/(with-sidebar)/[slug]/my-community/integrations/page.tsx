@@ -33,6 +33,11 @@ export default function Page() {
       estimatedVolume: 1240,
       lastFetched: '2024-06-01',
       type: 'channels',
+      account: {
+        id: '',
+        name: '',
+        connected: false,
+      },
     },
     // {
     //   key: 'youtube',
@@ -101,10 +106,10 @@ export default function Page() {
     setIsCollecting(true)
     const body = {
         "discordId": user.discordId,
-        "serverId": Number(activeCommunity?.guildId),
-        "channels": selected.discord.map(ch => Number(ch.value)),
+        "serverId": activeCommunity?.guildId,
+        "channels": selected.discord.map(ch => ch.value),
       }
-    await fetch(`http://localhost:8000/discord/harvest`,{
+    await fetch(`${process.env.NEXT_PUBLIC_ANALYSER_URL}/discord/harvest`,{
       method: 'POST',
       headers: {
         "Content-Type": "application/json",
@@ -129,22 +134,31 @@ export default function Page() {
     }
   }
   const fetchChannels = async (guildId: string) => {
-    const data = await fetch(`http://localhost:8000/discord/channels/${guildId}`,{
-      method: 'GET'
-    })
-    const info: {server_id: string, server_name: string, channels: [{id:string, name: string}]} = await data.json()
-    console.log(info)
-    const options: Array<{ label: string, value: string }> = [];
-    for( const channel of info.channels){
-      options.push({ label: `#${channel.name}`, value: channel.id })
+    console.log('fetchChannel')
+    try {
+      const data = await fetch(`${process.env.NEXT_PUBLIC_ANALYSER_URL}/discord/channels/${guildId}`,{
+        method: 'GET'
+      })
+      const info: {server_id: string, server_name: string, channels: [{id:string, name: string}]} = await data.json()
+      console.log(info)
+      const options: Array<{ label: string, value: string }> = [];
+      for( const channel of info.channels){
+        options.push({ label: `#${channel.name}`, value: channel.id })
+      }
+      setPlatforms(prev => 
+        prev.map((platform => 
+          platform.key === 'discord'
+            ? { 
+                ...platform, 
+                options: options, 
+                account: {id: info.server_id, name: info.server_name, connected: true} 
+              }
+            : platform
+        ))
+      )
+    } catch (error) {
+      console.error(error);
     }
-    setPlatforms(prev => 
-      prev.map((platform => 
-        platform.key === 'discord'
-          ? { ...platform, options: options }
-          : platform
-      ))
-    )
   }
   useEffect(() =>{
     if(activeCommunity?.guildId){
@@ -152,7 +166,7 @@ export default function Page() {
     }
     console.log(activeCommunity)
     console.log(user)
-  }, [])
+  }, [activeCommunity])
   return (
     <section className="w-full flex flex-col gap-8">
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
@@ -252,6 +266,7 @@ export default function Page() {
                     color: platform.color,
                     type: platform.type,
                     options: platform.options,
+                    accountPlatform: platform.account,
                   }} />
                   <Button
                     className="flex items-center gap-2 w-32 justify-center"
