@@ -50,7 +50,26 @@ export function SummaryInput({
   canLaunch,
   loading,
   onStart,
-}: any) {
+}: {
+  platforms: any[],
+  selectedPlatform: string,
+  onSelectPlatform: (v: string) => void,
+  scope: 'all' | 'custom',
+  onScopeChange: (v: 'all' | 'custom') => void,
+  discordChannels: {label: string, value: string}[],
+  selectedChannels: Array<{label: string, value: string}>,
+  onChannelsChange: (v: Array<{label: string, value: string}>) => void,
+  timeRange: string,
+  onTimeRangeChange: (v: string) => void,
+  customDate: Date | undefined,
+  onCustomDateChange: (date: Date | undefined) => void,
+  mode: 'standard' | 'reasoning',
+  onModeChange: (v: 'standard' | 'reasoning') => void,
+  messageCount: number,
+  canLaunch: boolean,
+  loading: boolean,
+  onStart: (channels: Array<string>, model: string, period: string) => void,
+}) {
   // Fake videos for YouTube select
   const fakeYoutubeVideos = [
     { label: 'Intro to Voting', value: 'vid1' },
@@ -193,7 +212,7 @@ export function SummaryInput({
           aria-label="Start summary analysis"
           size="lg"
           disabled={!canLaunch || loading}
-          onClick={onStart}
+          onClick={() => onStart(selectedChannels.map(ch => ch.value), mode, timeRange)}
         >
           {loading ? (
             <>

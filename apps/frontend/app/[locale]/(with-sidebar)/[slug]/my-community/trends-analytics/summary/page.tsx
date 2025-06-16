@@ -3,9 +3,13 @@ import { PlatformIconButton } from '@/components/my-community/trendes-analytics/
 import { SummaryInput } from '@/components/my-community/trendes-analytics/summary/summary-input';
 import { FAKE_SUMMARY_HISTORY, SummaryList } from '@/components/my-community/trendes-analytics/summary/summary-list';
 import SummaryResult from '@/components/my-community/trendes-analytics/summary/summary-result';
+import { useAuth } from '@/contexts/auth-context';
+import { useCurrentCommunity } from '@/hooks/useCurrentCommunity';
 import { Card } from '@repo/ui';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 export default function Page() {
+    const { user } = useAuth();
+    const { activeCommunity } = useCurrentCommunity();
    const [selectedResult, setSelectedResult] = useState<any>(FAKE_SUMMARY_HISTORY[0])
   // Demo props (adapter selon besoin réel)
   const platforms = [
@@ -15,14 +19,63 @@ export default function Page() {
   ]
   const [selectedPlatform, setSelectedPlatform] = useState('discord')
   const [scope, setScope] = useState<'all' | 'custom'>('all')
-  const [selectedChannels, setSelectedChannels] = useState<string[]>([])
+  const [discordChannels, setDiscordChannels] = useState<Array<{label: string, value: string}>>([])
+  const [selectedChannels, setSelectedChannels] = useState<Array<{label: string, value: string}>>([])
   const [timeRange, setTimeRange] = useState('last_week')
   const [customDate, setCustomDate] = useState<Date | undefined>(undefined)
   const [mode, setMode] = useState<'standard' | 'reasoning'>('standard')
   const [loading, setLoading] = useState(false)
   const messageCount = 1200
   const canLaunch = true
-
+const startAnalysis = async (channels: Array<string>, model: string, period: string) => {
+  
+    setLoading(true);
+    for (const channel of channels) {
+      const body = {
+        "creator_id": Number(user.id),
+        "serverId": activeCommunity?.discordServerId,
+        "channelId": channel,
+        "model_name": model,
+        "prompt_key": "sentiment",
+        "period": period
+      }
+      console.log(body)
+      const res = await fetch(`${process.env.NEXT_PUBLIC_ANALYSER_URL}/discord/analyze`,{
+        method: 'POST',
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      })
+      if(res.ok){
+        setLoading(false);
+      }
+    }
+  }
+    const fetchChannels = async (guildId: string) => {
+      console.log('fetchChannel')
+      try {
+        const data = await fetch(`${process.env.NEXT_PUBLIC_ANALYSER_URL}/discord/channels/${guildId}`,{
+          method: 'GET'
+        })
+        const info: {server_id: string, server_name: string, channels: [{id:string, name: string}]} = await data.json()
+        console.log(info)
+        const options: Array<{ label: string, value: string }> = [];
+        for( const channel of info.channels){
+          options.push({ label: `#${channel.name}`, value: channel.id })
+        }
+        setDiscordChannels(options);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    useEffect(() =>{
+      if(activeCommunity?.discordServerId){
+        fetchChannels(activeCommunity?.discordServerId);
+      }
+      console.log(activeCommunity)
+      console.log(user)
+    }, [])
   return (
     <main className="grid grid-cols-1 md:grid-cols-[minmax(640px,800px)_1fr] items-stretch gap-8 h-screen min-h-screen bg-background">
       {/* Panneau gauche (formulaire) */}
@@ -45,8 +98,8 @@ export default function Page() {
           messageCount={messageCount}
           canLaunch={canLaunch}
           loading={loading}
-          onStart={() => {}}
-          PlatformIconButton={PlatformIconButton}
+          onStart={startAnalysis}
+          // PlatformIconButton={PlatformIconButton}
         />
       </aside>
       {/* Panneau droit (résultat + historique) */}

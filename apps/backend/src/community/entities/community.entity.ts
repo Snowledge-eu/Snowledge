@@ -7,6 +7,7 @@ import {
 	UpdateDateColumn,
 	CreateDateColumn,
 	OneToOne,
+	JoinColumn,
 } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
 import { Learner } from '../../learner/entities/learner/learner';
@@ -58,7 +59,11 @@ export class Community {
 	proposals: Proposal[];
 
 	@OneToOne(() => DiscordServer, (discordServer) => discordServer.community)
+	@JoinColumn({ name: 'discordServerId' })
 	discordServer: DiscordServer;
+
+	@Column({ type: 'varchar', length: 32, nullable: true })
+	discordServerId: string;
 
 	@CreateDateColumn({
 		type: 'timestamp',

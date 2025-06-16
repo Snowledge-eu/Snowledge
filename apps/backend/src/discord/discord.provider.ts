@@ -82,18 +82,20 @@ export class DiscordProvider {
 				console.log('communityId', communityId);
 				if (communityId) {
 					try {
-						community =
-							await this.communityService.findOneById(
-								communityId,
-							);
-
+						// community =
+						// 	await this.communityService.findOneById(
+							// 		communityId,
+							// 	);
+							
 						console.log('data', data);
 						console.log('communityId', communityId);
-						await this.discordServerService.create({
-							communityId,
+						const discordServer = await this.discordServerService.create({
+							// communityId,
 							guildId: data.guild.id,
 							guildName: data.guild.name,
 						});
+
+						community = await this.communityService.updateDiscordGuildId(communityId, discordServer);
 					} catch (error) {
 						this.logger.error(error);
 						throw new Error('Error creating discord server', error);

@@ -4,7 +4,9 @@ import { FAKE_TREND_RESULT, TrendResultCard } from "@/components/my-community/tr
 import { Card } from "@repo/ui";
 import { FAKE_TREND_HISTORY, TrendListCard } from "@/components/my-community/trendes-analytics/trend/trend-list";
 import { PlatformIconButton } from "@/components/my-community/trendes-analytics/platform-icon-buttons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useAuth } from "@/contexts/auth-context";
+import { useCurrentCommunity } from "@/hooks/useCurrentCommunity";
 const platforms = [
   {
     key: 'discord',
@@ -45,8 +47,12 @@ const platforms = [
 //   },
 ]
 export default function Page() {
+   const { user } = useAuth();
+    const { activeCommunity } = useCurrentCommunity();
  const [selectedPlatform, setSelectedPlatform] = useState('discord')
-  const [scope, setScope] = useState<'all' | 'custom'>('all')
+  const [scope, setScope] = useState<'all' | 'custom'>('all');
+    const [discordChannels, setDiscordChannels] = useState<Array<{label: string, value: string}>>([])
+
   const [selectedChannels, setSelectedChannels] = useState<Array<{label: string, value: string}>>([])
   const [timeRange, setTimeRange] = useState('last_week')
   const [customDate, setCustomDate] = useState<Date | undefined>(undefined)
@@ -58,35 +64,82 @@ export default function Page() {
   const [selectedResult, setSelectedResult] = useState<any>(FAKE_TREND_RESULT)
 
   // Mock data for channels and message count
-  const discordChannels = [
-    { label: '#general', value: 'general' },
-    { label: '#announcements', value: 'announcements' },
-    { label: '#random', value: 'random' },
-    { label: '#support', value: 'support' },
-  ]
+  // const discordChannels = [
+  //   { label: '#general', value: 'general' },
+  //   { label: '#announcements', value: 'announcements' },
+  //   { label: '#random', value: 'random' },
+  //   { label: '#support', value: 'support' },
+  // ]
   const messageCount = scope === 'all' ? 3278 : selectedChannels.length * 800
   const canLaunch = messageCount > 0 && (scope === 'all' || selectedChannels.length > 0)
 
-  // Mock result for demo
-  const mockResult = {
-    sentiment: 'positive',
-    confidence: 87,
-    topics: [
-      { title: 'Voting System', summary: 'Most users discussed the new voting system and its impact on community decisions.' },
-      { title: 'Bot Issues', summary: 'Several users reported issues with the moderation bot not responding.' },
-      { title: 'Upcoming AMA', summary: 'Excitement about the upcoming AMA with the founders.' },
-    ],
-    raw: '{ "sentiment": "positive", "topics": [ ... ] }',
-  }
+  // // Mock result for demo
+  // const mockResult = {
+  //   sentiment: 'positive',
+  //   confidence: 87,
+  //   topics: [
+  //     { title: 'Voting System', summary: 'Most users discussed the new voting system and its impact on community decisions.' },
+  //     { title: 'Bot Issues', summary: 'Several users reported issues with the moderation bot not responding.' },
+  //     { title: 'Upcoming AMA', summary: 'Excitement about the upcoming AMA with the founders.' },
+  //   ],
+  //   raw: '{ "sentiment": "positive", "topics": [ ... ] }',
+  // }
 
-  function handleStart() {
-    setLoading(true)
-    setTimeout(() => {
-      setResult(mockResult)
-      setLoading(false)
-    }, 1800)
+  // function handleStart() {
+  //   setLoading(true)
+  //   setTimeout(() => {
+  //     setResult(mockResult)
+  //     setLoading(false)
+  //   }, 1800)
+  // }
+  const startAnalysis = async (channels: Array<string>, model: string, period: string) => {
+    setLoading(true);
+    for (const channel of channels) {
+      const body = {
+        "creator_id": Number(user.id),
+        "serverId": activeCommunity?.discordServerId,
+        "channelId": channel,
+        "model_name": model,
+        "prompt_key": "sentiment",
+        "period": period
+      }
+      console.log(body)
+      const res = await fetch(`${process.env.NEXT_PUBLIC_ANALYSER_URL}/discord/analyze`,{
+        method: 'POST',
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      })
+      if(res.ok){
+        setLoading(false);
+      }
+    }
   }
-
+    const fetchChannels = async (guildId: string) => {
+      console.log('fetchChannel')
+      try {
+        const data = await fetch(`${process.env.NEXT_PUBLIC_ANALYSER_URL}/discord/channels/${guildId}`,{
+          method: 'GET'
+        })
+        const info: {server_id: string, server_name: string, channels: [{id:string, name: string}]} = await data.json()
+        console.log(info)
+        const options: Array<{ label: string, value: string }> = [];
+        for( const channel of info.channels){
+          options.push({ label: `#${channel.name}`, value: channel.id })
+        }
+        setDiscordChannels(options);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    useEffect(() =>{
+      if(activeCommunity?.discordServerId){
+        fetchChannels(activeCommunity?.discordServerId);
+      }
+      console.log(activeCommunity)
+      console.log(user)
+    }, [])
   return (
     <main className="grid grid-cols-1 md:grid-cols-[minmax(640px,800px)_1fr] items-stretch gap-8 h-screen min-h-screen bg-background">
       {/* Panneau gauche (formulaire) */}
@@ -109,7 +162,7 @@ export default function Page() {
           messageCount={messageCount}
           canLaunch={canLaunch}
           loading={loading}
-          onStart={handleStart}
+          onStart={startAnalysis}
           PlatformIconButton={PlatformIconButton}
         />
       </aside>

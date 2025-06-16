@@ -87,7 +87,7 @@ export function TrendInputCard({
   messageCount: number,
   canLaunch: boolean,
   loading: boolean,
-  onStart: () => void,
+  onStart: (channels: Array<string>, model: string, period: string) => void,
   PlatformIconButton: React.FC<any>,
 }) {
   // Fake videos for YouTube select
@@ -238,7 +238,7 @@ export function TrendInputCard({
           aria-label="Start analysis"
           size="lg"
           disabled={!canLaunch || loading}
-          onClick={onStart}
+          onClick={() => onStart(selectedChannels.map(ch => ch.value), mode, timeRange)}
         >
           {loading ? (
             <>

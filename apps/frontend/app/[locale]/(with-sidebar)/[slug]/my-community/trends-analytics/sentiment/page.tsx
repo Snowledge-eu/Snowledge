@@ -35,7 +35,7 @@ export default function Page() {
     for (const channel of channels) {
       const body = {
         "creator_id": Number(user.id),
-        "serverId": activeCommunity?.guildId,
+        "serverId": activeCommunity?.discordServerId,
         "channelId": channel,
         "model_name": model,
         "prompt_key": "sentiment",
@@ -72,8 +72,8 @@ export default function Page() {
       }
     }
     useEffect(() =>{
-      if(activeCommunity?.guildId){
-        fetchChannels(activeCommunity?.guildId);
+      if(activeCommunity?.discordServerId){
+        fetchChannels(activeCommunity?.discordServerId);
       }
       console.log(activeCommunity)
       console.log(user)
