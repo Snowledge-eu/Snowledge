@@ -144,7 +144,10 @@
     "create-topic": "Créer un sujet",
     "in-progress": "En cours",
     "done": "Terminé",
-    "validate": "Valider"
+    "validate": "Valider",
+    "sentiment-analysis": "Sentiment",
+    "summary-analysis": "Summary",
+    "trends-analysis": "Trends"
   },
   "inviteModal": {
     "title": "Invitez des utilisateurs",

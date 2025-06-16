@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { DiscordService } from '../discord/discord.service';
+import { DiscordService } from '../discord/services/discord.service';
 import { UserService } from 'src/user/user.service';
 import { Gender } from 'src/shared/enums/Gender';
 import { CommunityService } from 'src/community/community.service';

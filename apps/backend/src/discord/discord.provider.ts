@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { User } from 'src/user/entities/user.entity';
-import { DiscordService } from './discord.service';
+import { DiscordService } from './services/discord.service';
 import { UserService } from 'src/user/user.service';
 import discordConfig from 'src/config/discord.config';
 import { ConfigType } from '@nestjs/config';

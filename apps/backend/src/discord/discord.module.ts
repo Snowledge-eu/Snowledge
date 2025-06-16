@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { DiscordController } from './discord.controller';
-import { DiscordService } from './discord.service';
+import { DiscordService } from './services/discord.service';
 import { DiscordProvider } from './discord.provider';
 import { UserModule } from 'src/user/user.module';
 import { DiscordAccess } from './entities/discord-access.entity';
@@ -24,6 +24,7 @@ import {
 	DiscordServerSchema,
 } from './schemas/discord-server.schema';
 import { DiscordServerModule } from 'src/discord-server/discord-server.module';
+import { DiscordHarvestJobService } from './services/discord-harvest-job.service';
 
 @Module({
 	imports: [
@@ -39,7 +40,11 @@ import { DiscordServerModule } from 'src/discord-server/discord-server.module';
 		DiscordServerModule,
 	],
 	controllers: [DiscordController],
-	providers: [DiscordProvider, DiscordService],
+	providers: [
+		DiscordProvider,
+		DiscordService,
+		DiscordHarvestJobService
+	],
 	exports: [DiscordProvider, DiscordService],
 })
 export class DiscordModule {}

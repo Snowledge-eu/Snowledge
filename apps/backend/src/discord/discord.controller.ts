@@ -17,11 +17,12 @@ import { DiscordProvider } from './discord.provider';
 import { User as UserEntity } from 'src/user/entities/user.entity';
 import { User } from 'src/user/decorator';
 import { Response } from 'express';
+import { DiscordHarvestJobService } from './services/discord-harvest-job.service';
 @ApiTags('auth')
 @Controller('discord')
 export class DiscordController {
 	private readonly logger = new Logger(DiscordController.name);
-	constructor(private discordProvider: DiscordProvider) {}
+	constructor(private discordProvider: DiscordProvider, private discordHarvestJobService: DiscordHarvestJobService) {}
 
 	@HttpCode(HttpStatus.OK)
 	@Post('link')
@@ -54,5 +55,15 @@ export class DiscordController {
 		} else {
 			res.redirect('http://localhost:3000/profile');
 		}
+	}
+
+	@Get('last-harvest/:guildId')
+	async getLastHarvest(@Param('guildId') guildId: string){
+		console.log(guildId)
+		console.log(parseInt(guildId))
+		console.log(Number(guildId))
+		const harvest = await this.discordHarvestJobService.findLastHarvestJobByDiscordServerId(guildId);
+		console.log(harvest);
+		return harvest;
 	}
 }

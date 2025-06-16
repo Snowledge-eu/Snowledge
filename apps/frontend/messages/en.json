@@ -143,7 +143,10 @@
     "create-topic": "Create topic",
     "in-progress": "In progress",
     "done": "Done",
-    "validate": "Validate"
+    "validate": "Validate",
+    "sentiment-analysis": "Sentiment",
+    "summary-analysis": "Summary",
+    "trends-analysis": "Trends"
   },
   "inviteModal": {
     "title": "Invite users",

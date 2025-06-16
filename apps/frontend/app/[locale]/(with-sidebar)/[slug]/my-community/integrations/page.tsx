@@ -30,7 +30,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/auth-context";
 
 export default function Page() {
-  const { user } = useAuth();
+  const { user, fetcher } = useAuth();
   const { activeCommunity } = useCurrentCommunity();
 
   const state = encodeURIComponent(
@@ -157,7 +157,9 @@ export default function Page() {
       const data = await fetch(`${process.env.NEXT_PUBLIC_ANALYSER_URL}/discord/channels/${guildId}`,{
         method: 'GET'
       })
+      const harvest = await fetcher(`${process.env.NEXT_PUBLIC_BACKEND_URL}/discord/last-harvest/${guildId}`).catch(err => console.error(err))
       const info: {server_id: string, server_name: string, channels: [{id:string, name: string}]} = await data.json()
+  
       console.log(info)
       const options: Array<{ label: string, value: string }> = [];
       for( const channel of info.channels){
@@ -169,7 +171,8 @@ export default function Page() {
             ? { 
                 ...platform, 
                 options: options, 
-                account: {id: info.server_id, name: info.server_name, connected: true} 
+                account: {id: info.server_id, name: info.server_name, connected: true},
+                lastFetched: new Date(harvest?.created_at).toLocaleDateString() || '',
               }
             : platform
         ))
