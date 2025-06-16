@@ -10,7 +10,7 @@ export type Community = {
   yourPercentage: number;
   communityPercentage: number;
   codeOfConduct: string;
-  guildId: string;
+  discordServerId: string;
   createdAt: Date;
   updatedAt: Date;
 };

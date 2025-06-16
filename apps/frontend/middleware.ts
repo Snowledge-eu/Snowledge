@@ -49,15 +49,18 @@ export async function middleware(request: NextRequest) {
 
     if (!accessToken && refreshToken) {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/refresh-token`, {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-            "x-internal-call": "true",
-          },
-          body: JSON.stringify({ refreshToken }),
-        });
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/refresh-token`,
+          {
+            method: "POST",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+              "x-internal-call": "true",
+            },
+            body: JSON.stringify({ refreshToken }),
+          }
+        );
 
         if (response.ok) {
           const data = await response.json();

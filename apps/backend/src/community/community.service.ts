@@ -49,12 +49,24 @@ export class CommunityService {
 		return this.communityRepository.save(community);
 	}
 
+	async findOneByDiscordServerId(
+		discordServerId: string,
+	): Promise<Community> {
+		return this.communityRepository.findOne({
+			where: { discordServer: { guildId: discordServerId } },
+		});
+	}
+
 	async findOneBySlug(slug: string): Promise<Community> {
 		return this.communityRepository.findOne({ where: { slug } });
 	}
 
 	async findOneByName(name: string): Promise<Community> {
 		return this.communityRepository.findOne({ where: { name } });
+	}
+
+	async findOneById(id: number): Promise<Community> {
+		return this.communityRepository.findOne({ where: { id } });
 	}
 
 	async getCommunityCreatorFromSlug(slug: string): Promise<User> {
@@ -75,14 +87,6 @@ export class CommunityService {
 			...community,
 			...data,
 			slug,
-		});
-	}
-
-	async updateDiscordGuildId(id: number, guildId: string): Promise<Community> {
-		await this.communityRepository.update(id, { guildId });
-
-		return this.communityRepository.findOne({
-			where: { id },
 		});
 	}
 }

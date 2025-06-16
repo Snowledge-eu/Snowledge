@@ -15,6 +15,8 @@ import { CommunityModule } from './community/community.module';
 import { LearnerModule } from './learner/learner.module';
 import { ProposalModule } from './proposal/proposal.module';
 import { VoteModule } from './vote/vote.module';
+import { DiscordBotModule } from './discord-bot/discord-bot.module';
+import { DiscordServerModule } from './discord-server/discord-server.module';
 import discordConfig from './config/discord.config';
 import mongoConfig, { formatURIMongo } from './config/mongo.config';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -63,6 +65,8 @@ import { AnalysisModule } from './analysis/analysis.module';
 		LearnerModule,
 		ProposalModule,
 		VoteModule,
+		DiscordBotModule,
+		DiscordServerModule,
 		YoutubeModule,
 		AnalysisModule,
 	],

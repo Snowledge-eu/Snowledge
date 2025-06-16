@@ -1,10 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Proposal } from './entities/proposal.entity';
 import { CreateProposalDto } from './dto/create-proposal.dto/create-proposal.dto';
 import { Community } from '../community/entities/community.entity';
 import { User } from '../user/entities/user.entity';
+import { DiscordProposalService } from 'src/discord-bot/services/discord-proposal.service';
 
 @Injectable()
 export class ProposalService {
@@ -15,6 +16,7 @@ export class ProposalService {
 		private communityRepository: Repository<Community>,
 		@InjectRepository(User)
 		private userRepository: Repository<User>,
+		private readonly discordProposalService: DiscordProposalService,
 	) {}
 
 	async findAllForACommunityBySlug(
@@ -28,11 +30,17 @@ export class ProposalService {
 				'community.learners',
 				'votes',
 			],
+			order: {
+				endedAt: 'DESC',
+			},
 		});
 		const now = new Date();
 		const toUpdate: Proposal[] = [];
+
+		// Quand on récupère la liste des propositions, on vérifie si elles ont expiré
 		proposals.forEach((proposal) => {
-			if (proposal.status === 'in_progress' && proposal.endDate < now) {
+			if (proposal.status === 'in_progress' && proposal.deadline < now) {
+				proposal.endedAt = new Date();
 				proposal.status = 'rejected';
 				toUpdate.push(proposal);
 			}
@@ -43,25 +51,6 @@ export class ProposalService {
 		return proposals;
 	}
 
-	async findOne(id: number, communitySlug: string): Promise<Proposal> {
-		const proposal = await this.proposalRepository.findOne({
-			where: { id, community: { slug: communitySlug } },
-			relations: ['community', 'submitter'],
-		});
-		if (!proposal) throw new NotFoundException('Proposal not found');
-
-		// Expiration automatique à la lecture
-		if (
-			proposal.status === 'in_progress' &&
-			proposal.endDate < new Date()
-		) {
-			proposal.status = 'rejected';
-			await this.proposalRepository.save(proposal);
-		}
-
-		return proposal;
-	}
-
 	async create(
 		createProposalDto: CreateProposalDto,
 		communitySlug: string,
@@ -69,7 +58,7 @@ export class ProposalService {
 		const { communityId, submitterId, ...rest } = createProposalDto;
 		const community = await this.communityRepository.findOne({
 			where: { slug: communitySlug },
-			relations: ['user'],
+			relations: ['user', 'discordServer'],
 		});
 		const submitter = await this.userRepository.findOne({
 			where: { id: submitterId },
@@ -86,46 +75,47 @@ export class ProposalService {
 			throw new NotFoundException('Community or user not found');
 		}
 
-		// Si endDate n'est pas fourni, on met J+5 à partir de maintenant
-		const endDate = createProposalDto.endDate
-			? new Date(createProposalDto.endDate)
-			: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000);
-
 		const proposal = this.proposalRepository.create({
 			...rest,
 			community,
 			submitter,
-			endDate,
 		});
-		return this.proposalRepository.save(proposal);
+		const savedProposal = await this.proposalRepository.save(proposal);
+
+		// Envoi sur Discord si la communauté a un serveur Discord
+		const discordServer = community.discordServer;
+		if (discordServer && submitter.discordId) {
+			await this.discordProposalService.sendProposalToDiscordChannel({
+				guildId: discordServer.guildId,
+				sujet: proposal.title,
+				description: proposal.description,
+				format: proposal.format,
+				contributeur: proposal.isContributor,
+				discordUserId: submitter.discordId,
+			});
+		}
+		return savedProposal;
 	}
 
 	async updateProposalStatus(proposal: Proposal, community: Community) {
 		const now = new Date();
 		const totalLearners = community.learners.length;
 		const votes = proposal.votes.length;
-		console.log('votes', votes);
-		console.log('totalLearners', totalLearners);
 		const quorumReached = votes > totalLearners / 2;
-		const timeOver = now > new Date(proposal.endDate);
-		console.log('quorumReached', quorumReached);
-		// console.log('timeOver', timeOver);
-		// console.log('AZAZAZAZ');
+		const timeOver = now > proposal.deadline;
 
 		if (proposal.status !== 'in_progress') return proposal; // déjà terminé
 
 		if (quorumReached || timeOver) {
 			const yesVotes = proposal.votes.filter(
 				(v) => v.choice === 'for',
-				console.log('yesVotes'),
 			).length;
 			const noVotes = proposal.votes.filter(
 				(v) => v.choice === 'against',
-				console.log('noVotes'),
 			).length;
 			proposal.status = yesVotes > noVotes ? 'accepted' : 'rejected';
+			proposal.endedAt = now;
 			await this.proposalRepository.save(proposal);
-			console.log('proposal.status');
 		}
 		return proposal;
 	}
