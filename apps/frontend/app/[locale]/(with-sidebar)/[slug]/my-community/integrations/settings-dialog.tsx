@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { CheckCircle2, LogIn, LogOut, Cog } from 'lucide-react'
 import { SocialIcon } from 'react-social-icons'
 import { Button, Checkbox, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui'
@@ -16,6 +16,11 @@ import { useRouter } from 'next/navigation';
 // ============
 // Type definitions
 // ============
+interface AccountPlatform {
+  id: string
+  name: string
+  connected: boolean
+}
 interface PlatformProps {
   key: string
   name: string
@@ -24,13 +29,10 @@ interface PlatformProps {
   color: string
   type: string
   options: { label: string, value: string }[]
+  accountPlatform: AccountPlatform
 }
 
-interface AccountMock {
-  id: string
-  name: string
-  connected: boolean
-}
+
 
 interface EntityMock {
   id: string
@@ -41,7 +43,7 @@ interface EntityMock {
 // ============
 // Mock data
 // ============
-const mockAccounts: Record<string, AccountMock> = {
+const mockAccounts: Record<string, AccountPlatform> = {
   discord: {
     id: '1',
     name: 'Snowledge Discord',
@@ -93,7 +95,7 @@ const recurrenceOptions = [
 function PlatformSettingsDialog({ platform }: { platform: PlatformProps }) {
   const router = useRouter();
   const [open, setOpen] = useState(false)
-  const [account, setAccount] = useState<AccountMock>({ ...mockAccounts[platform.key] })
+  const [account, setAccount] = useState<AccountPlatform>(platform.accountPlatform)
   const [recurrence, setRecurrence] = useState<'daily' | 'weekly' | 'monthly'>('daily')
   const [entities, setEntities] = useState<EntityMock[]>(mockEntities[platform.key]?.map(e => ({ ...e })) || [])
   const [saved, setSaved] = useState(false)
@@ -141,6 +143,11 @@ function PlatformSettingsDialog({ platform }: { platform: PlatformProps }) {
     setOpen(false)
   }
 
+  useEffect(() => {
+    if(platform){
+      setAccount(platform.accountPlatform)
+    }
+  }, [platform])
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>

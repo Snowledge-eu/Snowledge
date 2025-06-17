@@ -14,17 +14,20 @@ export class DiscordServerService {
 		@InjectRepository(Community)
 		private communityRepository: Repository<Community>,
 	) {}
-
-	async create(data: CreateDiscordServerDto) {
-		const community = await this.communityRepository.findOne({
-			where: { id: data.communityId },
-		});
-		const entity = this.discordServerRepository.create({
-			...data,
-			community,
-		});
-		return this.discordServerRepository.save(entity);
+	async create(data: CreateDiscordServerDto): Promise<DiscordServer> {
+		const discordServer = await this.discordServerRepository.create(data);
+		return this.discordServerRepository.save(discordServer);
 	}
+	// async create(data: CreateDiscordServerDto) {
+	// 	const community = await this.communityRepository.findOne({
+	// 		where: { id: data.communityId },
+	// 	});
+	// 	const entity = this.discordServerRepository.create({
+	// 		...data,
+	// 		community,
+	// 	});
+	// 	return this.discordServerRepository.save(entity);
+	// }
 
 	findAll() {
 		return this.discordServerRepository.find({ relations: ['community'] });

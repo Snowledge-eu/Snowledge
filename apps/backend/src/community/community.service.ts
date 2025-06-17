@@ -13,6 +13,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import slugify from 'slugify';
 import { User } from 'src/user/entities/user.entity';
 import { LearnerStatus } from 'src/learner/entities/learner/learner';
+import { DiscordServer } from 'src/discord-server/entities/discord-server-entity';
 
 @Injectable()
 export class CommunityService {
@@ -28,6 +29,7 @@ export class CommunityService {
 	async findAllByUser(userId: number): Promise<Community[]> {
 		const ownedCommunities = await this.communityRepository.find({
 			where: { user: { id: userId } },
+			relations: ['discordServer'],
 		});
 		const learnerCommunities = await this.communityRepository.find({
 			where: {
@@ -36,6 +38,7 @@ export class CommunityService {
 					status: LearnerStatus.MEMBER,
 				},
 			},
+			relations: ['discordServer'],
 		});
 		return [...ownedCommunities, ...learnerCommunities];
 	}
@@ -54,27 +57,45 @@ export class CommunityService {
 	): Promise<Community> {
 		return this.communityRepository.findOne({
 			where: { discordServer: { guildId: discordServerId } },
-			relations: ['user'],
+			relations: ['user', 'discordServer'],
 		});
 	}
 
 	async findOneBySlug(slug: string): Promise<Community> {
-		return this.communityRepository.findOne({ where: { slug } });
+		return this.communityRepository.findOne({
+			where: { slug },
+			relations: ['discordServer'],
+		});
 	}
 
 	async findOneByName(name: string): Promise<Community> {
-		return this.communityRepository.findOne({ where: { name } });
+		return this.communityRepository.findOne({
+			where: { name },
+			relations: ['discordServer'],
+		});
 	}
 
 	async findOneById(id: number): Promise<Community> {
-		return this.communityRepository.findOne({ where: { id } });
+		return this.communityRepository.findOne({
+			where: { id },
+			relations: ['discordServer'],
+		});
 	}
 
 	async getCommunityCreatorFromSlug(slug: string): Promise<User> {
 		const community = await this.findOneBySlug(slug);
 		return community.user;
 	}
+	async updateDiscordGuildId(
+		id: number,
+		discordServer: DiscordServer,
+	): Promise<Community> {
+		await this.communityRepository.update(id, { discordServer });
 
+		return this.communityRepository.findOne({
+			where: { id },
+		});
+	}
 	// TODO rename / refacto ???
 	async update(id: number, data: UpdateCommunityDto): Promise<Community> {
 		const community = await this.communityRepository.findOne({

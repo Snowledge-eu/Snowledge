@@ -8,8 +8,8 @@ services:
       dockerfile: ./apps/frontend/Dockerfile.dev
     # volumes:
     #   - ./apps/frontend:/app
-      # - /app/node_modules
-      # - ./apps/frontend/.env:/app/.env
+    # - /app/node_modules
+    # - ./apps/frontend/.env:/app/.env
     environment:
       - CHOKIDAR_USEPOLLING=true
       - NEXT_TELEMETRY_DISABLED=1
@@ -53,25 +53,27 @@ services:
     env_file:
       - .env.dev
     environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONIOENCODING=UTF-8
       - DISCORD_BOT_TOKEN=
-      - DISCORD_CLIENT_ID=
-      - DISCORD_PUBLIC_KEY=
+      - DISCORD_CLIENT_ID=1377545849126518784
+      - DISCORD_PUBLIC_KEY=b070d4bde7773615aa052a7bf6ef7608b2d2fde3e5939c2bb15a581939a30230
       - OVH_AI_ENDPOINTS_ACCESS_TOKEN=
       - OVH_API_BASE_URL=https://oai.endpoints.kepler.ai.cloud.ovh.net/v1/chat/completions
       - MG_NAME=social_data
-      - MG_HOST=localhost
+      - MG_HOST=mongo
       - MG_PORT=27017
       - MG_USER=admin
       - MG_PASSWORD=adminpass
   pgadmin:
-    image: dpage/pgadmin4 
-    restart: always 
+    image: dpage/pgadmin4
+    restart: always
     environment:
-      - PGADMIN_DEFAULT_EMAIL=admin@admin.com 
-      - PGADMIN_DEFAULT_PASSWORD=pgadmin4 
-    ports: 
-      - '5050:80' 
-    depends_on: 
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=pgadmin4
+    ports:
+      - "5050:80"
+    depends_on:
       - postgres
     networks:
       - snowledge_network

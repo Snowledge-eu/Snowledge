@@ -21,6 +21,6 @@ export class DiscordServer {
 	@OneToOne(() => Community, (community) => community.discordServer, {
 		onDelete: 'CASCADE',
 	})
-	@JoinColumn() // DiscordServer porte la clé étrangère communityId
 	community: Community;
+	// @JoinColumn() // DiscordServer porte la clé étrangère communityId
 }

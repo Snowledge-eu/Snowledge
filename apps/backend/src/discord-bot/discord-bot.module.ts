@@ -12,7 +12,7 @@ import { DiscordProposalService } from './services/discord-proposal.service';
 import { DiscordProposalFormService } from './services/discord-proposal-form.service';
 import { DiscordProposalVoteService } from './services/discord-proposal-vote.service';
 import { DiscordBotProvider } from './discord-bot.provider';
-import { DiscordService } from 'src/discord/discord.service';
+import { DiscordService } from 'src/discord/services/discord.service';
 import { UserService } from 'src/user/user.service';
 import { DiscordAccess } from 'src/discord/entities/discord-access.entity';
 import { Learner } from 'src/learner/entities/learner/learner';

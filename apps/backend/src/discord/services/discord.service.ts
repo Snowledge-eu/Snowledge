@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { DiscordAccess } from './entities/discord-access.entity';
-import { CreateDiscordAccessDto } from './dto/create-discord-access.dto';
+import { DiscordAccess } from '../entities/discord-access.entity';
+import { CreateDiscordAccessDto } from '../dto/create-discord-access.dto';
 
 @Injectable()
 export class DiscordService {
@@ -18,4 +18,5 @@ export class DiscordService {
 		);
 		return this.discardAccessRepository.save(character);
 	}
+
 }

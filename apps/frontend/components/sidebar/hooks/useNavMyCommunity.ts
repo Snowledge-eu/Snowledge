@@ -6,6 +6,7 @@ import {
   Link2,
   CheckSquare,
   Gift,
+  ChartPie,
 } from "lucide-react";
 import { toSlug } from "@/utils/slug";
 import { useTranslations } from "next-intl";
@@ -29,8 +30,25 @@ export function useNavMyCommunity(activeCommunity: { name: string }) {
     },
     features.community.myCommunity.trendsAnalytics && {
       title: tNavbar("trends-analytics"),
-      url: `/${slug}/my-community/trends-analytics`,
+      // url: `/${slug}/my-community/trends-analytics`,
       icon: BarChart3,
+      items: [
+        {
+          title: tNavbar("sentiment-analysis"),
+          url: `/${slug}/my-community/trends-analytics/sentiment`,
+          icon: ChartPie,
+        },
+        {
+          title: tNavbar("summary-analysis"),
+          url: `/${slug}/my-community/trends-analytics/summary`,
+          icon: ChartPie,
+        },
+        {
+          title: tNavbar("trends-analysis"),
+          url: `/${slug}/my-community/trends-analytics/trend`,
+          icon: ChartPie,
+        },
+      ],
     },
     features.community.myCommunity.rewards && {
       title: tNavbar("rewards"),

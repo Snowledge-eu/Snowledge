@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { User } from 'src/user/entities/user.entity';
-import { DiscordService } from './discord.service';
+import { DiscordService } from './services/discord.service';
 import { UserService } from 'src/user/user.service';
 import discordConfig from 'src/config/discord.config';
 import { ConfigType } from '@nestjs/config';
@@ -82,18 +82,20 @@ export class DiscordProvider {
 				console.log('communityId', communityId);
 				if (communityId) {
 					try {
-						community =
-							await this.communityService.findOneById(
-								communityId,
-							);
-
+						// community =
+						// 	await this.communityService.findOneById(
+							// 		communityId,
+							// 	);
+							
 						console.log('data', data);
 						console.log('communityId', communityId);
-						await this.discordServerService.create({
-							communityId,
+						const discordServer = await this.discordServerService.create({
+							// communityId,
 							guildId: data.guild.id,
 							guildName: data.guild.name,
 						});
+
+						community = await this.communityService.updateDiscordGuildId(communityId, discordServer);
 					} catch (error) {
 						this.logger.error(error);
 						throw new Error('Error creating discord server', error);

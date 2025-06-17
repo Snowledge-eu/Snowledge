@@ -19,6 +19,6 @@ export class CreateDiscordServerDto {
 	@IsOptional()
 	resultChannelId?: string;
 
-	@IsNumber()
-	communityId: number;
+	// @IsNumber()
+	// communityId: number;
 }

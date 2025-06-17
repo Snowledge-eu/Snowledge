@@ -68,7 +68,7 @@ export function SentimentInput({
   messageCount: number,
   canLaunch: boolean,
   loading: boolean,
-  onStart: () => void,
+  onStart: (channels: Array<string>, model: string, period: string) => void,
 }) {
   // Fake videos for YouTube select
   const fakeYoutubeVideos = [
@@ -127,7 +127,7 @@ export function SentimentInput({
                   <div className="w-64">
                     <MultiSelect
                       options={fakeYoutubeVideos}
-                      value={selectedYoutubeVideos}
+                      // value={selectedYoutubeVideos}
                       onChange={setSelectedYoutubeVideos}
                       placeholder="Select videos..."
                     />
@@ -216,7 +216,7 @@ export function SentimentInput({
           aria-label="Start analysis"
           size="lg"
           disabled={!canLaunch || loading}
-          onClick={onStart}
+          onClick={() => onStart(selectedChannels.map(ch => ch.value), mode, timeRange)}
         >
           {loading ? (
             <>
