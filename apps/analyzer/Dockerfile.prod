@@ -13,7 +13,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copier le code source après l'installation des dépendances
 COPY apps/analyzer/ .
-COPY .env.prod .
 
 # Installer supervisord pour gérer les process
 RUN pip install supervisor
