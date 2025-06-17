@@ -1,4 +1,9 @@
-import { Injectable, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+	Injectable,
+	Logger,
+	NotFoundException,
+	UnauthorizedException,
+} from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import * as bcrypt from 'bcrypt';
 import { SignUpDto } from '../auth/dto/sign-up.dto';
@@ -24,33 +29,47 @@ export class AuthProvider {
 	async signUp(
 		signUpDto: SignUpDto,
 	): Promise<{ access_token: string; refresh_token: string; auth: string }> {
-		const { gender, firstname, lastname, pseudo, age, email, password } = signUpDto;
-		const hashPassword = await bcrypt.hash(password, 10);
+		try {
+			const {
+				gender,
+				firstname,
+				lastname,
+				pseudo,
+				age,
+				email,
+				password,
+			} = signUpDto;
+			const hashPassword = await bcrypt.hash(password, 10);
 
-		const user = await this.userService.create({
-			gender,
-			firstname,
-			lastname,
-			pseudo,
-			email,
-			age,
-			password: hashPassword,
-		});
+			const user = await this.userService.create({
+				gender,
+				firstname,
+				lastname,
+				pseudo,
+				email,
+				age,
+				password: hashPassword,
+			});
 
-		const { access_token, refresh_token } = await this.generateTokensForUser(user);
-		const verifyToken = await this.authService.createEmailVerificationToken({
-			userId: user.id,
-			email: user.email,
-		});
+			const { access_token, refresh_token } =
+				await this.generateTokensForUser(user);
+			const verifyToken =
+				await this.authService.createEmailVerificationToken({
+					userId: user.id,
+					email: user.email,
+				});
 
-		await this.emailHelper.tokenEmail(user.email, verifyToken);
+			await this.emailHelper.tokenEmail(user.email, verifyToken);
 
-		return {
-			access_token,
-			refresh_token,
-			auth: 'create',
-		};
-		
+			return {
+				access_token,
+				refresh_token,
+				auth: 'create',
+			};
+		} catch (error) {
+			this.logger.error(error);
+			throw new Error('Error creating user', error);
+		}
 	}
 	async signIn(
 		email: string,
@@ -65,8 +84,9 @@ export class AuthProvider {
 		if (!passwordMatch) {
 			throw new UnauthorizedException('Invalid information user');
 		}
-		
-		const { access_token, refresh_token } = await this.generateTokensForUser(user);
+
+		const { access_token, refresh_token } =
+			await this.generateTokensForUser(user);
 		return {
 			access_token,
 			refresh_token,
@@ -75,29 +95,35 @@ export class AuthProvider {
 	}
 
 	async signOut(refreshToken: string) {
-		
-	try {
-		const payload = await this.jwtService.verify(refreshToken, {
-		secret: process.env.JWT_REFRESH_SECRET,
-		});
-
-		const user = await this.userService.findOneById(payload.userId);
-
-		if (user) {
-			await this.userService.update(user.id, { refreshToken: null });
-		}
-
-		return { success: true };
-	} catch (e) {
-		return { success: true };
-	}
-	}
-	async refreshToken(refreshToken: string): Promise<{ access_token: string }> {
 		try {
-			const payload = this.jwtService.verify(refreshToken, { secret: process.env.JWT_REFRESH_SECRET, });
+			const payload = await this.jwtService.verify(refreshToken, {
+				secret: process.env.JWT_REFRESH_SECRET,
+			});
 
 			const user = await this.userService.findOneById(payload.userId);
-			const isValid = await bcrypt.compare(refreshToken, user.refreshToken);
+
+			if (user) {
+				await this.userService.update(user.id, { refreshToken: null });
+			}
+
+			return { success: true };
+		} catch (e) {
+			return { success: true };
+		}
+	}
+	async refreshToken(
+		refreshToken: string,
+	): Promise<{ access_token: string }> {
+		try {
+			const payload = this.jwtService.verify(refreshToken, {
+				secret: process.env.JWT_REFRESH_SECRET,
+			});
+
+			const user = await this.userService.findOneById(payload.userId);
+			const isValid = await bcrypt.compare(
+				refreshToken,
+				user.refreshToken,
+			);
 
 			if (!user || !isValid) {
 				throw new UnauthorizedException('Invalid refresh token');
@@ -110,7 +136,7 @@ export class AuthProvider {
 
 			return { access_token: newAccessToken };
 		} catch (error) {
-			this.logger.error(error)
+			this.logger.error(error);
 		}
 	}
 	async verifyTokenEmail(token: string) {
@@ -149,10 +175,16 @@ export class AuthProvider {
 	}
 
 	private async generateTokensForUser(user: User) {
-		const payload = { userId: user.id, firstname: user.firstname, lastname: user.lastname };
+		const payload = {
+			userId: user.id,
+			firstname: user.firstname,
+			lastname: user.lastname,
+		};
 		const accessToken = await this.authService.createAccessToken(payload);
 		const refreshToken = await this.authService.createRefreshToken(payload);
-		await this.userService.update(user.id, { refreshToken: await bcrypt.hash(refreshToken, 10) });
+		await this.userService.update(user.id, {
+			refreshToken: await bcrypt.hash(refreshToken, 10),
+		});
 
 		return { access_token: accessToken, refresh_token: refreshToken };
 	}

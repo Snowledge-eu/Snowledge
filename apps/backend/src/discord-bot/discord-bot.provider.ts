@@ -46,6 +46,7 @@ export class DiscordBotProvider {
 				Authorization: `Bearer ${data.access_token}`,
 			},
 		});
+
 		const discordUser = await userResponse.json();
 		const email = discordUser.email;
 		const username = discordUser.username;
@@ -63,37 +64,51 @@ export class DiscordBotProvider {
 				gender: Gender.Male,
 				age: new Date(),
 			});
+		}
 
-			const community =
-				await this.communityService.findOneByDiscordServerId(guildId);
+		//Check s'il est déjà dans la community
+		const community =
+			await this.communityService.findOneByDiscordServerId(guildId);
 
-			if (!community) {
-				throw new Error('Community not found');
-			}
+		if (!community) {
+			throw new Error('Community not found');
+		}
 
+		//S'il est learner de la community, on ne fait rien
+		const learner = await this.learnerService.findOneByUserIdAndCommunityId(
+			user.id,
+			community.id,
+		);
+		if (learner) {
+			console.log('user already in community', learner);
+			return user;
+		}
+
+		// S'il n'est pas le creator de la community, on l'ajoute comme learner et on met à jour le discordAccess et le discordId (puisque le createur l'a déja fait au moment d'jaouter le bot)
+		if (user.id !== community.user.id) {
+			console.log('user is not creator of community');
 			await this.learnerService.create(user.id, community.id);
 
 			await this.userService.update(user.id, {
 				discordAccess: discordAccess,
 				discordId: discordUser.id,
 			});
-
-			// Attribution du rôle Discord
-			const client = this.discordClientService?.getClient?.();
-			if (!client) throw new Error('Client Discord non initialisé');
-			const guild = await client.guilds.fetch(guildId);
-			const member = await guild.members.fetch(discordUser.id);
-			const role = guild.roles.cache.find(
-				(r) => r.name === 'Snowledge Authenticated',
-			);
-			if (!role) {
-				throw new Error(
-					"Le rôle 'Snowledge Authenticated' n'existe pas sur ce serveur !",
-				);
-			}
-
-			await member.roles.add(role.id);
 		}
+		// Attribution du rôle Discord
+		const client = this.discordClientService?.getClient?.();
+		if (!client) throw new Error('Client Discord non initialisé');
+		const guild = await client.guilds.fetch(guildId);
+		const member = await guild.members.fetch(discordUser.id);
+		const role = guild.roles.cache.find(
+			(r) => r.name === 'Snowledge Authenticated',
+		);
+		if (!role) {
+			throw new Error(
+				"Le rôle 'Snowledge Authenticated' n'existe pas sur ce serveur !",
+			);
+		}
+
+		await member.roles.add(role.id);
 
 		return user;
 	}

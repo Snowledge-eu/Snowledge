@@ -133,7 +133,7 @@ export class DiscordInteractionService implements OnModuleInit {
 				// Vérifier si le salon existe déjà
 				let channel = guild.channels.cache.find(
 					(c) =>
-						c.name === 'validation-cgu-snowledge' && c.type === 0, // 0 = GUILD_TEXT
+						c.name === 'validation-cgu-snowledge' && c.type === 0, // 0 = GUILD_TEXT TODO: A modifier
 				);
 				if (!channel) {
 					// TODO: dangereux d'avoir le nom en dur
@@ -173,7 +173,7 @@ export class DiscordInteractionService implements OnModuleInit {
 					// Génération dynamique de l'URL OAuth2
 					const params = new URLSearchParams({
 						client_id: process.env.DISCORD_CLIENT_ID,
-						redirect_uri: process.env.DISCORD_REDIRECT_URI,
+						redirect_uri: `${process.env.BACK_URL}/discord-bot/link`,
 						response_type: 'code',
 						scope: 'identify email',
 						prompt: 'consent',

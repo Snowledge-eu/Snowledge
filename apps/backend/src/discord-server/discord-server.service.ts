@@ -37,6 +37,13 @@ export class DiscordServerService {
 		});
 	}
 
+	findOneByCommunity(communityId: number): Promise<DiscordServer> {
+		return this.discordServerRepository.findOne({
+			where: { community: { id: communityId } },
+			relations: ['community'],
+		});
+	}
+
 	async update(guildId: string, data: UpdateDiscordServerDto) {
 		if (data.communityId) {
 			const community = await this.communityRepository.findOne({

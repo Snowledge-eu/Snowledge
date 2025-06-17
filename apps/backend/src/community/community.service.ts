@@ -54,6 +54,7 @@ export class CommunityService {
 	): Promise<Community> {
 		return this.communityRepository.findOne({
 			where: { discordServer: { guildId: discordServerId } },
+			relations: ['user'],
 		});
 	}
 

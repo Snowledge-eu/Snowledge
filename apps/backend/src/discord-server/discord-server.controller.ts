@@ -11,6 +11,7 @@ import { DiscordServerService } from './discord-server.service';
 import { CreateDiscordServerDto } from './dto/create-discord-server.dto';
 import { UpdateDiscordServerDto } from './dto/update-discord-server.dto';
 import { DiscordServerDto } from './dto/discord-server.dto';
+import { DiscordServer } from './entities/discord-server-entity';
 
 @Controller('discord-server')
 export class DiscordServerController {
@@ -55,12 +56,9 @@ export class DiscordServerController {
 	@Get('/by-community/:communityId')
 	async findByCommunity(
 		@Param('communityId') communityId: string,
-	): Promise<DiscordServerDto[]> {
-		const servers = await this.discordServerService.findAll();
-		return servers
-			.filter(
-				(s) => s.community && s.community.id === Number(communityId),
-			)
-			.map((s) => new DiscordServerDto(s));
+	): Promise<DiscordServer> {
+		return this.discordServerService.findOneByCommunity(
+			Number(communityId),
+		);
 	}
 }

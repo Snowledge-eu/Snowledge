@@ -198,4 +198,10 @@ export class LearnerService {
 		await this.learnerRepository.save(learner);
 		return { success: true };
 	}
+
+	async findOneByUserIdAndCommunityId(userId: number, communityId: number) {
+		return this.learnerRepository.findOne({
+			where: { user: { id: userId }, community: { id: communityId } },
+		});
+	}
 }

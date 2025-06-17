@@ -1,9 +1,10 @@
 // Utilitaires pour la gestion des channels Discord
 import { Channel } from "@/types/channel";
-import { useTranslations } from "next-intl";
 
 export function getChannelName(channels: Channel[] = [], id?: string): string {
-  return channels.find((ch) => ch.id === id)?.name || "";
+  return (
+    (channels.length > 0 && channels.find((ch) => ch.id === id)?.name) || ""
+  );
 }
 
 export function getMissingChannels(

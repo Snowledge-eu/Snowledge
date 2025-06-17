@@ -87,3 +87,12 @@ rebuild:
 	@$(COMPOSE) build --no-cache
 	@$(COMPOSE) up -d
 	@echo "✅ Reconstruction terminée" 
+
+
+rebuild-backend:
+	@echo "🔄 Reconstruction du backend"
+	@$(COMPOSE) down
+	@$(COMPOSE) build backend --no-cache
+	@$(COMPOSE) up -d
+	@echo "✅ Reconstruction terminée" 
+

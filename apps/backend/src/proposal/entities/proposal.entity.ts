@@ -61,13 +61,13 @@ export class Proposal {
 
 	@Expose()
 	get deadline() {
-		return new Date(this.createdAt.getTime() + 5 * 24 * 60 * 60 * 1000); // TODO: make it dynamic, 5 days by default
+		return new Date(this.createdAt.getTime() + 2 * 24 * 60 * 60 * 1000); // TODO: make it dynamic, 2 days by default
 	}
 
 	@Expose()
 	get quorum() {
 		const learners = this.community?.learners ?? [];
-		const required = Math.ceil(learners.length / 2);
+		const required = Math.ceil(learners.length * (3 / 4)); // TODO: A modifier, là il faut 3/4 des leaner pour que ça soit validé
 		const current = this.votes ? this.votes.length : 0;
 		return { current, required };
 	}
