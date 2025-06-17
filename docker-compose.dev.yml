@@ -63,8 +63,6 @@ services:
       - MG_NAME=social_data
       - MG_HOST=mongo
       - MG_PORT=27017
-      - MG_USER=admin
-      - MG_PASSWORD=adminpass
   pgadmin:
     image: dpage/pgadmin4
     restart: always

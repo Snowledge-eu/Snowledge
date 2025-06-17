@@ -3,16 +3,42 @@ version: "3"
 services:
   # Service pour le frontend
   frontend:
-    build: 
+    build:
       dockerfile: ./apps/frontend/Dockerfile.prod
     environment:
+      - CHOKIDAR_USEPOLLING=true
+      - NEXT_TELEMETRY_DISABLED=1
       - PORT=3000
       - NODE_ENV=production
+      - NEXT_PUBLIC_BACKEND_URL=http://localhost:4000
+      - NEXT_PUBLIC_ANALYSER_URL=http://localhost:8000
+      - NEXT_PUBLIC_DSD_CLIEND_ID=1377545849126518784
   # Service pour le backend
   backend:
-    build: 
+    build:
       dockerfile: ./apps/backend/Dockerfile.prod
     environment:
       - PORT=4000
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/snowledge
+      - PGSQL_HOST=postgres
+      - PGSQL_PORT=5432
+      - PGSQL_DB=snowledge
+      - MG_NAME=social_data
+      - MG_HOST=mongo
+      - MG_PORT=27017
+  analyzer:
+    build:
+      context: .
+      dockerfile: ./apps/analyzer/Dockerfile.prod
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONIOENCODING=UTF-8
+      - DISCORD_CLIENT_ID=1377545849126518784
+      - DISCORD_PUBLIC_KEY=b070d4bde7773615aa052a7bf6ef7608b2d2fde3e5939c2bb15a581939a30230
+      - OVH_API_BASE_URL=https://oai.endpoints.kepler.ai.cloud.ovh.net/v1/chat/completions
+      - MG_NAME=social_data
+      - MG_HOST=mongo
+      - MG_PORT=27017
+networks:
+  snowledge_network:
+    external: true

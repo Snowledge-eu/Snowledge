@@ -77,6 +77,10 @@ jobs:
             git fetch origin
             git checkout staging
             git reset --hard origin/staging
+            echo "DISCORD_BOT_TOKEN=${{ secrets.DISCORD_BOT_TOKEN }}" > .env
+            echo "OVH_AI_ENDPOINTS_ACCESS_TOKEN=${{ secrets.OVH_AI_ENDPOINTS_ACCESS_TOKEN }}" >> .env
+            echo "MG_USER=${{ secrets.MG_USER }}" >> .env
+            echo "MG_PASSWORD=${{ secrets.MG_PASSWORD }}" >> .env
             docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 
       - name: Déploiement sur OVH (prod)
@@ -94,4 +98,8 @@ jobs:
             git fetch origin
             git checkout main
             git reset --hard origin/main
+            echo "DISCORD_BOT_TOKEN=${{ secrets.DISCORD_BOT_TOKEN }}" > .env
+            echo "OVH_AI_ENDPOINTS_ACCESS_TOKEN=${{ secrets.OVH_AI_ENDPOINTS_ACCESS_TOKEN }}" >> .env
+            echo "MG_USER=${{ secrets.MG_USER }}" >> .env
+            echo "MG_PASSWORD=${{ secrets.MG_PASSWORD }}" >> .env
             docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build

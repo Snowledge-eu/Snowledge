@@ -1,0 +1,36 @@
+
+# === Base: Python + outils système
+FROM python:3.11-slim AS base
+
+RUN apt-get update && apt-get install -y gcc && rm -rf /var/lib/apt/lists/*
+
+# === Installer: install Python deps pour analyzer
+FROM base AS installer
+WORKDIR /app
+
+COPY apps/analyzer/requirements.txt ./requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copier le code source après l'installation des dépendances
+COPY apps/analyzer/ .
+COPY .env.prod .
+
+# Installer supervisord pour gérer les process
+RUN pip install supervisor
+
+# === Runner: exécute le daemon + API
+FROM base AS runner
+WORKDIR /app
+
+# Créer un utilisateur non-root pour la prod
+RUN useradd -m analyzeruser
+USER analyzeruser
+
+COPY --from=installer /app /app
+
+ENV PYTHONPATH=/app
+EXPOSE 8000
+
+COPY apps/analyzer/supervisord.conf /etc/supervisord.conf
+
+CMD ["supervisord", "-c", "/etc/supervisord.conf"]
