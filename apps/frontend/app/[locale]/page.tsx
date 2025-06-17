@@ -7,7 +7,7 @@ import { FaqSection1 } from "@/components/landing/faq-section-1";
 import PartnersSection from "@/components/landing/partners";
 import { Footer2 } from "@/components/landing/footer-2";
 import { UpgradeBanner } from "@repo/ui/components/upgrade-banner";
-import { redirect, useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useUserCommunities } from "@/hooks/useUserCommunities";
 import { useAuth } from "@/contexts/auth-context";
 import { useEffect } from "react";
@@ -20,7 +20,7 @@ export default function Home() {
   const { data: communities, isLoading } = useUserCommunities(user?.id || 0);
 
   useEffect(() => {
-    if (accessToken){
+    if (accessToken) {
       fetchDataUser();
     }
     if (!isLoading && communities && !noRedirect && user) {

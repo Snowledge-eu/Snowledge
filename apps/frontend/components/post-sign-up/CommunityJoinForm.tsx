@@ -27,7 +27,7 @@ export function CommunityJoinForm({ communities, t }: CommunityJoinFormProps) {
       return;
     }
 
-    let community =
+    const community =
       communities?.find((c) => c.name === input) ||
       communities?.find((c) => c.slug === toSlug(input)) ||
       communities?.find((c) => c.slug === input);

@@ -10,7 +10,6 @@ import { useCreateProposal } from "./hooks/useCreateProposal";
 import TitleField from "./fields/TitleField";
 import DescriptionField from "./fields/DescriptionField";
 import FormatField from "./fields/FormatField";
-import CommentsField from "./fields/CommentsField";
 import SwitchContributeur from "./fields/SwitchContributeur";
 
 const CreateProposalScreen = ({ communitySlug }: { communitySlug: string }) => {

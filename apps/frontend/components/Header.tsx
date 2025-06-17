@@ -20,8 +20,7 @@ export default function Header() {
   if (segments[0] === "fr" || segments[0] === "en") {
     segments = segments.slice(1);
   }
-
-  const tBreadcrumb = useTranslations("navbar");
+  // const tBreadcrumb = useTranslations("navbar");
 
   return (
     <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
@@ -36,7 +35,7 @@ export default function Header() {
             {segments.map((segment, idx) => {
               const isLast = idx === segments.length - 1;
               let label: string = segment;
-              label.charAt(0).toUpperCase() + label.slice(1);
+              label = label.charAt(0).toUpperCase() + label.slice(1);
               return (
                 <span key={idx} className="flex items-center">
                   {idx > 0 && <BreadcrumbSeparator />}

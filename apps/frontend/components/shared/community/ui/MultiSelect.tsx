@@ -55,16 +55,16 @@ export function MultiSelect({
     [isControlled, onChange, selectedOptions]
   );
 
-  const handleRemove = React.useCallback(
-    (option: Option) => {
-      const newSelected = selectedOptions.filter(
-        (item) => item.value !== option.value
-      );
-      if (!isControlled) setSelected(newSelected);
-      onChange?.(newSelected);
-    },
-    [isControlled, onChange, selectedOptions]
-  );
+  // const handleRemove = React.useCallback(
+  //   (option: Option) => {
+  //     const newSelected = selectedOptions.filter(
+  //       (item) => item.value !== option.value
+  //     );
+  //     if (!isControlled) setSelected(newSelected);
+  //     onChange?.(newSelected);
+  //   },
+  //   [isControlled, onChange, selectedOptions]
+  // );
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

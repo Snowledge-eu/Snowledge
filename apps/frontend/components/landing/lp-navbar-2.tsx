@@ -19,9 +19,8 @@ import {
 import { SocialIcon } from "react-social-icons";
 import { LanguageSwitcher } from "./shared/langage";
 import { PocForm } from "./shared/pocform";
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useUserCommunities } from "@/hooks/useUserCommunities";
-import { Community } from "@/types/community";
 import { useAuth } from "@/contexts/auth-context";
 
 interface NavMenuItemsProps {
@@ -76,7 +75,7 @@ export function LpNavbar2() {
   };
 
   useEffect(() => {
-    if(!user && accessToken){
+    if (!user && accessToken) {
       fetchDataUser();
     }
   }, []);

@@ -10,7 +10,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@repo/ui";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -38,7 +37,6 @@ import CommunityName from "../shared/community/fields/CommunityName";
 import CommunityTags from "../shared/community/fields/CommunityTags";
 import {
   defaultCommunityForm,
-  communityToFormValues,
   getCommunityProjection,
 } from "../shared/community/utils/calcul";
 import { useCommunityType } from "../shared/community/hooks/useCommunityType";
@@ -58,8 +56,6 @@ export default function CreateCommunity() {
   const [communityUrl, setCommunityUrl] = useState("");
   const { user, fetchDataUser } = useAuth();
   const { setActiveCommunity } = useCurrentCommunity();
-
-  const router = useRouter();
 
   const {
     register,
@@ -101,7 +97,7 @@ export default function CreateCommunity() {
   });
 
   useEffect(() => {
-    if(!user){
+    if (!user) {
       fetchDataUser();
     }
   }, []);
@@ -186,7 +182,6 @@ export default function CreateCommunity() {
                     register={register}
                     error={errors.price?.message}
                     t={t}
-                    price={price}
                   />
                   <CommunityRevenueDistribution
                     price={price}

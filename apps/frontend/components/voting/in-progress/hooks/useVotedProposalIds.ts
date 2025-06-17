@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import type { Proposal } from "@/types/proposal";
 import type { Vote } from "@/types/vote";
 
 /**

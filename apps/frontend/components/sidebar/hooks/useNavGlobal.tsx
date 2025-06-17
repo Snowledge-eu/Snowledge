@@ -1,17 +1,4 @@
-import {
-  Settings2,
-  Users,
-  UserRoundPlus,
-  BarChart3,
-  Link2,
-  CheckSquare,
-  Gift,
-  SquareTerminal,
-  Plus,
-  PlusCircle,
-  Loader2,
-  Check,
-} from "lucide-react";
+import { SquareTerminal, PlusCircle, Loader2, Check } from "lucide-react";
 import { toSlug } from "@/utils/slug";
 import { useTranslations } from "next-intl";
 import { LucideIcon } from "lucide-react";

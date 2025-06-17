@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { useAuth } from "@/contexts/auth-context";
 
 export function useVote(communitySlug: string) {
-    const { fetcher } = useAuth();
+  const { fetcher } = useAuth();
 
   const t = useTranslations("voting");
   return useMutation({
@@ -25,7 +25,7 @@ export function useVote(communitySlug: string) {
       toast.success(t("vote_submitted_success"));
     },
     onError: (error: any) => {
-      toast.error(t("error_submitting_vote"));
+      toast.error(t("error_submitting_vote " + error.message));
     },
   });
 }

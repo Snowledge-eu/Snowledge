@@ -2,7 +2,6 @@
 
 import { Button } from "@repo/ui";
 import { useTranslations } from "next-intl";
-import { useMutation, useQuery } from "@tanstack/react-query";
 import React, { useEffect, useState } from "react";
 import { CommunityHeader } from "./CommunityHeader";
 import { CommunityGeneralSection } from "./CommunityGeneralSection";

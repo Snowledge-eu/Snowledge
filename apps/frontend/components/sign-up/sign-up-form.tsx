@@ -9,7 +9,6 @@ import {
   Button,
   Checkbox,
   Input,
-  Label,
   Select,
   SelectTrigger,
   SelectValue,
@@ -101,7 +100,7 @@ export default function SignUpForm() {
                 Create an account
               </h2>
               <p className="text-sm text-muted-foreground">
-                Let's get started. Fill in the details below to create your
+                Let&apos;s get started. Fill in the details below to create your
                 account.
               </p>
             </div>

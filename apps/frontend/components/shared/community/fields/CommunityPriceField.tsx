@@ -1,7 +1,7 @@
 import { Label, Input } from "@repo/ui";
 import { FormError } from "../../../create-community/CreateFormCommu";
 
-export function CommunityPriceField({ register, error, t, price }: any) {
+export function CommunityPriceField({ register, error, t }: any) {
   return (
     <div className="space-y-2">
       <Label htmlFor="price">{t("membership.priceLabel")}</Label>

@@ -214,7 +214,7 @@ export function useChannelSections(communityId: number) {
         result: getChannelName(listData, discordServerData?.resultChannelId),
       };
       const newNames = { ...oldNames, [type]: rename[type] };
-      let timeoutId: NodeJS.Timeout | null = setTimeout(() => {
+      const timeoutId: NodeJS.Timeout | null = setTimeout(() => {
         toast.warning(t("warningRename"), { duration: 20000 });
       }, 5000);
       renameChannels(

@@ -1,28 +1,28 @@
-import React from 'react'
+import React from "react";
 import { MultiSelect } from "@/components/shared/community/ui/MultiSelect";
 // import { DatePickerDemo } from '@/components/ui/date-picker'
-import { CalendarIcon, Loader2Icon } from 'lucide-react'
-import { 
-    Badge,
-    Button, 
-    Calendar, 
-    Card, 
-    Label, 
-    RadioGroup, 
-    RadioGroupItem, 
-    Select, 
-    SelectTrigger, 
-    SelectValue, 
-    SelectContent, 
-    SelectItem, 
-    Popover, 
-    PopoverTrigger, 
-    PopoverContent 
-} from '@repo/ui';
-import { AnalysisDescription } from '../analysis-description';
-import { PlatformIconButtons } from '../platform-icon-buttons';
-import { format } from 'date-fns';
-import { cn } from '@workspace/ui/lib/utils';
+import { CalendarIcon, Loader2Icon } from "lucide-react";
+import {
+  Badge,
+  Button,
+  Calendar,
+  Card,
+  Label,
+  RadioGroup,
+  RadioGroupItem,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@repo/ui";
+import { AnalysisDescription } from "../analysis-description";
+import { PlatformIconButtons } from "../platform-icon-buttons";
+import { format } from "date-fns";
+import { cn } from "@workspace/ui/lib/utils";
 
 // ============
 // Function: SentimentInput
@@ -51,42 +51,54 @@ export function SentimentInput({
   loading,
   onStart,
 }: {
-  platforms: any[],
-  selectedPlatform: string,
-  onSelectPlatform: (v: string) => void,
-  scope: 'all' | 'custom',
-  onScopeChange: (v: 'all' | 'custom') => void,
-  discordChannels: {label: string, value: string}[],
-  selectedChannels: Array<{label: string, value: string}>,
-  onChannelsChange: (v: Array<{label: string, value: string}>) => void,
-  timeRange: string,
-  onTimeRangeChange: (v: string) => void,
-  customDate: Date | undefined,
-  onCustomDateChange: (date: Date | undefined) => void,
-  mode: 'standard' | 'reasoning',
-  onModeChange: (v: 'standard' | 'reasoning') => void,
-  messageCount: number,
-  canLaunch: boolean,
-  loading: boolean,
-  onStart: (channels: Array<string>, model: string, period: string) => void,
+  platforms: any[];
+  selectedPlatform: string;
+  onSelectPlatform: (v: string) => void;
+  scope: "all" | "custom";
+  onScopeChange: (v: "all" | "custom") => void;
+  discordChannels: { label: string; value: string }[];
+  selectedChannels: Array<{ label: string; value: string }>;
+  onChannelsChange: (v: Array<{ label: string; value: string }>) => void;
+  timeRange: string;
+  onTimeRangeChange: (v: string) => void;
+  customDate: Date | undefined;
+  onCustomDateChange: (date: Date | undefined) => void;
+  mode: "standard" | "reasoning";
+  onModeChange: (v: "standard" | "reasoning") => void;
+  messageCount: number;
+  canLaunch: boolean;
+  loading: boolean;
+  onStart: (channels: Array<string>, model: string, period: string) => void;
 }) {
   // Fake videos for YouTube select
   const fakeYoutubeVideos = [
-    { label: 'Intro to Voting', value: 'vid1' },
-    { label: 'Community AMA', value: 'vid2' },
-    { label: 'Feature Update', value: 'vid3' },
-  ]
-  const [selectedYoutubeVideos, setSelectedYoutubeVideos] = React.useState<Array<{label: string, value: string}>>([])
+    { label: "Intro to Voting", value: "vid1" },
+    { label: "Community AMA", value: "vid2" },
+    { label: "Feature Update", value: "vid3" },
+  ];
+  const [selectedYoutubeVideos, setSelectedYoutubeVideos] = React.useState<
+    Array<{ label: string; value: string }>
+  >([]);
+  console.log(selectedYoutubeVideos);
 
   return (
     <div className="bg-muted rounded-xl shadow p-6 flex flex-col gap-10">
       {/* 1. Platform selection with icons */}
-      <PlatformIconButtons platforms={platforms} selectedPlatform={selectedPlatform} onSelectPlatform={onSelectPlatform} />
+      <PlatformIconButtons
+        platforms={platforms}
+        selectedPlatform={selectedPlatform}
+        onSelectPlatform={onSelectPlatform}
+      />
       {/* 2. Scope of analysis */}
       <Card className="w-full max-w-[90%] md:max-w-[95%] self-center py-5 px-4 bg-gray-50 shadow-md">
-        <Label className="block mb-3 text-base font-semibold">Scope of analysis</Label>
-        {selectedPlatform === 'discord' && (
-          <RadioGroup value={scope} onValueChange={(v: string) => onScopeChange(v as 'all' | 'custom')}>
+        <Label className="block mb-3 text-base font-semibold">
+          Scope of analysis
+        </Label>
+        {selectedPlatform === "discord" && (
+          <RadioGroup
+            value={scope}
+            onValueChange={(v: string) => onScopeChange(v as "all" | "custom")}
+          >
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-2">
                 <RadioGroupItem value="all" id="all" />
@@ -96,7 +108,7 @@ export function SentimentInput({
                 <RadioGroupItem value="custom" id="custom" />
                 <Label htmlFor="custom">Select specific channels</Label>
               </div>
-              {scope === 'custom' && (
+              {scope === "custom" && (
                 <div className="mt-2">
                   <div className="w-64">
                     <MultiSelect
@@ -111,8 +123,11 @@ export function SentimentInput({
             </div>
           </RadioGroup>
         )}
-        {selectedPlatform === 'youtube' && (
-          <RadioGroup value={scope} onValueChange={(v: string) => onScopeChange(v as 'all' | 'custom')}>
+        {selectedPlatform === "youtube" && (
+          <RadioGroup
+            value={scope}
+            onValueChange={(v: string) => onScopeChange(v as "all" | "custom")}
+          >
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-2">
                 <RadioGroupItem value="all" id="all" />
@@ -122,7 +137,7 @@ export function SentimentInput({
                 <RadioGroupItem value="custom" id="custom" />
                 <Label htmlFor="custom">Select specific videos</Label>
               </div>
-              {scope === 'custom' && (
+              {scope === "custom" && (
                 <div className="mt-2">
                   <div className="w-64">
                     <MultiSelect
@@ -137,17 +152,23 @@ export function SentimentInput({
             </div>
           </RadioGroup>
         )}
-        {selectedPlatform !== 'discord' && selectedPlatform !== 'youtube' && (
-          <div className="text-muted-foreground text-sm">No scope options for this platform.</div>
+        {selectedPlatform !== "discord" && selectedPlatform !== "youtube" && (
+          <div className="text-muted-foreground text-sm">
+            No scope options for this platform.
+          </div>
         )}
         <div className="mt-4">
-          {selectedPlatform === 'discord' ? (
-            <Badge variant={messageCount > 0 ? 'default' : 'destructive'}>
-              {messageCount > 0 ? `${messageCount.toLocaleString()} messages to be analyzed` : 'No messages to analyze'}
+          {selectedPlatform === "discord" ? (
+            <Badge variant={messageCount > 0 ? "default" : "destructive"}>
+              {messageCount > 0
+                ? `${messageCount.toLocaleString()} messages to be analyzed`
+                : "No messages to analyze"}
             </Badge>
-          ) : selectedPlatform === 'youtube' ? (
-            <Badge variant={messageCount > 0 ? 'default' : 'destructive'}>
-              {messageCount > 0 ? `${messageCount.toLocaleString()} comments to be analyzed` : 'No comments to analyze'}
+          ) : selectedPlatform === "youtube" ? (
+            <Badge variant={messageCount > 0 ? "default" : "destructive"}>
+              {messageCount > 0
+                ? `${messageCount.toLocaleString()} comments to be analyzed`
+                : "No comments to analyze"}
             </Badge>
           ) : null}
         </div>
@@ -166,30 +187,34 @@ export function SentimentInput({
             <SelectItem value="custom">Custom</SelectItem>
           </SelectContent>
         </Select>
-        {timeRange === 'custom' && (
+        {timeRange === "custom" && (
           <div className="mt-2">
             {/* <DatePickerDemo date={customDate} setDate={onCustomDateChange} /> */}
             <Popover>
-                <PopoverTrigger asChild>
+              <PopoverTrigger asChild>
                 <Button
-                    variant={"outline"}
-                    className={cn(
+                  variant={"outline"}
+                  className={cn(
                     "w-64 justify-start text-left font-normal",
                     customDate && "text-muted-foreground"
-                    )}
+                  )}
                 >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {customDate ? format(customDate, "PPP") : <span>Pick a date</span>}
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {customDate ? (
+                    format(customDate, "PPP")
+                  ) : (
+                    <span>Pick a date</span>
+                  )}
                 </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0">
                 <Calendar
-                    mode="single"
-                    selected={customDate}
-                    onSelect={onCustomDateChange}
-                    initialFocus
+                  mode="single"
+                  selected={customDate}
+                  onSelect={onCustomDateChange}
+                  initialFocus
                 />
-                </PopoverContent>
+              </PopoverContent>
             </Popover>
           </div>
         )}
@@ -197,7 +222,13 @@ export function SentimentInput({
       {/* 4. Mode selection */}
       <Card className="w-full max-w-[90%] md:max-w-[95%] self-center py-5 px-4 bg-gray-50 shadow-md">
         <Label className="block mb-3 text-base font-semibold">Mode</Label>
-        <RadioGroup value={mode} onValueChange={(v: string) => onModeChange(v as 'standard' | 'reasoning')} className="flex flex-row gap-6">
+        <RadioGroup
+          value={mode}
+          onValueChange={(v: string) =>
+            onModeChange(v as "standard" | "reasoning")
+          }
+          className="flex flex-row gap-6"
+        >
           <div className="flex items-center gap-2">
             <RadioGroupItem value="standard" id="standard" />
             <Label htmlFor="standard">Standard</Label>
@@ -216,7 +247,13 @@ export function SentimentInput({
           aria-label="Start analysis"
           size="lg"
           disabled={!canLaunch || loading}
-          onClick={() => onStart(selectedChannels.map(ch => ch.value), mode, timeRange)}
+          onClick={() =>
+            onStart(
+              selectedChannels.map((ch) => ch.value),
+              mode,
+              timeRange
+            )
+          }
         >
           {loading ? (
             <>
@@ -224,10 +261,10 @@ export function SentimentInput({
               Please wait
             </>
           ) : (
-            'Start Analysis'
+            "Start Analysis"
           )}
         </Button>
       </div>
     </div>
-  )
-} 
+  );
+}

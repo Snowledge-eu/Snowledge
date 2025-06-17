@@ -1,6 +1,4 @@
 "use client";
-import { features } from "@/config/features";
-import { notFound } from "next/navigation";
 import { ManageIntegrations } from "@/components/manage-integrations/ManageIntegrations";
 import { useCurrentCommunity } from "@/hooks/useCurrentCommunity";
 
@@ -49,11 +47,11 @@ export default function Page() {
       color: "#5865F2",
       options: [{ label: "", value: "" }],
       estimatedVolume: 1240,
-      lastFetched: '2024-06-01',
-      type: 'channels',
+      lastFetched: "2024-06-01",
+      type: "channels",
       account: {
-        id: '',
-        name: '',
+        id: "",
+        name: "",
         connected: false,
       },
     },
@@ -106,7 +104,6 @@ export default function Page() {
     x: "last-week",
   });
   const [isCollecting, setIsCollecting] = useState(false);
-  const [tab, setTab] = useState("all");
 
   useEffect(() => {
     if (user?.discordId || activeCommunity?.discordServerId) {
@@ -123,12 +120,12 @@ export default function Page() {
   const handleCollect = async () => {
     setIsCollecting(true);
     const body = {
-        "discordId": user.discordId,
-        "serverId": activeCommunity?.discordServerId,
-        "channels": selected.discord.map(ch => ch.value),
-      }
-    await fetch(`${process.env.NEXT_PUBLIC_ANALYSER_URL}/discord/harvest`,{
-      method: 'POST',
+      discordId: user.discordId,
+      serverId: activeCommunity?.discordServerId,
+      channels: selected.discord.map((ch) => ch.value),
+    };
+    await fetch(`${process.env.NEXT_PUBLIC_ANALYSER_URL}/discord/harvest`, {
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
@@ -152,42 +149,56 @@ export default function Page() {
     }
   }
   const fetchChannels = async (guildId: string) => {
-    console.log('fetchChannel')
+    console.log("fetchChannel");
     try {
-      const data = await fetch(`${process.env.NEXT_PUBLIC_ANALYSER_URL}/discord/channels/${guildId}`,{
-        method: 'GET'
-      })
-      const harvest = await fetcher(`${process.env.NEXT_PUBLIC_BACKEND_URL}/discord/last-harvest/${guildId}`).catch(err => console.error(err))
-      const info: {server_id: string, server_name: string, channels: [{id:string, name: string}]} = await data.json()
-  
-      console.log(info)
-      const options: Array<{ label: string, value: string }> = [];
-      for( const channel of info.channels){
-        options.push({ label: `#${channel.name}`, value: channel.id })
+      const data = await fetch(
+        `${process.env.NEXT_PUBLIC_ANALYSER_URL}/discord/channels/${guildId}`,
+        {
+          method: "GET",
+        }
+      );
+      const harvest = await fetcher(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/discord/last-harvest/${guildId}`
+      ).catch((err) => console.error(err));
+      const info: {
+        server_id: string;
+        server_name: string;
+        channels: [{ id: string; name: string }];
+      } = await data.json();
+
+      console.log(info);
+      const options: Array<{ label: string; value: string }> = [];
+      for (const channel of info.channels) {
+        options.push({ label: `#${channel.name}`, value: channel.id });
       }
-      setPlatforms(prev => 
-        prev.map((platform => 
-          platform.key === 'discord'
-            ? { 
-                ...platform, 
-                options: options, 
-                account: {id: info.server_id, name: info.server_name, connected: true},
-                lastFetched: new Date(harvest?.created_at).toLocaleDateString() || '',
+      setPlatforms((prev) =>
+        prev.map((platform) =>
+          platform.key === "discord"
+            ? {
+                ...platform,
+                options: options,
+                account: {
+                  id: info.server_id,
+                  name: info.server_name,
+                  connected: true,
+                },
+                lastFetched:
+                  new Date(harvest?.created_at).toLocaleDateString() || "",
               }
             : platform
-        ))
-      )
+        )
+      );
     } catch (error) {
       console.error(error);
     }
-  }
-  useEffect(() =>{
-    if(activeCommunity?.discordServerId){
+  };
+  useEffect(() => {
+    if (activeCommunity?.discordServerId) {
       fetchChannels(activeCommunity?.discordServerId);
     }
-    console.log(activeCommunity)
-    console.log(user)
-  }, [activeCommunity])
+    console.log(activeCommunity);
+    console.log(user);
+  }, [activeCommunity]);
   return (
     <section className="w-full flex flex-col gap-8">
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
@@ -332,16 +343,18 @@ export default function Page() {
                   </span>
                 </div>
                 <div className="flex flex-row items-center justify-between gap-2 mt-4">
-                  <PlatformSettingsDialog platform={{
-                    key: platform.key,
-                    name: platform.name,
-                    url: platform.url,
-                    urlAuth: platform.urlAuth,
-                    color: platform.color,
-                    type: platform.type,
-                    options: platform.options,
-                    accountPlatform: platform.account,
-                  }} />
+                  <PlatformSettingsDialog
+                    platform={{
+                      key: platform.key,
+                      name: platform.name,
+                      url: platform.url,
+                      urlAuth: platform.urlAuth,
+                      color: platform.color,
+                      type: platform.type,
+                      options: platform.options,
+                      accountPlatform: platform.account,
+                    }}
+                  />
                   <Button
                     className="flex items-center gap-2 w-32 justify-center"
                     size="sm"
