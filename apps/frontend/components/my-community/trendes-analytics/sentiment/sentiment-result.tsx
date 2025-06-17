@@ -30,11 +30,7 @@ export function SentimentDisplay({ result }: { result: any }) {
         <div className="mt-4">
           <div className="text-base font-medium mb-2">Most representative messages</div>
           <ul className="space-y-2">
-            {(result.messages && result.messages.length > 0 ? result.messages : [
-              { user: 'Alice', text: 'Great update, I love it! The new features are amazing and really helpful.' },
-              { user: 'Bob', text: 'This is so helpful, thanks! The team did a fantastic job.' },
-              { user: 'Charlie', text: 'Awesome work, team! Looking forward to more improvements.' },
-            ]).map((msg: { user: string, text: string }, i: number) => (
+            {(result.messages).map((msg: { user: string, text: string }, i: number) => (
               <li key={i} className="flex items-start gap-2">
                 <span className="font-semibold text-primary">{msg.user}</span>
                 <span

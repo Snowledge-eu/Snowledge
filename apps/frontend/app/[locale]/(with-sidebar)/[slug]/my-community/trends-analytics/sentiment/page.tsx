@@ -10,10 +10,10 @@ import { useAuth } from "@/contexts/auth-context";
 import { useCurrentCommunity } from "@/hooks/useCurrentCommunity";
 
 export default function Page() {
-  const { user } = useAuth();
+  const { user, fetcher } = useAuth();
   const { activeCommunity } = useCurrentCommunity();
-  const [selectedResult, setSelectedResult] = useState<any>(FAKE_SENTIMENT_HISTORY[0])
-
+  const [selectedResult, setSelectedResult] = useState<any>()
+  const [sentimentHistory, setSentimentHistory] = useState<any[]>([])
   // Réutilisation des props pour la démo
   const platforms = [
     { key: 'discord', name: 'Discord', color: '#5865F2' },
@@ -26,7 +26,7 @@ export default function Page() {
   const [selectedChannels, setSelectedChannels] = useState<Array<{label: string, value: string}>>([])
   const [timeRange, setTimeRange] = useState('last_week')
   const [customDate, setCustomDate] = useState<Date | undefined>(undefined)
-  const [mode, setMode] = useState<'standard' | 'reasoning'>('standard')
+  const [mode, setMode] = useState<'Meta-Llama-3_3-70B-Instruct' | 'DeepSeek-R1-Distill-Llama-70B'>('Meta-Llama-3_3-70B-Instruct')
   const [loading, setLoading] = useState(false)
   const messageCount = 1200
   const canLaunch = true
@@ -38,7 +38,7 @@ export default function Page() {
         "serverId": activeCommunity?.discordServerId,
         "channelId": channel,
         "model_name": model,
-        "prompt_key": "sentiment",
+        "prompt_key": "discord_sentiment",
         "period": period
       }
       console.log(body)
@@ -50,9 +50,73 @@ export default function Page() {
         body: JSON.stringify(body),
       })
       if(res.ok){
+        const analysis = await fetcher(`${process.env.NEXT_PUBLIC_BACKEND_URL}/analysis`,{
+          method: 'POST',
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            platform: 'discord',
+            scope: {
+              serverId: activeCommunity?.discordServerId,
+              channelId: channel,
+            }
+          }),
+        }).catch(err => console.error(err))
+        setSelectedResult({
+          id: shortenString(analysis.result.id),
+          timeframe: `${new Date(analysis.period.from).toLocaleDateString()} to ${new Date(analysis.period.to).toLocaleDateString()}`,
+          platform: analysis.platform,
+          scope: 'Custom', //TODO définir regle All | Custom
+          sentiment: JSON.parse(analysis.result.choices[0].message.content).sentiment,
+          date: new Date(analysis.created_at).toLocaleDateString(),
+          dataCount: 1200,
+          score: 87,
+          summary: JSON.parse(analysis.result.choices[0].message.content).reasoning
+        });
         setLoading(false);
       }
     }
+  }
+  const shortenString = (str: string, maxLength: number = 10): string => {
+    if (str.length <= maxLength) return str;
+    return `${str.slice(0, 3)}...${str.slice(-3)}`;
+  }
+  const fetchAnalysis = async ()  => {
+      const body = {
+            platform: 'discord',
+            scope: {
+              serverId: activeCommunity?.discordServerId,
+            }
+          }
+
+        const analysis = await fetcher(`${process.env.NEXT_PUBLIC_BACKEND_URL}/analysis`,{
+          method: 'POST',
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(body),
+        }).catch(err => console.error(err))
+        deserializeAnalyse(analysis)
+  }
+  const deserializeAnalyse = (analysis: any[]) => {
+    const tempArr = [];
+    for(const item of analysis) {
+      tempArr.push({
+        id: shortenString(item.result.id),
+        timeframe: `${new Date(item.period.from).toLocaleDateString()} to ${new Date(item.period.to).toLocaleDateString()}`,
+        platform: item.platform,
+        scope: 'Custom', //TODO définir regle All | Custom
+        sentiment: JSON.parse(item.result.choices[0].message.content).sentiment,
+        messages: JSON.parse(item.result.choices[0].message.content).representative_messages,
+        date: new Date(item.created_at).toLocaleDateString(),
+        dataCount: 1200,
+        score: 87,
+        summary: JSON.parse(item.result.choices[0].message.content).reasoning
+      })
+    }
+    setSentimentHistory(tempArr);
+    setSelectedResult(tempArr[0]);
   }
     const fetchChannels = async (guildId: string) => {
       console.log('fetchChannel')
@@ -74,6 +138,7 @@ export default function Page() {
     useEffect(() =>{
       if(activeCommunity?.discordServerId){
         fetchChannels(activeCommunity?.discordServerId);
+        fetchAnalysis();
       }
       console.log(activeCommunity)
       console.log(user)
@@ -108,7 +173,7 @@ export default function Page() {
       <section className="flex flex-col items-center justify-start h-full min-h-0 px-2 w-full">
         <SentimentDisplay result={selectedResult} />
         <Card className="w-full max-w-5xl mx-auto p-6 md:p-8 shadow-lg border bg-white space-y-6 mt-8">
-          <SentimentListCard history={FAKE_SENTIMENT_HISTORY} onSelect={setSelectedResult} />
+          <SentimentListCard history={sentimentHistory} onSelect={setSelectedResult} />
         </Card>
       </section>
     </main>

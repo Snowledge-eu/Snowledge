@@ -1,23 +1,28 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Transform } from 'class-transformer';
 import { Document, ObjectId } from 'mongoose';
+import { Long } from 'bson';
 
 export type DiscordHarvestJobDocument = DiscordHarvestJob & Document;
 @Schema({
+	collection: 'discord_harvest_jobs',
 	timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
 	toJSON: { virtuals: true },
 })
 export class DiscordHarvestJob {
 	@Transform(({ value }) => value.toString())
 	_id: ObjectId;
+
 	@Prop({ required: true })
 	discordId: string;
 
-	@Prop({ type: Number, required: true })
-	serverId: number;
+	@Transform(({ value }) => value.toString())
+	@Prop({ type: Object, required: true })
+	serverId: Long;
 
-	@Prop({ type: [Number], required: true })
-	channels: number[];
+	@Transform(({ value }) => value.map((v) => v.toString()))
+	@Prop({ type: [Object], required: true })
+	channels: Long[];
 
 	@Prop()
 	after?: string;

@@ -6,7 +6,7 @@ export default registerAs(
 	(): MongoConfig => ({
 		host: process.env.MG_HOST ?? '127.0.0.1',
 		port: parseInt(process.env.MG_PORT) ?? 27017,
-		database: process.env.MG_DB ?? '',
+		database: process.env.MG_NAME ?? '',
 		usernameMongo: process.env.MG_USER ?? '',
 		password: process.env.MG_PASSWORD ?? '',
 	}),
@@ -23,6 +23,6 @@ export function formatURIMongo(config: MongoConfig) {
 		auth = `${usernameMongo}:${encodeURIComponent(password || '')}@`;
 	}
 	const portDB = host !== '127.0.0.1' ? '' : `:${port}`;
-    console.log(`mongodb${hostDB}://${auth}${host}${portDB}/${database}`)
-	return `mongodb${hostDB}://${auth}${host}${portDB}/${database}`;
+    console.log(`mongodb${hostDB}://${auth}${host}${portDB}/${database}?authSource=admin`)
+	return `mongodb${hostDB}://${auth}${host}${portDB}/${database}?authSource=admin`;
 }

@@ -4,7 +4,7 @@ import { UpdateAnalysisDto } from './dto/update-analysis.dto';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { AnalysisResult } from './schemas/analysis-result.schema';
-
+import { Long } from 'bson';
 @Injectable()
 export class AnalysisService {
   	constructor(@InjectModel(AnalysisResult.name) private analysisModel: Model<AnalysisResult>) {}
@@ -13,26 +13,38 @@ export class AnalysisService {
     return 'This action adds a new analysis';
   }
 
-  findAll() {
-    return `This action returns all analysis`;
-  }
+	findAll() {
+		return this.analysisModel.find().exec();
+	}
 
   findOne(id: number) {
     return `This action returns a #${id} analysis`;
   }
 
-  findByDiscordScope(serverId: string, channelId: string) {
+  findByDiscordScope(serverId: string, channelId: string): Promise<AnalysisResult | null> {
 		return this.analysisModel.findOne({
       where: {
         platform: "discord",
         "scope": {
-          "server_id": serverId,
-          "channel_id": channelId
+          "server_id": Long.fromString(serverId),
+          "channel_id": Long.fromString(channelId),
         },
       }
-    }).sort({createdAt: -1}).exec();
+    })
+    .sort({createdAt: -1})
+    .lean();
 	}
-
+  findByDiscordServer(serverId: string): Promise<AnalysisResult[]> {
+    return this.analysisModel
+      .find({
+        platform: 'discord',
+        'scope.server_id': Long.fromString(serverId),
+      })
+      .sort({ createdAt: -1 })
+      .limit(10)
+      .lean()
+      .exec();
+  }
   update(id: number, updateAnalysisDto: UpdateAnalysisDto) {
     return `This action updates a #${id} analysis`;
   }

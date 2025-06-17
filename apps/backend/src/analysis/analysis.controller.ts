@@ -8,13 +8,22 @@ import { FindAnalysisDto } from './dto/find-analysis.dto';
 export class AnalysisController {
   constructor(private readonly analysisService: AnalysisService) {}
 
+  // @Post()
+  // create(@Body() createAnalysisDto: CreateAnalysisDto) {
+  //   return this.analysisService.create(createAnalysisDto);
+  // }
   @Post()
-  create(@Body() createAnalysisDto: CreateAnalysisDto) {
-    return this.analysisService.create(createAnalysisDto);
-  }
-  @Post()
-  findByScope(@Body() findAnalysis: FindAnalysisDto) {
+  async findByScope(@Body() findAnalysis: FindAnalysisDto) {
+    console.log(findAnalysis)
+    const analysis = await this.analysisService.findAll();
+    console.log(analysis);
     if(findAnalysis.platform == 'discord') {
+      if(!findAnalysis.scope.channelId){
+        
+        const analys = await this.analysisService.findByDiscordServer(findAnalysis.scope.serverId);
+        console.log(analys)
+        return analys;
+      }
       return this.analysisService.findByDiscordScope(findAnalysis.scope.serverId, findAnalysis.scope.channelId);
     }
   }
