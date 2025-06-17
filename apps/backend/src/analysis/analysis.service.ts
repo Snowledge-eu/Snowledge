@@ -32,9 +32,7 @@ export class AnalysisService {
       }
     }).sort({createdAt: -1}).exec();
 	}
-  // findByScope(id: number) {
-  //   return `This action returns a #${id} analysis`;
-  // }
+
   update(id: number, updateAnalysisDto: UpdateAnalysisDto) {
     return `This action updates a #${id} analysis`;
   }
