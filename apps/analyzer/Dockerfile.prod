@@ -1,4 +1,3 @@
-
 # === Base: Python + outils système
 FROM python:3.11-slim AS base
 
@@ -14,12 +13,12 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copier le code source après l'installation des dépendances
 COPY apps/analyzer/ .
 
-# Installer supervisord pour gérer les process
-RUN pip install supervisor
-
 # === Runner: exécute le daemon + API
 FROM base AS runner
 WORKDIR /app
+
+RUN apt-get update && apt-get install -y gcc && rm -rf /var/lib/apt/lists/* \
+    && pip install supervisor
 
 # Créer un utilisateur non-root pour la prod
 RUN useradd -m analyzeruser
