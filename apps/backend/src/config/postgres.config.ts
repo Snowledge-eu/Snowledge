@@ -9,9 +9,6 @@ export default registerAs('postgresConfig', (): PostgresConfig => {
 		database: process.env.PGSQL_DB ?? 'snowledge',
 		username: process.env.PGSQL_NAME ?? 'postgres',
 		password: process.env.PGSQL_PWD ?? 'postgres',
-		ssl:
-			process.env.PGSQL_SSL === 'true'
-				? { rejectUnauthorized: false }
-				: false,
+		ssl: process.env.PGSQL_SSL === 'true',
 	};
 });
