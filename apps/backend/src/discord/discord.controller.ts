@@ -17,7 +17,7 @@ import { DiscordHarvestJobService } from './services/discord-harvest-job.service
 @ApiTags('auth')
 @Controller('discord')
 export class DiscordController {
-	private readonly logger = new Logger(DiscordController.name);
+	// private readonly logger = new Logger(DiscordController.name);
 	constructor(
 		private discordProvider: DiscordProvider,
 		private discordHarvestJobService: DiscordHarvestJobService,
