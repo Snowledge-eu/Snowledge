@@ -21,7 +21,7 @@ export class AnalysisService {
     return `This action returns a #${id} analysis`;
   }
 
-  findByDiscordScope(serverId: string, channelId: string): Promise<AnalysisResult | null> {
+  findByDiscordScope(serverId: string, channelId: string, promptKey: string): Promise<AnalysisResult | null> {
 		return this.analysisModel.findOne({
       where: {
         platform: "discord",
@@ -29,16 +29,18 @@ export class AnalysisService {
           "server_id": Long.fromString(serverId),
           "channel_id": Long.fromString(channelId),
         },
+        prompt_key: promptKey,
       }
     })
     .sort({createdAt: -1})
     .lean();
 	}
-  findByDiscordServer(serverId: string): Promise<AnalysisResult[]> {
+  findByDiscordServer(serverId: string, promptKey: string): Promise<AnalysisResult[]> {
     return this.analysisModel
       .find({
         platform: 'discord',
         'scope.server_id': Long.fromString(serverId),
+        prompt_key: promptKey,
       })
       .sort({ createdAt: -1 })
       .limit(10)

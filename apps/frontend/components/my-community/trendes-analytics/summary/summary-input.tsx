@@ -63,8 +63,8 @@ export function SummaryInput({
   onTimeRangeChange: (v: string) => void,
   customDate: Date | undefined,
   onCustomDateChange: (date: Date | undefined) => void,
-  mode: 'standard' | 'reasoning',
-  onModeChange: (v: 'standard' | 'reasoning') => void,
+  mode: 'Meta-Llama-3_3-70B-Instruct' | 'DeepSeek-R1-Distill-Llama-70B',
+  onModeChange: (v: 'Meta-Llama-3_3-70B-Instruct' | 'DeepSeek-R1-Distill-Llama-70B') => void,
   messageCount: number,
   canLaunch: boolean,
   loading: boolean,
@@ -193,13 +193,13 @@ export function SummaryInput({
       {/* 4. Mode selection */}
       <Card className="w-full max-w-[90%] md:max-w-[95%] self-center py-5 px-4 bg-gray-50 shadow-md">
         <Label className="block mb-3 text-base font-semibold">Mode</Label>
-        <RadioGroup value={mode} onValueChange={(v: string) => onModeChange(v as 'standard' | 'reasoning')} className="flex flex-row gap-6">
+        <RadioGroup value={mode} onValueChange={(v: string) => onModeChange(v as 'Meta-Llama-3_3-70B-Instruct' | 'DeepSeek-R1-Distill-Llama-70B')} className="flex flex-row gap-6">
           <div className="flex items-center gap-2">
-            <RadioGroupItem value="standard" id="standard" />
+            <RadioGroupItem value="Meta-Llama-3_3-70B-Instruct" id="standard" />
             <Label htmlFor="standard">Standard</Label>
           </div>
           <div className="flex items-center gap-2">
-            <RadioGroupItem value="reasoning" id="reasoning" />
+            <RadioGroupItem value="DeepSeek-R1-Distill-Llama-70B" id="reasoning" />
             <Label htmlFor="reasoning">Reasoning</Label>
           </div>
         </RadioGroup>

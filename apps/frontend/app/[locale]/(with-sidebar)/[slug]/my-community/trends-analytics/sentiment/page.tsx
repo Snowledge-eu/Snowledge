@@ -60,7 +60,8 @@ export default function Page() {
             scope: {
               serverId: activeCommunity?.discordServerId,
               channelId: channel,
-            }
+            },
+            promptKey: "discord_sentiment"
           }),
         }).catch(err => console.error(err))
         setSelectedResult({
@@ -69,6 +70,7 @@ export default function Page() {
           platform: analysis.platform,
           scope: 'Custom', //TODO définir regle All | Custom
           sentiment: JSON.parse(analysis.result.choices[0].message.content).sentiment,
+          messages: JSON.parse(analysis.result.choices[0].message.content).representative_messages,
           date: new Date(analysis.created_at).toLocaleDateString(),
           dataCount: 1200,
           score: 87,
@@ -87,7 +89,8 @@ export default function Page() {
             platform: 'discord',
             scope: {
               serverId: activeCommunity?.discordServerId,
-            }
+            },
+            promptKey: "discord_sentiment"
           }
 
         const analysis = await fetcher(`${process.env.NEXT_PUBLIC_BACKEND_URL}/analysis`,{
@@ -97,7 +100,9 @@ export default function Page() {
           },
           body: JSON.stringify(body),
         }).catch(err => console.error(err))
-        deserializeAnalyse(analysis)
+        if(analysis.length > 0){
+          deserializeAnalyse(analysis)
+        }
   }
   const deserializeAnalyse = (analysis: any[]) => {
     const tempArr = [];

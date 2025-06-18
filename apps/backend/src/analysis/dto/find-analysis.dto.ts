@@ -9,4 +9,10 @@ export class FindAnalysisDto {
     platform: string;
 
     scope: Record<string, any>;
+    
+    @ApiProperty({
+        type: String,
+    })
+    @IsString()
+    promptKey: string;
 }

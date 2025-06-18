@@ -20,11 +20,13 @@ export class AnalysisController {
     if(findAnalysis.platform == 'discord') {
       if(!findAnalysis.scope.channelId){
         
-        const analys = await this.analysisService.findByDiscordServer(findAnalysis.scope.serverId);
+        const analys = await this.analysisService.findByDiscordServer(findAnalysis.scope.serverId, findAnalysis.promptKey);
         console.log(analys)
         return analys;
       }
-      return this.analysisService.findByDiscordScope(findAnalysis.scope.serverId, findAnalysis.scope.channelId);
+      const analysByScope = await  this.analysisService.findByDiscordScope(findAnalysis.scope.serverId, findAnalysis.scope.channelId, findAnalysis.promptKey);
+      console.log(analysByScope)
+      return analysByScope;
     }
   }
   @Get()
