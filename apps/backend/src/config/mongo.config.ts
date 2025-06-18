@@ -15,14 +15,16 @@ export default registerAs(
 export function formatURIMongo(config: MongoConfig) {
 	const { host, usernameMongo, password, database, port } = config;
 
-    const isSRV = !['127.0.0.1', 'localhost', 'mongo'].includes(host);
-    const hostDB = isSRV ? '+srv' : '';
+	const isSRV = !['127.0.0.1', 'localhost', 'mongo'].includes(host);
+	const hostDB = isSRV ? '+srv' : '';
 
 	let auth = '';
 	if (usernameMongo) {
 		auth = `${usernameMongo}:${encodeURIComponent(password || '')}@`;
 	}
 	const portDB = host !== '127.0.0.1' ? '' : `:${port}`;
-    console.log(`mongodb${hostDB}://${auth}${host}${portDB}/${database}`)
-	return `mongodb${hostDB}://${auth}${host}${portDB}/${database}`;
+	console.log(
+		`mongodb${hostDB}://${auth}${host}${portDB}/${database}?authSource=admin`,
+	);
+	return `mongodb${hostDB}://${auth}${host}${portDB}/${database}?authSource=admin`;
 }
