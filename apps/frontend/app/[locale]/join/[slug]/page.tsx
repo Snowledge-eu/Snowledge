@@ -23,7 +23,7 @@ export default function JoinPage() {
     mutationFn: async () => {
       if (!user) throw new Error("Non authentifié");
       const res = await fetcher(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"}/communities/${slug}/learners/${user.id}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000"}/communities/${slug}/learners/${user.id}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

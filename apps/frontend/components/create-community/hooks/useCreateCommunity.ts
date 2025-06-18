@@ -13,7 +13,7 @@ export function useCreateCommunity({
   return useMutation({
     mutationFn: async (data: FormSchema) => {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"}/communities`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000"}/communities`,
         {
           method: "POST",
           headers: {

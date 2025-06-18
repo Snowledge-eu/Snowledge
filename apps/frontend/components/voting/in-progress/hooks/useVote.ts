@@ -11,7 +11,7 @@ export function useVote(communitySlug: string) {
   return useMutation({
     mutationFn: async (data: VoteFormValues) => {
       const res = await fetcher(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"}/communities/${communitySlug}/votes/${data.proposalId}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000"}/communities/${communitySlug}/votes/${data.proposalId}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

@@ -11,7 +11,7 @@ export function useCreateChannels() {
       resultName?: string;
     }) => {
       return await fetcher(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"}/discord-bot/create-channels`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000"}/discord-bot/create-channels`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

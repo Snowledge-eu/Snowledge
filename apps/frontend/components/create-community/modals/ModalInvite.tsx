@@ -19,7 +19,7 @@ import { User } from "@/types/user";
 
 async function fetchUsers(search: string): Promise<User[]> {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"}/user/all?search=${encodeURIComponent(search)}`,
+    `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000"}/user/all?search=${encodeURIComponent(search)}`,
     { credentials: "include" }
   );
   if (!res.ok) throw new Error("Erreur lors de la recherche d'utilisateurs");
@@ -58,7 +58,7 @@ const ModalInvite = ({
       await Promise.all(
         userIds.map(async (userId) => {
           const res = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"}/communities/${communitySlug}/learners/invite`,
+            `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000"}/communities/${communitySlug}/learners/invite`,
             {
               method: "POST",
               credentials: "include",

@@ -8,7 +8,7 @@ export function useListChannels(guildId: string) {
     queryKey: ["discord-channels", guildId],
     queryFn: async () => {
       const res = await fetcher(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"}/discord-bot/list-channels?guildId=${encodeURIComponent(guildId)}`
+        `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000"}/discord-bot/list-channels?guildId=${encodeURIComponent(guildId)}`
       );
       return res;
     },
