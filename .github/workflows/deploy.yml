@@ -91,6 +91,7 @@ jobs:
             echo "BACK_URL=https://test.snowledge.eu/api" >> .env
             echo "FRONT_URL=https://test.snowledge.eu" >> .env
             echo "NEXT_PUBLIC_BACKEND_URL=https://test.snowledge.eu/api" >> .env
+            echo "NEXT_PUBLIC_FRONTEND_URL=https://test.snowledge.eu" >> .env
             echo "NEXT_PUBLIC_ANALYSER_URL=https://test.snowledge.eu:8000" >> .env
             echo "NEXT_PUBLIC_DSD_CLIENT_ID=1377545849126518784" >> .env
             echo "ORIGIN_CORS= ["https://test.snowledge.eu"]" >> .env
@@ -122,6 +123,7 @@ jobs:
             echo "BACK_URL=https://hi.snowledge.eu/api" >> .env
             echo "FRONT_URL=https://hi.snowledge.eu" >> .env
             echo "NEXT_PUBLIC_BACKEND_URL=https://hi.snowledge.eu/api" >> .env
+            echo "NEXT_PUBLIC_FRONTEND_URL=https://hi.snowledge.eu" >> .env
             echo "NEXT_PUBLIC_ANALYSER_URL=https://hi.snowledge.eu:8000" >> .env
             echo "NEXT_PUBLIC_DSD_CLIENT_ID=1377545849126518784" >> .env
             echo "ORIGIN_CORS= ["https://hi.snowledge.eu"]" >> .env
