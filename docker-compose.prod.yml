@@ -3,6 +3,8 @@ version: "3"
 services:
   # Service pour le frontend
   frontend:
+    volumes:
+      - ./.env:/app/.env
     build:
       dockerfile: ./apps/frontend/Dockerfile.prod
     env_file:
