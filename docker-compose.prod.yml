@@ -15,12 +15,12 @@ services:
       - NEXT_PUBLIC_DSD_CLIENT_ID=1377545849126518784
   # Service pour le backend
   backend:
+    volumes:
+      - ./pg-ca.crt:/etc/ssl/certs
     build:
       dockerfile: ./apps/backend/Dockerfile.prod
     env_file:
       - .env
-    # volumes:
-    #   - ./pg-ca.crt:/etc/ssl/certs/pg-ca.crt
     environment:
       - APP_PORT=4000
       - NODE_ENV=production
