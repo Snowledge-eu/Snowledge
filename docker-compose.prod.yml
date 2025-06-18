@@ -42,7 +42,7 @@ services:
   analyzer:
     build:
       context: .
-      dockerfile: ./apps/analyzer/Dockerfile.prod
+      dockerfile: ./apps/analyzer/Dockerfile.dev #TODO:Changer en prod
     env_file:
       - .env
     environment:
