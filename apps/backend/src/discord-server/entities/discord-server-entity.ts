@@ -18,6 +18,12 @@ export class DiscordServer {
 	@Column({ type: 'varchar', length: 32, nullable: true })
 	resultChannelId?: string; // Channel résultats
 
+	@Column({ type: 'varchar', length: 32, nullable: true })
+	authRoleId?: string; // ID du rôle d'authentification Discord
+
+	@Column({ type: 'varchar', length: 32, nullable: true })
+	authChannelId?: string; // ID du salon d'authentification Discord
+
 	@OneToOne(() => Community, (community) => community.discordServer, {
 		onDelete: 'CASCADE',
 	})

@@ -23,4 +23,12 @@ export class UpdateDiscordServerDto {
 	@IsNumber()
 	@IsOptional()
 	communityId?: number;
+
+	@IsString()
+	@IsOptional()
+	authRoleId?: string;
+
+	@IsString()
+	@IsOptional()
+	authChannelId?: string;
 }

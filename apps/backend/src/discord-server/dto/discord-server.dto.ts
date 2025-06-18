@@ -7,6 +7,8 @@ export class DiscordServerDto {
 	voteChannelId?: string;
 	resultChannelId?: string;
 	communityId: number;
+	authRoleId?: string;
+	authChannelId?: string;
 
 	constructor(entity: DiscordServer) {
 		this.guildId = entity.guildId;
@@ -15,5 +17,7 @@ export class DiscordServerDto {
 		this.voteChannelId = entity.voteChannelId;
 		this.resultChannelId = entity.resultChannelId;
 		this.communityId = entity.community?.id;
+		this.authRoleId = entity.authRoleId;
+		this.authChannelId = entity.authChannelId;
 	}
 }
