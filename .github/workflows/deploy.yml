@@ -96,7 +96,7 @@ jobs:
             echo "ORIGIN_CORS= ["https://test.snowledge.eu"]" >> .env
             rm pg-ca.crt
             echo "${{ secrets.PGSQL_SSL_CERTIFICATE }}" >> pg-ca.crt
-            docker compose -f docker-compose.yml -f docker-compose.prod.yml down
+            docker compose down
             docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 
       - name: Déploiement sur OVH (prod)
