@@ -16,7 +16,7 @@ services:
   # Service pour le backend
   backend:
     volumes:
-      - ./pg-ca.crt:/etc/ssl/certs
+      - ./pg-ca.crt:/etc/ssl/certs/
     build:
       dockerfile: ./apps/backend/Dockerfile.prod
     env_file:
