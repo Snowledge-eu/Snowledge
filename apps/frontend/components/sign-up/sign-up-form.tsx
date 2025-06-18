@@ -67,14 +67,17 @@ export default function SignUpForm() {
     try {
       const { confirmPwd, ...rest } = formData;
       const signUp: ISignUp = rest;
-      const response = await fetch("http://localhost:4000/auth/sign-up", {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(signUp),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/sign-up`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(signUp),
+        }
+      );
       if (!response.ok) {
         throw new Error("Registration failed. Please try again.");
       }
