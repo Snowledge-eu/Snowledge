@@ -5,6 +5,8 @@ services:
   frontend:
     build:
       dockerfile: ./apps/frontend/Dockerfile.prod
+    env_file:
+      - .env
     environment:
       - CHOKIDAR_USEPOLLING=true
       - NEXT_TELEMETRY_DISABLED=1
@@ -15,6 +17,8 @@ services:
   backend:
     build:
       dockerfile: ./apps/backend/Dockerfile.prod
+    env_file:
+      - .env
     environment:
       - APP_PORT=4000
       - NODE_ENV=production
@@ -34,6 +38,8 @@ services:
     build:
       context: .
       dockerfile: ./apps/analyzer/Dockerfile.prod
+    env_file:
+      - .env
     environment:
       - PYTHONUNBUFFERED=1
       - PYTHONIOENCODING=UTF-8
