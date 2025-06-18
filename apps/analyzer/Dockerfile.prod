@@ -3,32 +3,28 @@ FROM python:3.11-slim AS base
 
 RUN apt-get update && apt-get install -y gcc && rm -rf /var/lib/apt/lists/*
 
+
 # === Installer: install Python deps pour analyzer
 FROM base AS installer
 WORKDIR /app
 
 COPY apps/analyzer/requirements.txt ./requirements.txt
+COPY apps/analyzer/ .
+# COPY .env.dev .
+
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copier le code source après l'installation des dépendances
-COPY apps/analyzer/ .
-
 # === Runner: exécute le daemon + API
-FROM base AS runner
+FROM installer AS runner
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y gcc && rm -rf /var/lib/apt/lists/* \
-    && pip install supervisor
-
-# Créer un utilisateur non-root pour la prod
-RUN useradd -m analyzeruser
-USER analyzeruser
-
-COPY --from=installer /app /app
-
+# Copier les dépendances et le code
+# COPY --from=installer /app .
 ENV PYTHONPATH=/app
 EXPOSE 8000
 
+# Commande de démarrage (daemon + API)
+# CMD ["bash", "-c", "python3 collectors/discord_harvester_daemon.py & python3 api/full_api.py"]
+RUN pip install supervisor
 COPY apps/analyzer/supervisord.conf /etc/supervisord.conf
-
 CMD ["supervisord", "-c", "/etc/supervisord.conf"]
