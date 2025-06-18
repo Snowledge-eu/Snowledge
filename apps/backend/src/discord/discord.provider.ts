@@ -24,6 +24,18 @@ export class DiscordProvider {
 		let data: any;
 		let community: Community;
 		try {
+			console.log(
+				'this.configDiscord.clientId',
+				this.configDiscord.clientId,
+			);
+			console.log(
+				'this.configDiscord.clientSecret',
+				this.configDiscord.clientSecret,
+			);
+			console.log(
+				'this.configDiscord.redirect',
+				this.configDiscord.redirect,
+			);
 			const response = await fetch(
 				'https://discord.com/api/oauth2/token',
 				{
@@ -84,18 +96,23 @@ export class DiscordProvider {
 					try {
 						// community =
 						// 	await this.communityService.findOneById(
-							// 		communityId,
-							// 	);
-							
+						// 		communityId,
+						// 	);
+
 						console.log('data', data);
 						console.log('communityId', communityId);
-						const discordServer = await this.discordServerService.create({
-							// communityId,
-							guildId: data.guild.id,
-							guildName: data.guild.name,
-						});
+						const discordServer =
+							await this.discordServerService.create({
+								// communityId,
+								guildId: data.guild.id,
+								guildName: data.guild.name,
+							});
 
-						community = await this.communityService.updateDiscordGuildId(communityId, discordServer);
+						community =
+							await this.communityService.updateDiscordGuildId(
+								communityId,
+								discordServer,
+							);
 					} catch (error) {
 						this.logger.error(error);
 						throw new Error('Error creating discord server', error);

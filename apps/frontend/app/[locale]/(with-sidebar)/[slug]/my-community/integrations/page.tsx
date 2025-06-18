@@ -36,6 +36,8 @@ export default function Page() {
   );
   // TODO: change to the correct client id
   const clientId = process.env.NEXT_PUBLIC_DSD_CLIEND_ID;
+  console.log(clientId);
+  console.log(process.env.NEXT_PUBLIC_BACKEND_URL);
 
   // Mock data
   const initialPlatforms = [
@@ -43,7 +45,7 @@ export default function Page() {
       key: "discord",
       name: "Discord",
       url: "https://discord.com",
-      urlAuth: `https://discord.com/oauth2/authorize?client_id=${clientId}&permissions=378225683536&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A4000%2Fdiscord%2Flink&integration_type=0&scope=bot+identify+guilds+email&state=${state}`,
+      urlAuth: `https://discord.com/oauth2/authorize?client_id=${clientId}&permissions=378225683536&response_type=code&redirect_uri=${process.env.NEXT_PUBLIC_BACKEND_URL}/discord/link&integration_type=0&scope=bot+identify+guilds+email&state=${state}`,
       color: "#5865F2",
       options: [{ label: "", value: "" }],
       estimatedVolume: 1240,
