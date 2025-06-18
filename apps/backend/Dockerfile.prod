@@ -9,8 +9,6 @@ RUN apk update
 RUN apk add --no-cache libc6-compat
 
 # COPY pg-ca.crt /etc/ssl/certs/
-RUN ls -la /etc/ssl/certs/
-ENV NODE_EXTRA_CA_CERTS=/etc/ssl/certs/pg-ca.crt
 
 # Set working directory
 WORKDIR /app
@@ -26,6 +24,9 @@ WORKDIR /app
 
 # First install dependencies (as they change less often)
 COPY --from=builder /app/out/json/ .
+
+ENV NODE_EXTRA_CA_CERTS=/etc/ssl/certs/pg-ca.crt
+
 RUN npm install
 
 # Build the project and its dependencies
@@ -48,5 +49,6 @@ RUN addgroup --system --gid 1001 nestjs
 RUN adduser --system --uid 1001 nestjs
 USER nestjs
 COPY --from=installer /app .
+
 
 CMD node apps/backend/dist/main.js
