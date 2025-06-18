@@ -93,6 +93,7 @@ jobs:
             echo "NEXT_PUBLIC_BACKEND_URL=https://test.snowledge.eu/api" >> .env
             echo "NEXT_PUBLIC_ANALYSER_URL=https://test.snowledge.eu:8000" >> .env
             echo "ORIGIN_CORS= ["https://test.snowledge.eu"]" >> .env
+            echo "${{ secrets.PGSQL_SSL_CERTIFICATE }}" >> pg-ca.crt
             docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 
       - name: Déploiement sur OVH (prod)

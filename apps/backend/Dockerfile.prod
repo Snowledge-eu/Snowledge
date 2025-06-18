@@ -7,6 +7,10 @@ FROM base AS builder
 # Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
 RUN apk update
 RUN apk add --no-cache libc6-compat
+
+COPY pg-ca.crt /etc/ssl/certs/
+ENV NODE_EXTRA_CA_CERTS=/etc/ssl/certs/pg-ca.crt
+
 # Set working directory
 WORKDIR /app
 RUN npm install turbo @nestjs/cli --global
