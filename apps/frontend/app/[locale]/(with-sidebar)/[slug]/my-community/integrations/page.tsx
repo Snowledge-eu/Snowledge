@@ -39,6 +39,7 @@ export default function Page() {
   console.log(clientId);
   console.log(process.env.NEXT_PUBLIC_BACKEND_URL);
 
+  console.log(process.env.NEXT_PUBLIC_ANALYSER_URL);
   // Mock data
   const initialPlatforms = [
     {
