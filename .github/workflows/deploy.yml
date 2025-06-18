@@ -96,6 +96,7 @@ jobs:
             echo "ORIGIN_CORS= ["https://test.snowledge.eu"]" >> .env
             rm pg-ca.crt
             echo "${{ secrets.PGSQL_SSL_CERTIFICATE }}" >> pg-ca.crt
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml down
             docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 
       - name: Déploiement sur OVH (prod)
@@ -124,4 +125,5 @@ jobs:
             echo "NEXT_PUBLIC_ANALYSER_URL=https://hi.snowledge.eu:8000" >> .env
             echo "NEXT_PUBLIC_DSD_CLIENT_ID=1377545849126518784" >> .env
             echo "ORIGIN_CORS= ["https://hi.snowledge.eu"]" >> .env
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml down
             docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
