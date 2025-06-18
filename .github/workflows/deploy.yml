@@ -125,5 +125,5 @@ jobs:
             echo "NEXT_PUBLIC_ANALYSER_URL=https://hi.snowledge.eu:8000" >> .env
             echo "NEXT_PUBLIC_DSD_CLIENT_ID=1377545849126518784" >> .env
             echo "ORIGIN_CORS= ["https://hi.snowledge.eu"]" >> .env
-            docker compose -f docker-compose.yml -f docker-compose.prod.yml down
+            docker compose down
             docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
