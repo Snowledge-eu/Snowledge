@@ -19,6 +19,8 @@ services:
       dockerfile: ./apps/backend/Dockerfile.prod
     env_file:
       - .env
+    volumes:
+      - ./pg-ca.crt:/etc/ssl/certs/pg-ca.crt
     environment:
       - APP_PORT=4000
       - NODE_ENV=production
