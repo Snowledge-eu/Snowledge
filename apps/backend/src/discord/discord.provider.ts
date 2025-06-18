@@ -124,7 +124,7 @@ export class DiscordProvider {
 				});
 			}
 		} else {
-			this.logger.error('Error client information');
+			this.logger.error('Error client information', data.error);
 		}
 		return community;
 	}
