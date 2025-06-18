@@ -40,13 +40,15 @@ export class DiscordController {
 			);
 			if (response) {
 				res.redirect(
-					`http://localhost:3000/${response.slug}?verify=discord`,
+					`${process.env.NEXT_PUBLIC_FRONTEND_URL}/${response.slug}?verify=discord`,
 				);
 			} else {
-				res.redirect(`http://localhost:3000/profile?verify=discord`);
+				res.redirect(
+					`${process.env.NEXT_PUBLIC_FRONTEND_URL}/profile?verify=discord`,
+				);
 			}
 		} else {
-			res.redirect('http://localhost:3000/profile');
+			res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/profile`);
 		}
 	}
 
