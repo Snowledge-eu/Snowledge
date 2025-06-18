@@ -3,7 +3,7 @@
 # Variables
 env ?= dev
 COMPOSE = docker-compose -f docker-compose.yml -f docker-compose.$(env).yml
-
+#docker compose -f docker-compose.yml -f docker-compose.prod.yml
 help:
 	@echo "Commandes disponibles :"
 	@echo "  make up        - Démarrer tous les conteneurs"
