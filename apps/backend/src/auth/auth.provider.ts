@@ -53,13 +53,14 @@ export class AuthProvider {
 
 			const { access_token, refresh_token } =
 				await this.generateTokensForUser(user);
-			const verifyToken =
-				await this.authService.createEmailVerificationToken({
-					userId: user.id,
-					email: user.email,
-				});
 
-			await this.emailHelper.tokenEmail(user.email, verifyToken);
+			// const verifyToken =
+			// 	await this.authService.createEmailVerificationToken({
+			// 		userId: user.id,
+			// 		email: user.email,
+			// 	});
+
+			// await this.emailHelper.tokenEmail(user.email, verifyToken);
 
 			return {
 				access_token,
