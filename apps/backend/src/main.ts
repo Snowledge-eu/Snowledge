@@ -42,6 +42,9 @@ async function bootstrap() {
 	// Sert le dossier public à la racine de l'API
 	app.useStaticAssets(join(__dirname, '..', 'public'));
 
+	// Définir un préfixe api
+	app.setGlobalPrefix('api');
+
 	await app.listen(configService.get('serverConfig.port'));
 
 	console.log(`Application is running on: ${await app.getUrl()}`);

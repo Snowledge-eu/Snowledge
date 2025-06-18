@@ -51,6 +51,7 @@ export default function SignUpForm() {
   };
 
   const submitRegistration = async () => {
+    console.log(process.env.NEXT_PUBLIC_BACKEND_URL);
     console.log("submit");
     setError("");
     setSuccess("");
