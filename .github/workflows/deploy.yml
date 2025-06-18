@@ -81,7 +81,12 @@ jobs:
             echo "DISCORD_CLIENT_SECRET=${{ secrets.DISCORD_CLIENT_SECRET }}" >> .env
             echo "OVH_AI_ENDPOINTS_ACCESS_TOKEN=${{ secrets.OVH_AI_ENDPOINTS_ACCESS_TOKEN }}" >> .env
             echo "MG_USER=${{ secrets.MG_USER }}" >> .env
-            echo "MG_PASSWORD=${{ secrets.MG_PASSWORD }}" >> .env`
+            echo "MG_PASSWORD=${{ secrets.MG_PASSWORD }}" >> .env
+            echo "PGSQL_NAME=${{ secrets.PGSQL_NAME_PREPROD }}" >> .env
+            echo "PGSQL_PWD=${{ secrets.PGSQL_PWD_PREPROD }}" >> .env
+            echo "PGSQL_HOST=postgresql-02aff275-o9835f167.database.cloud.ovh.net" >> .env
+            echo "PGSQL_PORT=20184" >> .env
+            echo "PGSQL_DB=defaultdb" >> .env
             echo "BACK_URL=https://test.snowledge.eu:4000" >> .env
             echo "FRONT_URL=https://test.snowledge.eu:3000" >> .env
             echo "NEXT_PUBLIC_BACKEND_URL=https://test.snowledge.eu:4000" >> .env

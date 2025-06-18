@@ -29,9 +29,7 @@ services:
       - MG_PORT=27017
       - MG_DB=snowledge
       - ORIGIN_CORS= ["https://hi.snowledge.eu", "https://test.snowledge.eu"]
-      # - PGSQL_HOST=postgres
-      # - PGSQL_PORT=5432
-      # - PGSQL_DB=snowledge
+
   analyzer:
     build:
       context: .
