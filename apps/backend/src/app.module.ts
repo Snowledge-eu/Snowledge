@@ -54,6 +54,7 @@ import { AnalysisModule } from './analysis/analysis.module';
 				database: postgresConfig.database,
 				synchronize: true,
 				autoLoadEntities: true,
+				ssl: postgresConfig.ssl,
 			}),
 		}),
 		AuthModule,
