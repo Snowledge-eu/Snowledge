@@ -23,8 +23,6 @@ services:
       context: .
     ports:
       - 3000:3000
-    depends_on:
-      - postgres
     restart: unless-stopped
     networks:
       - snowledge_network
@@ -35,7 +33,6 @@ services:
     ports:
       - 4000:4000
     depends_on:
-      - postgres
       - mongo
     restart: unless-stopped
     networks:

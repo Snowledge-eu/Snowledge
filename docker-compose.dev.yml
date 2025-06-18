@@ -6,6 +6,8 @@ services:
     build:
       context: .
       dockerfile: ./apps/frontend/Dockerfile.dev
+    depends_on:
+      - postgres
     # volumes:
     #   - ./apps/frontend:/app
     # - /app/node_modules
@@ -25,6 +27,8 @@ services:
     build:
       context: .
       dockerfile: ./apps/backend/Dockerfile.dev
+    depends_on:
+      - postgres
     volumes:
       # Monter le code source en préservant node_modules
       - ./apps/backend:/app
