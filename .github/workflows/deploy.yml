@@ -87,6 +87,7 @@ jobs:
             echo "PGSQL_HOST=postgresql-02aff275-o9835f167.database.cloud.ovh.net" >> .env
             echo "PGSQL_PORT=20184" >> .env
             echo "PGSQL_DB=defaultdb" >> .env
+            echo "PGSQL_SSL=true" >> .env
             echo "BACK_URL=https://test.snowledge.eu/api" >> .env
             echo "FRONT_URL=https://test.snowledge.eu" >> .env
             echo "NEXT_PUBLIC_BACKEND_URL=https://test.snowledge.eu/api" >> .env
