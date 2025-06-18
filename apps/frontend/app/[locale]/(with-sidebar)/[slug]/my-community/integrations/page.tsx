@@ -35,7 +35,7 @@ export default function Page() {
     JSON.stringify({ communityId: localStorage.getItem("activeCommunityId") })
   );
   // TODO: change to the correct client id
-  const clientId = process.env.NEXT_PUBLIC_DSD_CLIEND_ID;
+  const clientId = process.env.NEXT_PUBLIC_DSD_CLIENT_ID;
   console.log(clientId);
   console.log(process.env.NEXT_PUBLIC_BACKEND_URL);
 
