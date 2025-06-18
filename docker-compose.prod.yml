@@ -35,6 +35,7 @@ services:
       - MG_PORT=27017
       - MG_DB=snowledge
       - ORIGIN_CORS= ["https://hi.snowledge.eu", "https://test.snowledge.eu"]
+      - NODE_EXTRA_CA_CERTS=/etc/ssl/certs/pg-ca.crt
 
   analyzer:
     build:
