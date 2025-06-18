@@ -66,9 +66,9 @@ export class AuthProvider {
 				refresh_token,
 				auth: 'create',
 			};
-		} catch (error) {
+		} catch (error: any) {
 			this.logger.error(error);
-			throw new Error('Error creating user', error);
+			throw new Error(`Error creating userr: ${error.message}`);
 		}
 	}
 	async signIn(
