@@ -8,6 +8,10 @@ import { join } from 'path';
 import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
+	console.log(
+		'process.env.NODE_EXTRA_CA_CERTS',
+		process.env.NODE_EXTRA_CA_CERTS,
+	);
 	const app = await NestFactory.create<NestExpressApplication>(AppModule);
 	app.useGlobalInterceptors(
 		new ClassSerializerInterceptor(app.get(Reflector)),
