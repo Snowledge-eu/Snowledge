@@ -6,7 +6,7 @@ export default registerAs(
 	(): MongoConfig => ({
 		host: process.env.MG_HOST ?? '127.0.0.1',
 		port: parseInt(process.env.MG_PORT) ?? 27017,
-		database: process.env.MG_DB ?? '',
+		database: process.env.MG_NAME ?? '',
 		usernameMongo: process.env.MG_USER ?? '',
 		password: process.env.MG_PASSWORD ?? '',
 	}),

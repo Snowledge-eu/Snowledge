@@ -23,8 +23,8 @@ export function SentimentListCard({
   history,
   onSelect,
 }: {
-  history: SentimentHistory[];
-  onSelect: (result: SentimentHistory) => void;
+  history: any[];
+  onSelect: (result: any) => void;
 }) {
   // Palette harmonisée avec sentiment-chart.tsx
   const SENTIMENT_COLORS: Record<"positive" | "neutral" | "negative", string> =
@@ -58,51 +58,51 @@ export function SentimentListCard({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {history.map((item, idx) => (
-            <TableRow key={item.id || idx}>
+          {history?.map((item, idx) => (
+            <TableRow key={item?.id || idx}>
               <TableCell className="px-2 text-left font-medium max-w-[110px] whitespace-nowrap">
                 <Button
                   variant="link"
                   className="p-0 h-auto min-w-0"
                   onClick={() => onSelect(item)}
                 >
-                  {item.id}
+                  {item?.id}
                 </Button>
               </TableCell>
               <TableCell className="px-2 text-left max-w-[160px] whitespace-nowrap">
-                <TimeframeBadge timeframe={item.timeframe} />
+                <TimeframeBadge timeframe={item?.timeframe} />
               </TableCell>
               <TableCell className="px-2 text-center">
                 <span
-                  title={item.platform}
-                  aria-label={item.platform}
+                  title={item?.platform}
+                  aria-label={item?.platform}
                   tabIndex={0}
                   className="flex justify-center items-center"
                 >
                   <SocialIcon
-                    network={item.platform.toLowerCase()}
+                    network={item?.platform.toLowerCase()}
                     style={{ height: 24, width: 24 }}
                   />
                 </span>
               </TableCell>
               <TableCell className="px-2 text-center max-w-[60px] truncate">
-                {item.scope}
+                {item?.scope}
               </TableCell>
               <TableCell className="px-2 text-center max-w-[70px] truncate">
                 <Badge
                   style={{
                     backgroundColor:
                       SENTIMENT_COLORS[
-                        item.sentiment as "positive" | "neutral" | "negative"
+                        item?.sentiment as "positive" | "neutral" | "negative"
                       ],
-                    color: item.sentiment === "neutral" ? "#222" : "#fff",
+                    color: item?.sentiment === "neutral" ? "#222" : "#fff",
                   }}
                 >
-                  {item.sentiment}
+                  {item?.sentiment}
                 </Badge>
               </TableCell>
               <TableCell className="px-2 text-center max-w-[90px] whitespace-nowrap">
-                {item.date}
+                {item?.date}
               </TableCell>
               <TableCell className="px-2 text-center">
                 <Button
@@ -124,19 +124,7 @@ export function SentimentListCard({
 // ============
 // FAKE DATA for demo
 // ============
-export interface SentimentHistory {
-  id: string;
-  timeframe: string;
-  platform: string;
-  scope: string;
-  sentiment: string;
-  date: string;
-  dataCount: number;
-  score: number;
-  summary: string;
-}
-
-export const FAKE_SENTIMENT_HISTORY: SentimentHistory[] = [
+export const FAKE_SENTIMENT_HISTORY = [
   {
     id: "SEN-001",
     timeframe: "2024-06-01 to 2024-06-07",

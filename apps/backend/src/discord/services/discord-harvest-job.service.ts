@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { DiscordHarvestJob } from '../schemas/discord-harvest-job.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { Long } from 'bson';
 
 @Injectable()
 export class DiscordHarvestJobService {
@@ -9,11 +10,14 @@ export class DiscordHarvestJobService {
 		@InjectModel(DiscordHarvestJob.name) private harvestJobModel: Model<DiscordHarvestJob>,
 	) {}
 
+	findAll() {
+		return this.harvestJobModel.find().exec();
+	}
 	findLastHarvestJobByDiscordServerId(guildId: string): Promise<DiscordHarvestJob> {
 		return this.harvestJobModel
 			.findOne()
-			.where({ serverId: guildId })
-			.sort({ created_at: 'asc' })
-			.exec();
+			.where({ serverId: Long.fromString(guildId) })
+			.sort({ created_at: 'desc' })
+			.lean();
 	}
 }

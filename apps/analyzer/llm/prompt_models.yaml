@@ -1,7 +1,7 @@
 prompt_models:
   discord_sentiment:
     platform: discord
-    description: "Classify general sentiment across a batch of Discord messages."
+    description: "Classify general sentiment across a batch of Discord messages and show representative examples."
     temperature: 0.3
     top_p: 0.8
     messages:
@@ -9,8 +9,13 @@ prompt_models:
         content: >
           You are a sentiment analyst. Based on the tone, choice of words, and emotional cues in the following Discord messages,
           determine the OVERALL sentiment expressed by the community.
+
           Each message is formatted as: [DATE TIME] USER: MESSAGE
+
           Consider message context and user interactions. Ignore isolated emotional outliers unless they dominate the overall tone.
+
+          Also select 2 to 4 messages that best represent the general sentiment and tone. Choose messages that are clear, expressive,
+          and typical of what others have said. Avoid repetition or fringe opinions.
       - role: user
         content: "{{messages}}"
     response_format:
@@ -29,24 +34,38 @@ prompt_models:
               enum: [High, Medium, Low]
             reasoning:
               type: string
-          required: [sentiment, confidence, reasoning]
+            representative_messages:
+              type: array
+              items:
+                type: string
+              minItems: 2
+              maxItems: 4
+          required: [sentiment, confidence, reasoning, representative_messages]
 
   discord_trends:
     platform: discord
-    description: "Extract trending discussion topics and overall sentiment from Discord messages."
-    temperature: 0.5
-    top_p: 0.85
+    description: "Extract trending discussion topics and document key dynamics from Discord messages."
+    temperature: 0.3
+    top_p: 0.8
     messages:
       - role: system
         content: >
-          You are an expert community analyst. Your task is to extract the top 3 trending discussion topics from a list of Discord messages
-          and assess the overall sentiment of the conversation.
+          You are an expert community analyst. Your task is to extract and document the key trending discussion topics from a list of Discord messages
+          over a selected time period. Your output should help a content creator quickly understand what was discussed and who was active.
+
           Each message is formatted as: [DATE TIME] USER: MESSAGE
-          Analyze:
-          1. The most discussed subjects, clustering similar subtopics.
-          2. The sentiment tone (overall emotion) expressed by the majority of users.
-          3. Consider the temporal context of messages and user interactions.
-          Be concise and avoid repetition. Group related messages together to form coherent topics.
+
+          For each trend, identify:
+          1. A clear and concise title describing the topic.
+          2. A short synthesis of what users are discussing or debating.
+          3. A selection of 2–4 representative messages that illustrate the discussion.
+          4. An assessment of the activity level for that topic: Low, Medium, or High (based on message count and interactions).
+
+          Also include:
+          - The timeframe covered.
+          - A list of the most active or influential users during the conversation.
+
+          Be concise, factual, and avoid speculation. Group messages that address similar ideas. Do not summarize everything—only extract the most relevant trends.
       - role: user
         content: "{{messages}}"
     response_format:
@@ -57,7 +76,7 @@ prompt_models:
           title: DiscordTrends
           type: object
           properties:
-            topics:
+            trends:
               type: array
               items:
                 type: object
@@ -67,35 +86,70 @@ prompt_models:
                     title: Topic Title
                   summary:
                     type: string
-                    title: Topic Summary
+                    title: Concise synthesis of what the discussion was about
+                  representative_messages:
+                    type: array
+                    title: Sample Messages
+                    items:
+                      type: string
+                  activity_level:
+                    type: string
+                    enum: [Low, Medium, High]
+                    title: Activity Level
                 required: [title, summary]
-              minItems: 3
+              minItems: 1
               maxItems: 3
-            sentiment:
+            timeframe:
               type: string
-              enum: [Positive, Neutral, Negative]
-            confidence:
-              type: string
-              enum: [High, Medium, Low]
-          required: [topics, sentiment, confidence]
+              title: Covered Timeframe
+            notable_users:
+              type: array
+              title: Most Active or Influential Users
+              items:
+                type: string
+          required: [trends, timeframe, notable_users]
 
-  math_reasoning:
-    platform: math
-    description: "Solve math equations and return the answer in JSON format."
+  discord_summary_by_timeframe:
+    platform: discord
+    description: "Summarize key events, discussions, and community activity in a Discord channel for a selected time frame."
+    temperature: 0.4
+    top_p: 0.85
     messages:
       - role: system
-        content: "You are a helpful math tutor. Help the user solve equations and provide the answer in JSON format."
+        content: >
+          You are a productivity assistant for content creators. Your job is to summarize what happened in a Discord channel
+          during a specific time period, so the user can quickly catch up and take action if needed.
+
+          Each message is formatted as: [DATE TIME] USER: MESSAGE
+
+          Identify and summarize:
+          1. The key topics discussed and any conclusions reached.
+          2. Questions or feedback directed at the content creator.
+          3. Suggestions, ideas, or tasks mentioned that may require action.
+          4. Notable active members or unexpected behavior.
+
+          Also include a list of the most active or influential users during the timeframe.
+
+          Keep it concise but actionable. Group related ideas and prioritize clarity over exhaustiveness.
       - role: user
-        content: "{{question}}"
+        content: "{{messages}}"
     response_format:
       type: json_schema
       json_schema:
-        name: MathReasoning
-        schema:
-          title: MathReasoning
-          type: object
-          properties:
-            final_answer:
-              title: Final Answer
+        title: DiscordSummaryByTimeframe
+        type: object
+        properties:
+          summary:
+            type: string
+            title: Summary
+          action_points:
+            type: array
+            items:
               type: string
-          required: [final_answer]
+            title: Actionable Points
+          notable_users:
+            type: array
+            items:
+              type: string
+            title: Most Active or Influential Users
+        required: [summary, action_points, notable_users]

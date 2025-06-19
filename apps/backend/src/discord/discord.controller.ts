@@ -14,6 +14,7 @@ import { User as UserEntity } from 'src/user/entities/user.entity';
 import { User } from 'src/user/decorator';
 import { Response } from 'express';
 import { DiscordHarvestJobService } from './services/discord-harvest-job.service';
+import { DiscordHarvestJob } from './schemas/discord-harvest-job.schema';
 @ApiTags('auth')
 @Controller('discord')
 export class DiscordController {
@@ -53,15 +54,17 @@ export class DiscordController {
 	}
 
 	@Get('last-harvest/:guildId')
-	async getLastHarvest(@Param('guildId') guildId: string) {
+	async getLastHarvest(@Param('guildId') guildId: string): Promise<DiscordHarvestJob> {
 		console.log(guildId);
 		console.log(parseInt(guildId));
 		console.log(Number(guildId));
-		const harvest =
-			await this.discordHarvestJobService.findLastHarvestJobByDiscordServerId(
-				guildId,
-			);
-		console.log(harvest);
-		return harvest;
+		const harv = await this.discordHarvestJobService.findAll();
+		console.log(harv);
+		// const harvest =
+		return await this.discordHarvestJobService.findLastHarvestJobByDiscordServerId(
+			guildId,
+		);
+		// console.log(harvest);
+		// return harvest;
 	}
 }

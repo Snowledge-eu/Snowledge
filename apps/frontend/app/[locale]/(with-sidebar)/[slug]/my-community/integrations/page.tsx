@@ -185,8 +185,9 @@ export default function Page() {
                   name: info.server_name,
                   connected: true,
                 },
-                lastFetched:
-                  new Date(harvest?.created_at).toLocaleDateString() || "",
+                lastFetched: harvest?.created_at
+                  ? new Date(harvest?.created_at).toLocaleDateString()
+                  : "-",
               }
             : platform
         )

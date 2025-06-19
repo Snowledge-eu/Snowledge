@@ -230,11 +230,14 @@ export function SentimentInput({
           className="flex flex-row gap-6"
         >
           <div className="flex items-center gap-2">
-            <RadioGroupItem value="standard" id="standard" />
+            <RadioGroupItem value="Meta-Llama-3_3-70B-Instruct" id="standard" />
             <Label htmlFor="standard">Standard</Label>
           </div>
           <div className="flex items-center gap-2">
-            <RadioGroupItem value="reasoning" id="reasoning" />
+            <RadioGroupItem
+              value="DeepSeek-R1-Distill-Llama-70B"
+              id="reasoning"
+            />
             <Label htmlFor="reasoning">Reasoning</Label>
           </div>
         </RadioGroup>

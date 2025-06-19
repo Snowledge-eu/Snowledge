@@ -9,6 +9,7 @@ type DiscordSummary = {
   summary: string;
   action_points: string[];
   timeframe?: string;
+  activityLevel?: "Low" | "Medium" | "High";
   notable_users?: string[];
 };
 
@@ -22,6 +23,7 @@ export default function DiscordSummaryCard({
   summary,
   action_points,
   timeframe,
+  activityLevel = "Medium",
   notable_users,
   platform = "discord",
   scope = "all",

@@ -68,6 +68,7 @@ export function TrendInputCard({
   canLaunch,
   loading,
   onStart,
+  PlatformIconButton,
 }: {
   platforms: any[];
   selectedPlatform: string;
@@ -81,12 +82,15 @@ export function TrendInputCard({
   onTimeRangeChange: (v: string) => void;
   customDate: Date | undefined;
   onCustomDateChange: (v: Date | undefined) => void;
-  mode: "standard" | "reasoning";
-  onModeChange: (v: "standard" | "reasoning") => void;
+  mode: "Meta-Llama-3_3-70B-Instruct" | "DeepSeek-R1-Distill-Llama-70B";
+  onModeChange: (
+    v: "Meta-Llama-3_3-70B-Instruct" | "DeepSeek-R1-Distill-Llama-70B"
+  ) => void;
   messageCount: number;
   canLaunch: boolean;
   loading: boolean;
   onStart: (channels: Array<string>, model: string, period: string) => void;
+  PlatformIconButton: React.FC<any>;
 }) {
   // Fake videos for YouTube select
   const fakeYoutubeVideos = [
@@ -244,16 +248,23 @@ export function TrendInputCard({
         <RadioGroup
           value={mode}
           onValueChange={(v: string) =>
-            onModeChange(v as "standard" | "reasoning")
+            onModeChange(
+              v as
+                | "Meta-Llama-3_3-70B-Instruct"
+                | "DeepSeek-R1-Distill-Llama-70B"
+            )
           }
           className="flex flex-row gap-6"
         >
           <div className="flex items-center gap-2">
-            <RadioGroupItem value="standard" id="standard" />
+            <RadioGroupItem value="Meta-Llama-3_3-70B-Instruct" id="standard" />
             <Label htmlFor="standard">Standard</Label>
           </div>
           <div className="flex items-center gap-2">
-            <RadioGroupItem value="reasoning" id="reasoning" />
+            <RadioGroupItem
+              value="DeepSeek-R1-Distill-Llama-70B"
+              id="reasoning"
+            />
             <Label htmlFor="reasoning">Reasoning</Label>
           </div>
         </RadioGroup>
