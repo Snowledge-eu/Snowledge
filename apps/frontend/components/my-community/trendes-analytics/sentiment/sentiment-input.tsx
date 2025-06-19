@@ -63,8 +63,10 @@ export function SentimentInput({
   onTimeRangeChange: (v: string) => void;
   customDate: Date | undefined;
   onCustomDateChange: (date: Date | undefined) => void;
-  mode: "standard" | "reasoning";
-  onModeChange: (v: "standard" | "reasoning") => void;
+  mode: "Meta-Llama-3_3-70B-Instruct" | "DeepSeek-R1-Distill-Llama-70B";
+  onModeChange: (
+    v: "Meta-Llama-3_3-70B-Instruct" | "DeepSeek-R1-Distill-Llama-70B"
+  ) => void;
   messageCount: number;
   canLaunch: boolean;
   loading: boolean;
@@ -79,7 +81,6 @@ export function SentimentInput({
   const [selectedYoutubeVideos, setSelectedYoutubeVideos] = React.useState<
     Array<{ label: string; value: string }>
   >([]);
-  console.log(selectedYoutubeVideos);
 
   return (
     <div className="bg-muted rounded-xl shadow p-6 flex flex-col gap-10">
@@ -225,7 +226,11 @@ export function SentimentInput({
         <RadioGroup
           value={mode}
           onValueChange={(v: string) =>
-            onModeChange(v as "standard" | "reasoning")
+            onModeChange(
+              v as
+                | "Meta-Llama-3_3-70B-Instruct"
+                | "DeepSeek-R1-Distill-Llama-70B"
+            )
           }
           className="flex flex-row gap-6"
         >
