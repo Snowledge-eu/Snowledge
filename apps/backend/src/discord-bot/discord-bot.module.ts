@@ -18,6 +18,7 @@ import { DiscordAccess } from 'src/discord/entities/discord-access.entity';
 import { Learner } from 'src/learner/entities/learner/learner';
 import { CommunityService } from 'src/community/community.service';
 import { LearnerService } from 'src/learner/learner.service';
+import { DiscordServerModule } from 'src/discord-server/discord-server.module';
 
 @Module({
 	imports: [
@@ -30,6 +31,7 @@ import { LearnerService } from 'src/learner/learner.service';
 			DiscordAccess,
 			Learner,
 		]),
+		DiscordServerModule,
 	],
 	controllers: [DiscordBotController],
 	providers: [
@@ -38,6 +40,7 @@ import { LearnerService } from 'src/learner/learner.service';
 		DiscordProposalService,
 		DiscordProposalFormService,
 		DiscordProposalVoteService,
+
 		DiscordBotProvider,
 		DiscordService,
 		UserService,
