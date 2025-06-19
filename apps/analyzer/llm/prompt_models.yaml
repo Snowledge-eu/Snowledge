@@ -107,7 +107,7 @@ prompt_models:
               title: Most Active or Influential Users
               items:
                 type: string
-          required: [trends, timeframe]
+          required: [trends, timeframe, notable_users]
 
   discord_summary_by_timeframe:
     platform: discord
