@@ -42,7 +42,7 @@ export default function Page() {
     queryKey: ["invited", slug],
     queryFn: async () => {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000"}/communities/${slug}/learners/invited`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000/api"}/communities/${slug}/learners/invited`,
         { credentials: "include" }
       );
       if (!res.ok) throw new Error("Erreur lors du chargement des invitations");

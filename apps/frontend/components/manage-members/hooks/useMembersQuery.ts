@@ -8,7 +8,7 @@ export function useMembersQuery(slug: string) {
     queryKey: ["learners", slug],
     queryFn: async () => {
       const res = await fetcher(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000"}/communities/${slug}/learners`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000/api"}/communities/${slug}/learners`,
         { credentials: "include" }
       );
       return res;

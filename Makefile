@@ -22,7 +22,7 @@ up:
 	$(COMPOSE) up -d
 	@echo "✅ Tous les services sont démarrés"
 	@echo "📊 Frontend: http://localhost:3000"
-	@echo "🔌 Backend: http://localhost:4000"
+	@echo "🔌 Backend: http://localhost:4000/api"
 	@echo "🚀 Snowledge-v1: http://localhost:3001"
 
 # Arrêter les conteneurs

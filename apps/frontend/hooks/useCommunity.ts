@@ -9,7 +9,7 @@ export function useCommunity(slug: string) {
     queryKey: ["community", slug],
     queryFn: async () => {
       const res = await fetcher(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000"}/communities/${slug}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000/api"}/communities/${slug}`,
         {
           method: "GET",
           credentials: "include",

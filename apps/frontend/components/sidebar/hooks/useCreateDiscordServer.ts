@@ -8,7 +8,7 @@ export function useCreateDiscordServer() {
   return useMutation({
     mutationFn: async (params: Omit<DiscordServer, "id">) => {
       return await fetcher(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000"}/discord-server`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000/api"}/discord-server`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

@@ -6,7 +6,7 @@ export function useMemberMutations(slug: string) {
   const deleteMutation = useMutation({
     mutationFn: async (userId: number) => {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000"}/communities/${slug}/learners/${userId}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000/api"}/communities/${slug}/learners/${userId}`,
         {
           method: "DELETE",
           credentials: "include",
@@ -29,7 +29,7 @@ export function useMemberMutations(slug: string) {
       isContributor: boolean;
     }) => {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000"}/communities/${slug}/learners/${userId}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000/api"}/communities/${slug}/learners/${userId}`,
         {
           method: "PATCH",
           credentials: "include",

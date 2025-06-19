@@ -18,7 +18,7 @@ export function useUpdateCommunity(
   return useMutation({
     mutationFn: async (data: FormSchema) => {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000"}/communities/${id}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000/api"}/communities/${id}`,
         {
           method: "PUT",
           headers: {

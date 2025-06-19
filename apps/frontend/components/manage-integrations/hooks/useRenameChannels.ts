@@ -11,7 +11,7 @@ export function useRenameChannels() {
       newNames: ChannelNames;
     }) => {
       return await fetcher(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000"}/discord-bot/rename-channels`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000/api"}/discord-bot/rename-channels`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

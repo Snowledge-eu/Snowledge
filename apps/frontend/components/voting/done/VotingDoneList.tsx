@@ -16,7 +16,7 @@ const VotingDoneList = ({ communitySlug }: { communitySlug: string }) => {
     queryKey: ["proposals", "done"],
     queryFn: async () => {
       const res = await fetcher(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000"}/communities/${communitySlug}/proposals`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000/api"}/communities/${communitySlug}/proposals`,
         { credentials: "include" }
       );
       return res;

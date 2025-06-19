@@ -10,7 +10,7 @@ export function useUserVotes(communitySlug: string, userId?: string) {
     queryFn: async () => {
       if (!userId) return [];
       const res = await fetcher(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000"}/communities/${communitySlug}/votes`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000/api"}/communities/${communitySlug}/votes`,
         { credentials: "include" }
       );
       return res;

@@ -383,7 +383,6 @@ export default function Page() {
         })}
       </div>
       <div>
-        <div>Intégrations pour la communauté {activeCommunity?.name}</div>
         <ManageIntegrations communityId={activeCommunity?.id as number} />
       </div>
     </section>

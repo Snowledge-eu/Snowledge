@@ -16,7 +16,7 @@ export function useAddLearnerToCommunity() {
       const id = user?.id;
       if (!id) throw new Error("Utilisateur non authentifié");
       const res = await fetcher(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000"}/communities/${communitySlug}/learners/${id}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000/api"}/communities/${communitySlug}/learners/${id}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
