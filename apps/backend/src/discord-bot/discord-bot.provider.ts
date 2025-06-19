@@ -71,6 +71,7 @@ export class DiscordBotProvider {
 			await this.communityService.findOneByDiscordServerId(guildId);
 
 		if (!community) {
+			console.log('Community not found', guildId);
 			throw new Error('Community not found');
 		}
 

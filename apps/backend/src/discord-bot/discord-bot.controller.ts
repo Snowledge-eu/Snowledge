@@ -77,7 +77,7 @@ export class DiscordBotController {
 		if (code) {
 			await this.discordBotProvider.linkDiscord(code, guildId);
 			const logoUrl =
-				this.configService.get('SNOWLEDGE_LOGO_URL') || '/logo.png';
+				'https://test-image-snowledge.s3.eu-west-par.io.cloud.ovh.net/logo/logo.png';
 			res.setHeader('Content-Type', 'text/html');
 			res.send(`
 			<html>
