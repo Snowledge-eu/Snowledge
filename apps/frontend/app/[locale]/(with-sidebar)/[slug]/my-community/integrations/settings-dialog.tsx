@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { CheckCircle2, LogIn, LogOut, Cog } from "lucide-react";
+import { CheckCircle2, LogIn, LogOut, Cog, Settings2 } from "lucide-react";
 import { SocialIcon } from "react-social-icons";
+import { ManageIntegrations } from "@/components/manage-integrations/ManageIntegrations";
 import {
   Button,
   Checkbox,
@@ -21,6 +22,7 @@ import {
   DialogClose,
 } from "@repo/ui/components/dialog";
 import { useRouter } from "next/navigation";
+import { useChannelSections } from "@/components/manage-integrations/hooks/useChannelSections";
 // ============
 // Type definitions
 // ============
@@ -98,9 +100,16 @@ const recurrenceOptions = [
 // PARAMS: platform: PlatformProps
 // RETURNS: Dialog UI for the platform
 // ============
-function PlatformSettingsDialog({ platform }: { platform: PlatformProps }) {
+function PlatformSettingsDialog({
+  platform,
+  communityId,
+}: {
+  platform: PlatformProps;
+  communityId: number;
+}) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [manageIntegrationsOpen, setManageIntegrationsOpen] = useState(false);
   const [account, setAccount] = useState<AccountPlatform>(
     platform.accountPlatform
   );
@@ -160,6 +169,9 @@ function PlatformSettingsDialog({ platform }: { platform: PlatformProps }) {
     setOpen(false);
   };
 
+  const { isLoading, allIdsNull, state, actions, meta } =
+    useChannelSections(communityId);
+
   useEffect(() => {
     if (platform) {
       setAccount(platform.accountPlatform);
@@ -168,134 +180,164 @@ function PlatformSettingsDialog({ platform }: { platform: PlatformProps }) {
     }
   }, [platform]);
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button
-          variant="outline"
-          size="sm"
-          aria-label={`Settings for ${platform.name}`}
-          className="flex items-center gap-1 px-2 justify-center"
-        >
-          <Cog className="w-4 h-4" />
-          <span>Settings</span>
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-md w-full">
-        <DialogHeader>
-          <DialogTitle>{platform.name} Settings</DialogTitle>
-          <DialogDescription>
-            Configure your account, fetch recurrence, and what to collect for
-            this platform.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="flex flex-col gap-4 mt-2">
-          <div className="flex items-center gap-4">
-            <SocialIcon
-              url={platform.url}
-              bgColor={platform.color}
-              style={{ height: 40, width: 40 }}
-            />
-            <div className="flex-1">
-              <div className="font-semibold text-lg">
-                {account.connected ? account.name : "Not connected"}
-              </div>
-              <div className="text-sm text-muted-foreground">
-                {platform.name}
-              </div>
-            </div>
-            {account.connected ? (
-              <Button
-                size="sm"
-                variant="secondary"
-                onClick={handleDisconnect}
-                aria-label={`Disconnect ${platform.name}`}
-              >
-                <LogOut className="w-4 h-4 mr-1" /> Disconnect
-              </Button>
-            ) : (
-              <Button
-                size="sm"
-                onClick={handleConnect}
-                aria-label={`Connect ${platform.name}`}
-              >
-                <LogIn className="w-4 h-4 mr-1" /> Connect
-              </Button>
-            )}
-          </div>
-          <div className="flex flex-col gap-2">
-            <label
-              htmlFor={`${platform.key}-recurrence`}
-              className="font-medium"
-            >
-              Recurrence
-            </label>
-            <Select value={recurrence} onValueChange={handleRecurrenceChange}>
-              <SelectTrigger id={`${platform.key}-recurrence`} className="w-64">
-                <SelectValue placeholder="Select recurrence" />
-              </SelectTrigger>
-              <SelectContent>
-                {recurrenceOptions.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="flex flex-col gap-2">
-            <div className="font-medium mb-1">
-              {platform.type.charAt(0).toUpperCase() + platform.type.slice(1)}{" "}
-              to collect
-            </div>
-            <div className="flex flex-col gap-1">
-              {entities.map((entity) => (
-                <label
-                  key={entity.id}
-                  className="flex items-center gap-2 cursor-pointer"
-                >
-                  <Checkbox
-                    checked={entity.selected}
-                    onCheckedChange={() => handleEntityToggle(entity.id)}
-                    disabled={!account.connected}
-                    aria-label={`Select ${entity.name}`}
-                  />
-                  <span
-                    className={account.connected ? "" : "text-muted-foreground"}
-                  >
-                    {entity.name}
-                  </span>
-                </label>
-              ))}
-            </div>
-          </div>
-        </div>
-        <DialogFooter>
+    <>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
           <Button
-            onClick={handleSave}
-            aria-label="Save settings"
-            className="w-32"
+            variant="outline"
             size="sm"
+            aria-label={`Settings for ${platform.name}`}
+            className="flex items-center gap-1 px-2 justify-center"
           >
-            Save
+            <Cog className="w-4 h-4" />
+            <span>Settings</span>
           </Button>
-          <DialogClose asChild>
+        </DialogTrigger>
+        <DialogContent className="max-w-md w-full">
+          <DialogHeader>
+            <DialogTitle>{platform.name} Settings</DialogTitle>
+            <DialogDescription>
+              Configure your account, fetch recurrence, and what to collect for
+              this platform.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-4 mt-2">
+            <div className="flex items-center gap-4">
+              <SocialIcon
+                url={platform.url}
+                bgColor={platform.color}
+                style={{ height: 40, width: 40 }}
+              />
+              <div className="flex-1">
+                <div className="font-semibold text-lg">
+                  {account.connected ? account.name : "Not connected"}
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  {platform.name}
+                </div>
+              </div>
+              {account.connected ? (
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={handleDisconnect}
+                    aria-label={`Disconnect ${platform.name}`}
+                  >
+                    <LogOut className="w-4 h-4 mr-1" /> Disconnect
+                  </Button>
+                  {platform.key === "discord" && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setManageIntegrationsOpen(true)}
+                      aria-label="Manage Discord integrations"
+                      disabled={isLoading}
+                    >
+                      <Settings2 className="w-4 h-4 mr-1" /> Manage
+                    </Button>
+                  )}
+                </div>
+              ) : (
+                <Button
+                  size="sm"
+                  onClick={handleConnect}
+                  aria-label={`Connect ${platform.name}`}
+                >
+                  <LogIn className="w-4 h-4 mr-1" /> Connect
+                </Button>
+              )}
+            </div>
+            <div className="flex flex-col gap-2">
+              <label
+                htmlFor={`${platform.key}-recurrence`}
+                className="font-medium"
+              >
+                Recurrence
+              </label>
+              <Select value={recurrence} onValueChange={handleRecurrenceChange}>
+                <SelectTrigger
+                  id={`${platform.key}-recurrence`}
+                  className="w-64"
+                >
+                  <SelectValue placeholder="Select recurrence" />
+                </SelectTrigger>
+                <SelectContent>
+                  {recurrenceOptions.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex flex-col gap-2">
+              <div className="font-medium mb-1">
+                {platform.type.charAt(0).toUpperCase() + platform.type.slice(1)}{" "}
+                to collect
+              </div>
+              <div className="flex flex-col gap-1">
+                {entities.map((entity) => (
+                  <label
+                    key={entity.id}
+                    className="flex items-center gap-2 cursor-pointer"
+                  >
+                    <Checkbox
+                      checked={entity.selected}
+                      onCheckedChange={() => handleEntityToggle(entity.id)}
+                      disabled={!account.connected}
+                      aria-label={`Select ${entity.name}`}
+                    />
+                    <span
+                      className={
+                        account.connected ? "" : "text-muted-foreground"
+                      }
+                    >
+                      {entity.name}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
             <Button
-              variant="secondary"
+              onClick={handleSave}
+              aria-label="Save settings"
               className="w-32"
               size="sm"
-              aria-label="Close dialog"
             >
-              Close
+              Save
             </Button>
-          </DialogClose>
-        </DialogFooter>
-        {saved && (
-          <div className="text-green-600 text-center mt-2 flex items-center justify-center gap-2">
-            <CheckCircle2 className="w-4 h-4" /> Settings saved!
-          </div>
-        )}
-      </DialogContent>
-    </Dialog>
+            <DialogClose asChild>
+              <Button
+                variant="secondary"
+                className="w-32"
+                size="sm"
+                aria-label="Close dialog"
+              >
+                Close
+              </Button>
+            </DialogClose>
+          </DialogFooter>
+          {saved && (
+            <div className="text-green-600 text-center mt-2 flex items-center justify-center gap-2">
+              <CheckCircle2 className="w-4 h-4" /> Settings saved!
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+      {platform.key === "discord" && (
+        <ManageIntegrations
+          open={manageIntegrationsOpen}
+          onOpenChange={setManageIntegrationsOpen}
+          state={state}
+          actions={actions}
+          meta={meta}
+          allIdsNull={allIdsNull}
+        />
+      )}
+    </>
   );
 }
 

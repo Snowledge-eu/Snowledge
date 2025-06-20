@@ -363,6 +363,7 @@ export default function Page() {
                       options: platform.options,
                       accountPlatform: platform.account,
                     }}
+                    communityId={activeCommunity?.id || 0}
                   />
                   <Button
                     className="flex items-center gap-2 w-32 justify-center"
@@ -386,9 +387,6 @@ export default function Page() {
             </Card>
           );
         })}
-      </div>
-      <div>
-        <ManageIntegrations communityId={activeCommunity?.id as number} />
       </div>
     </section>
   );

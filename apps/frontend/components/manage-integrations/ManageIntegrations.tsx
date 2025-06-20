@@ -1,16 +1,15 @@
 import React from "react";
 import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from "@repo/ui/components/card";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@repo/ui/components/dialog";
 import { DiscordLimitationTooltip } from "./components/DiscordLimitationTooltip";
 import { DiscordLimitationAlert } from "./components/DiscordLimitationAlert";
 import { FirstConfigAlert } from "./components/FirstConfigAlert";
 import { AssignedChannelsAlert } from "./components/AssignedChannelsAlert";
 import { ChannelSections } from "./components/ChannelSections";
-import { useChannelSections } from "./hooks/useChannelSections";
 import { useTranslations } from "next-intl";
 
 /**
@@ -36,49 +35,62 @@ import { useTranslations } from "next-intl";
  */
 
 interface Props {
-  communityId: number;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  state: any;
+  actions: any;
+  meta: any;
+  allIdsNull?: boolean;
 }
 
-export const ManageIntegrations: React.FC<Props> = ({ communityId }) => {
+export const ManageIntegrations: React.FC<Props> = ({
+  open,
+  onOpenChange,
+  state,
+  actions,
+  meta,
+  allIdsNull,
+}) => {
   const t = useTranslations("manageIntegrations");
-  const { isLoading, allIdsNull, state, actions, meta } =
-    useChannelSections(communityId);
-
-  if (isLoading) {
-    return <div>{t("loading")}</div>;
-  }
 
   return (
-    <Card className="max-w-xl mx-auto mt-8">
-      <CardHeader>
-        <CardTitle>{t("title")}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        {allIdsNull ? (
-          <>
-            <FirstConfigAlert />
-            <ChannelSections
-              mode="firstConfig"
-              {...state}
-              {...actions}
-              {...meta}
-            />
-          </>
-        ) : (
-          <>
-            <div className="flex items-center gap-2 mb-4">
-              <span className="font-semibold text-base">
-                {t("discordLimitation")}
-              </span>
-              <DiscordLimitationTooltip />
-            </div>
-            <DiscordLimitationAlert />
-            <AssignedChannelsAlert />
-            <ChannelSections mode="edition" {...state} {...actions} {...meta} />
-          </>
-        )}
-      </CardContent>
-    </Card>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-xl">
+        <DialogHeader>
+          <DialogTitle>{t("title")}</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-6">
+          {allIdsNull ? (
+            <>
+              <FirstConfigAlert />
+              <ChannelSections
+                mode="firstConfig"
+                {...state}
+                {...actions}
+                {...meta}
+              />
+            </>
+          ) : (
+            <>
+              <div className="flex items-center gap-2 mb-4">
+                <span className="font-semibold text-base">
+                  {t("discordLimitation")}
+                </span>
+                <DiscordLimitationTooltip />
+              </div>
+              <DiscordLimitationAlert />
+              <AssignedChannelsAlert />
+              <ChannelSections
+                mode="edition"
+                {...state}
+                {...actions}
+                {...meta}
+              />
+            </>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 
