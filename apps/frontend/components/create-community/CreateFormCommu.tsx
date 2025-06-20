@@ -115,7 +115,7 @@ export default function CreateCommunity() {
 
   useEffect(() => {
     if (typeof window !== "undefined" && community) {
-      setCommunityUrl(`${window.location.origin}/community/${community}`);
+      setCommunityUrl(`${window.location.origin}/join/${community}`);
     }
   }, [community]);
 
