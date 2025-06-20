@@ -27,7 +27,7 @@ from dateutil.parser import parse as parse_date
 origins = ["*"]
 
 app = FastAPI()
-router = APIRouter(prefix="/analyzer")
+router = APIRouter(prefix="/test")
 
 
 app.add_middleware(
