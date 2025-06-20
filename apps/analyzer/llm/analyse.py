@@ -114,6 +114,7 @@ def call_ovh_api(payload: dict, stream: bool = False) -> Union[dict, Generator[s
         'Content-Type': 'application/json',
         'Authorization': f'Bearer {token}'
     }
+    print(payload)
     response = requests.post(url, json=payload, headers=headers, stream=stream, timeout=60)
     if stream:
         def stream_generator():

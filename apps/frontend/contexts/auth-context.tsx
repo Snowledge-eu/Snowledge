@@ -105,7 +105,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (res.status === 401) return false;
         else throw new Error("Failed. Please try again.");
       }
-
+      if (res.headers.get('Content-Length') === '0') {
+        return null;
+      }
       return res.json();
     },
     [accessToken, refreshAccessToken]

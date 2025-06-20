@@ -136,20 +136,22 @@ prompt_models:
     response_format:
       type: json_schema
       json_schema:
-        title: DiscordSummaryByTimeframe
-        type: object
-        properties:
-          summary:
-            type: string
-            title: Summary
-          action_points:
-            type: array
-            items:
+        name: DiscordSummaryByTimeframe
+        schema:
+          title: DiscordSummaryByTimeframe
+          type: object
+          properties:
+            summary:
               type: string
-            title: Actionable Points
-          notable_users:
-            type: array
-            items:
-              type: string
-            title: Most Active or Influential Users
-        required: [summary, action_points, notable_users]
+              title: Summary
+            action_points:
+              type: array
+              items:
+                type: string
+              title: Actionable Points
+            notable_users:
+              type: array
+              items:
+                type: string
+              title: Most Active or Influential Users
+          required: [summary, action_points, notable_users]

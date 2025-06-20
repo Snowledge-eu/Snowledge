@@ -185,7 +185,7 @@ export function SentimentInput({
             <SelectItem value="last_day">Last day</SelectItem>
             <SelectItem value="last_week">Last week</SelectItem>
             <SelectItem value="last_month">Last month</SelectItem>
-            <SelectItem value="custom">Custom</SelectItem>
+            {/* <SelectItem value="custom">Custom</SelectItem> */}
           </SelectContent>
         </Select>
         {timeRange === "custom" && (

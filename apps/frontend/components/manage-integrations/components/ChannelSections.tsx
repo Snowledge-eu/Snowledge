@@ -67,39 +67,41 @@ export const ChannelSections: React.FC<ChannelSectionsProps> = ({
   return (
     <div className="space-y-4">
       {(["propose", "vote", "result"] as const).map((type) => (
-        <ChannelSection
-          key={type}
-          type={type}
-          label={typeLabel(type)}
-          value={
-            mode === "firstConfig" || missing[type] ? names[type] : rename[type]
-          }
-          onChange={(v) =>
-            mode === "firstConfig" || missing[type]
-              ? setNames((prev) => ({ ...prev, [type]: v }))
-              : setRename((prev) => ({ ...prev, [type]: v }))
-          }
-          placeholder={
-            mode === "firstConfig"
-              ? typeLabel(type)
-              : getChannelName(listData, channelIds[type]) || typeLabel(type)
-          }
-          onValidate={
-            mode === "edition" && !missing[type]
-              ? () => handleRename(type)
-              : undefined
-          }
-          isLoading={mode === "firstConfig" ? isLoadingCreate : isLoadingRename}
-          isMissing={
-            mode === "firstConfig"
-              ? { all: true }
-              : {
-                  channelName: {
-                    [type]: missing[type] as boolean,
-                  },
-                }
-          }
-        />
+        <div>
+          <ChannelSection
+            key={type}
+            type={type}
+            label={typeLabel(type)}
+            value={
+              mode === "firstConfig" || missing[type] ? names[type] : rename[type]
+            }
+            onChange={(v) =>
+              mode === "firstConfig" || missing[type]
+                ? setNames((prev) => ({ ...prev, [type]: v }))
+                : setRename((prev) => ({ ...prev, [type]: v }))
+            }
+            placeholder={
+              mode === "firstConfig"
+                ? typeLabel(type)
+                : getChannelName(listData, channelIds[type]) || typeLabel(type)
+            }
+            onValidate={
+              mode === "edition" && !missing[type]
+                ? () => handleRename(type)
+                : undefined
+            }
+            isLoading={mode === "firstConfig" ? isLoadingCreate : isLoadingRename}
+            isMissing={
+              mode === "firstConfig"
+                ? { all: true }
+                : {
+                    channelName: {
+                      [type]: missing[type] as boolean,
+                    },
+                  }
+            }
+          />
+        </div>
       ))}
       {mode === "firstConfig" ? (
         <Button

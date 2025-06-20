@@ -82,7 +82,7 @@ export default function Page() {
   //   { label: '#random', value: 'random' },
   //   { label: '#support', value: 'support' },
   // ]
-  const messageCount = scope === "all" ? 3278 : selectedChannels.length * 800;
+  const [messageCount, setMessageCount] = useState(0);
   const canLaunch =
     messageCount > 0 && (scope === "all" || selectedChannels.length > 0);
 
@@ -150,17 +150,17 @@ export default function Page() {
           }
         ).catch((err) => console.error(err));
         setSelectedResult({
-          id: shortenString(analysis.result.id),
-          timeframe: `${new Date(analysis.period.from).toLocaleDateString()} to ${new Date(analysis.period.to).toLocaleDateString()}`,
-          platform: analysis.platform,
+          id: shortenString(analysis?.result?.id),
+          timeframe: `${new Date(analysis?.period.from).toLocaleDateString()} to ${new Date(analysis?.period.to).toLocaleDateString()}`,
+          platform: analysis?.platform,
           scope: "Custom", //TODO définir regle All | Custom
-          trends: JSON.parse(analysis.result.choices[0].message.content).trends,
-          date: new Date(analysis.created_at).toLocaleDateString(),
-          dataCount: 1200,
-          score: 87,
-          notable_users: JSON.parse(analysis.result.choices[0].message.content)
+          trends: JSON.parse(analysis?.result?.choices[0].message.content).trends,
+          date: new Date(analysis?.created_at).toLocaleDateString(),
+          // dataCount: 1200,
+          score: getRandomByLevel(JSON.parse(analysis?.result?.choices[0].message.content).confidence),
+          notable_users: JSON.parse(analysis?.result?.choices[0].message.content)
             .notable_users,
-          summary: JSON.parse(analysis.result.choices[0].message.content)
+          summary: JSON.parse(analysis?.result?.choices[0].message.content)
             .reasoning,
         });
         setLoading(false);
@@ -170,6 +170,30 @@ export default function Page() {
   const shortenString = (str: string, maxLength: number = 10): string => {
     if (str.length <= maxLength) return str;
     return `${str.slice(0, 3)}...${str.slice(-3)}`;
+  };
+
+  function getRandomByLevel(level: "Low" | "Medium" | "High"): number | null {
+      if (!level) return null;
+    let min: number, max: number;
+
+    switch (level) {
+      case "Low":
+        min = 1;
+        max = 33;
+        break;
+      case "Medium":
+        min = 34;
+        max = 66;
+        break;
+      case "High":
+        min = 67;
+        max = 99;
+        break;
+      default:
+        throw new Error(`Invalid level: ${level}`);
+    }
+
+    return Math.floor(Math.random() * (max - min + 1)) + min;
   };
   const fetchAnalysis = async () => {
     const body = {
@@ -190,7 +214,7 @@ export default function Page() {
         body: JSON.stringify(body),
       }
     ).catch((err) => console.error(err));
-    if (analysis.length > 0) {
+    if (analysis?.length > 0) {
       deserializeAnalyse(analysis);
     }
   };
@@ -198,17 +222,17 @@ export default function Page() {
     const tempArr = [];
     for (const item of analysis) {
       tempArr.push({
-        id: shortenString(item.result.id),
-        timeframe: `${new Date(item.period.from).toLocaleDateString()} to ${new Date(item.period.to).toLocaleDateString()}`,
-        platform: item.platform,
+        id: shortenString(item?.result?.id),
+        timeframe: `${new Date(item?.period.from).toLocaleDateString()} to ${new Date(item?.period.to).toLocaleDateString()}`,
+        platform: item?.platform,
         scope: "Custom", //TODO définir regle All | Custom
-        trends: JSON.parse(item.result.choices[0].message.content).trends,
-        date: new Date(item.created_at).toLocaleDateString(),
-        dataCount: 1200,
-        score: 87,
-        notable_users: JSON.parse(item.result.choices[0].message.content)
+        trends: JSON.parse(item?.result?.choices[0].message.content).trends,
+        date: new Date(item?.created_at).toLocaleDateString(),
+        // dataCount: 1200,
+        score: getRandomByLevel(JSON.parse(item?.result?.choices[0].message.content).confidence),
+        notable_users: JSON.parse(item?.result?.choices[0].message.content)
           .notable_users,
-        summary: JSON.parse(item.result.choices[0].message.content).reasoning,
+        summary: JSON.parse(item?.result?.choices[0].message.content).reasoning,
       });
     }
     setTrendHistory(tempArr);
@@ -228,16 +252,47 @@ export default function Page() {
         server_name: string;
         channels: [{ id: string; name: string }];
       } = await data.json();
-      console.log(info);
-      const options: Array<{ label: string; value: string }> = [];
-      for (const channel of info.channels) {
-        options.push({ label: `#${channel.name}`, value: channel.id });
-      }
+
+      
+      const options = info.channels.map(channel => ({
+        label: `#${channel.name}`,
+        value: channel.id
+      }));
       setDiscordChannels(options);
+      setSelectedChannels(options);
     } catch (error) {
       console.error(error);
     }
   };
+    const fetchMessageCount = async (
+    channels: Array<{ label: string; value: string }>,
+    interval: string
+  ) =>{
+    const body = {
+      channelId: channels.map(chan => chan.value),
+      interval: interval,
+    };
+    try {
+      const data = await fetcher(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/discord/count-message`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(body),
+        }
+      );
+      setMessageCount(data);
+    } catch(error) {
+      console.error(error);
+    }
+  }
+useEffect(() => {
+  if (selectedChannels.length > 0 && timeRange) {
+    fetchMessageCount(selectedChannels, timeRange);
+  }
+}, [selectedChannels, timeRange]);
   useEffect(() => {
     if (activeCommunity?.discordServerId) {
       fetchChannels(activeCommunity?.discordServerId);
@@ -277,10 +332,6 @@ export default function Page() {
         <TrendResultCard result={selectedResult} />
         <Card className="w-full max-w-5xl mx-auto p-6 md:p-8 shadow-lg border bg-white space-y-6 mt-8">
           <TrendListCard history={trendHistory} onSelect={setSelectedResult} />
-          <TrendListCard
-            history={FAKE_TREND_HISTORY}
-            onSelect={setSelectedResult}
-          />
         </Card>
       </section>
     </main>

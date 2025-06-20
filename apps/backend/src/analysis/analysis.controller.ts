@@ -14,18 +14,15 @@ export class AnalysisController {
   // }
   @Post()
   async findByScope(@Body() findAnalysis: FindAnalysisDto) {
-    console.log(findAnalysis)
-    const analysis = await this.analysisService.findAll();
-    console.log(analysis);
+
     if(findAnalysis.platform == 'discord') {
       if(!findAnalysis.scope.channelId){
-        
         const analys = await this.analysisService.findByDiscordServer(findAnalysis.scope.serverId, findAnalysis.promptKey);
-        console.log(analys)
+
         return analys;
       }
-      const analysByScope = await  this.analysisService.findByDiscordScope(findAnalysis.scope.serverId, findAnalysis.scope.channelId, findAnalysis.promptKey);
-      console.log(analysByScope)
+      const analysByScope = await this.analysisService.findByDiscordScope(findAnalysis.scope.serverId, findAnalysis.scope.channelId, findAnalysis.promptKey);
+
       return analysByScope;
     }
   }
