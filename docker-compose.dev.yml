@@ -59,10 +59,8 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - PYTHONIOENCODING=UTF-8
-      - DISCORD_BOT_TOKEN=
       - DISCORD_CLIENT_ID=1377545849126518784
       - DISCORD_PUBLIC_KEY=b070d4bde7773615aa052a7bf6ef7608b2d2fde3e5939c2bb15a581939a30230
-      - OVH_AI_ENDPOINTS_ACCESS_TOKEN=
       - OVH_API_BASE_URL=https://oai.endpoints.kepler.ai.cloud.ovh.net/v1/chat/completions
       - MG_NAME=social_data
       - MG_HOST=mongo

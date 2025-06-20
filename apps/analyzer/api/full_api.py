@@ -12,7 +12,7 @@ import os
 import json
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import List, Optional
@@ -26,7 +26,9 @@ from dateutil.parser import parse as parse_date
 
 origins = ["*"]
 
-app = FastAPI(prefix="/analyzer")
+app = FastAPI()
+router = APIRouter(prefix="/analyzer")
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -51,7 +53,7 @@ class DiscordAnalyzeRequest(BaseModel):
     prompt_key: str = Field(..., description="Prompt key from discord_prompts.yaml")
     period: str = Field(..., description="Period to analyze: last_day, last_week, last_month")
 
-@app.post("/discord/harvest")
+@router.post("/discord/harvest")
 async def discord_harvest(request: DiscordHarvestRequest):
     """
     =========
@@ -77,7 +79,7 @@ async def discord_harvest(request: DiscordHarvestRequest):
     job_id = storage.add_harvest_job(job)
     return {"job_id": str(job_id), "status": "queued"}
 
-@app.get("/discord/channels/{server_id}")
+@router.get("/discord/channels/{server_id}")
 async def list_discord_channels(server_id: int):
     """
     =========
@@ -105,7 +107,7 @@ async def list_discord_channels(server_id: int):
     finally:
         await collector.close()
 
-@app.get("/discord/harvest/status/{job_id}")
+@router.get("/discord/harvest/status/{job_id}")
 def get_harvest_job_status(job_id: str):
     """
     =========
@@ -131,7 +133,7 @@ def get_harvest_job_status(job_id: str):
         "error": job.get("error")
     }
 
-@app.get("/discord/servers")
+@router.get("/discord/servers")
 async def list_discord_servers():
     """
     =========
@@ -155,7 +157,7 @@ async def list_discord_servers():
     finally:
         await collector.close()
 
-@app.post("/discord/analyze")
+@router.post("/discord/analyze")
 async def discord_analyze(request: DiscordAnalyzeRequest):
     """
     =========
@@ -230,6 +232,7 @@ async def discord_analyze(request: DiscordAnalyzeRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"LLM error: {e}")
 
+app.include_router(router)
 # Prepare here other analysis endpoints to come
 if __name__ == "__main__":
     import uvicorn
