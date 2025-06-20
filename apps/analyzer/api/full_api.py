@@ -53,6 +53,10 @@ class DiscordAnalyzeRequest(BaseModel):
     prompt_key: str = Field(..., description="Prompt key from discord_prompts.yaml")
     period: str = Field(..., description="Period to analyze: last_day, last_week, last_month")
 
+@router.get("/s2")
+def read_main_2():
+    return {"msg": "Hello World 2"}
+
 @router.post("/discord/harvest")
 async def discord_harvest(request: DiscordHarvestRequest):
     """
