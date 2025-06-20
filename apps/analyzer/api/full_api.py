@@ -26,7 +26,7 @@ from dateutil.parser import parse as parse_date
 
 origins = ["*"]
 
-app = FastAPI()
+app = FastAPI(prefix="/analyzer")
 
 app.add_middleware(
     CORSMiddleware,
