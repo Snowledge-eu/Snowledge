@@ -14,9 +14,9 @@ export const features = {
       generalInformations: true,
       integrations: true,
       trendsAnalytics: true,
-      topicsToValidate: true,
-      rewards: true,
-      invitations: true,
+      topicsToValidate: false,
+      rewards: false,
+      invitations: false,
       members: true,
     },
     // Groupe pour les apprenants (learner)
