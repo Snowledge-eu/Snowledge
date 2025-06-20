@@ -152,7 +152,7 @@ export default function Page() {
     }
   }
   const fetchChannels = async (guildId: string) => {
-    console.log("fetchChannel");
+    console.log("fetchChannelllss");
     try {
       const data = await fetch(
         `${process.env.NEXT_PUBLIC_ANALYSER_URL}/discord/channels/${guildId}`,
@@ -160,6 +160,7 @@ export default function Page() {
           method: "GET",
         }
       );
+      // console.log("data", data);
       const harvest = await fetcher(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/discord/last-harvest/${guildId}`
       ).catch((err) => console.error(err));
@@ -169,7 +170,7 @@ export default function Page() {
         channels: [{ id: string; name: string }];
       } = await data.json();
 
-      console.log(info);
+      console.log("info", info);
       const options: Array<{ label: string; value: string }> = [];
       for (const channel of info.channels) {
         options.push({ label: `#${channel.name}`, value: channel.id });
@@ -203,6 +204,10 @@ export default function Page() {
     console.log(activeCommunity);
     console.log(user);
   }, [activeCommunity]);
+
+  useEffect(() => {
+    console.log("platforms", platforms);
+  }, [platforms]);
   return (
     <section className="w-full flex flex-col gap-8">
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">

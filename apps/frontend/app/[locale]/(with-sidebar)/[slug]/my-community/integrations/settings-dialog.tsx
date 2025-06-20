@@ -163,6 +163,8 @@ function PlatformSettingsDialog({ platform }: { platform: PlatformProps }) {
   useEffect(() => {
     if (platform) {
       setAccount(platform.accountPlatform);
+    } else {
+      console.log("platform is undefined");
     }
   }, [platform]);
   return (

@@ -41,20 +41,20 @@ export class DiscordController {
 			);
 			if (response) {
 				res.redirect(
-					`${process.env.NEXT_PUBLIC_FRONTEND_URL}/${response.slug}?verify=discord`,
+					`${process.env.FRONT_URL}/${response.slug}?verify=discord`,
 				);
 			} else {
-				res.redirect(
-					`${process.env.NEXT_PUBLIC_FRONTEND_URL}/profile?verify=discord`,
-				);
+				res.redirect(`${process.env.FRONT_URL}/profile?verify=discord`);
 			}
 		} else {
-			res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/profile`);
+			res.redirect(`${process.env.FRONT_URL}/profile`);
 		}
 	}
 
 	@Get('last-harvest/:guildId')
-	async getLastHarvest(@Param('guildId') guildId: string): Promise<DiscordHarvestJob> {
+	async getLastHarvest(
+		@Param('guildId') guildId: string,
+	): Promise<DiscordHarvestJob> {
 		console.log(guildId);
 		console.log(parseInt(guildId));
 		console.log(Number(guildId));
