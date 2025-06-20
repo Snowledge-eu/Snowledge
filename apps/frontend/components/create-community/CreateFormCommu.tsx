@@ -23,7 +23,8 @@ import { CommunityCodeOfConductField } from "../shared/community/fields/Communit
 import { CommunityPriceField } from "../shared/community/fields/CommunityPriceField";
 import { CreateCommunityFormFooter } from "./CreateCommunityFormFooter";
 
-import ModalInvite from "./modals/ModalInvite";
+// import ModalInvite from "./modals/ModalInvite";
+// import { toSlug } from "@/utils/slug";
 
 import { Community } from "@/types/community";
 
@@ -41,7 +42,6 @@ import {
 } from "../shared/community/utils/calcul";
 import { useCommunityType } from "../shared/community/hooks/useCommunityType";
 import { useAuth } from "@/contexts/auth-context";
-import { toSlug } from "@/utils/slug";
 
 // Composant d'affichage d'erreur sous un champ
 export function FormError({ error }: { error?: string }) {
@@ -51,9 +51,9 @@ export function FormError({ error }: { error?: string }) {
 
 export default function CreateCommunity() {
   const t = useTranslations("communityForm");
-  const [openInvite, setOpenInvite] = useState(false);
-  const [community, setCommunity] = useState("");
+  /*const [openInvite, setOpenInvite] = useState(false); // LATER: reactiver quand on y aura besoin d'avoir d'autre user que le createur qui créé leurs compte sur snowledge
   const [communityUrl, setCommunityUrl] = useState("");
+  const [community, setCommunity] = useState(""); */
   const { user, fetchDataUser } = useAuth();
   const { setActiveCommunity } = useCurrentCommunity();
 
@@ -89,10 +89,14 @@ export default function CreateCommunity() {
   // Appel du hook useCreateCommunity
   const { mutate: createCommunity } = useCreateCommunity({
     onSuccess: (data, variables) => {
-      setCommunity(variables.name);
-      setOpenInvite(true);
+      // setCommunity(variables.name); LATER: reactiver quand on y aura besoin d'avoir d'autre user que le createur qui créé leurs compte sur snowledge
+      // setOpenInvite(true); LATER: reactiver quand on y aura besoin d'avoir d'autre user que le createur qui créé leurs compte sur snowledge
       setPendingCommunity(data);
       setActiveCommunity(data);
+      // LATER: reactiver quand on y aura besoin d'avoir d'autre user que le createur qui créé leurs compte sur snowledge
+      setTimeout(() => {
+        window.location.replace(`/${data.slug}`);
+      }, 2000);
     },
   });
 
@@ -102,22 +106,23 @@ export default function CreateCommunity() {
     }
   }, []);
 
+  // LATER: reactiver quand on y aura besoin d'avoir d'autre user que le createur qui créé leurs compte sur snowledge
   // Effet qui attend la fermeture de la modal
-  useEffect(() => {
-    if (!openInvite && pendingCommunity) {
-      setTimeout(
-        () => window.location.replace(`/${pendingCommunity.slug}`),
-        500
-      );
-      setPendingCommunity(null); // Reset
-    }
-  }, [openInvite, pendingCommunity]);
+  // useEffect(() => {
+  //   if (!openInvite && pendingCommunity) {
+  //     setTimeout(
+  //       () => window.location.replace(`/${pendingCommunity.slug}`),
+  //       500
+  //     );
+  //     setPendingCommunity(null); // Reset
+  //   }
+  // }, [openInvite, pendingCommunity]);
 
-  useEffect(() => {
-    if (typeof window !== "undefined" && community) {
-      setCommunityUrl(`${window.location.origin}/join/${community}`);
-    }
-  }, [community]);
+  // useEffect(() => {
+  //   if (typeof window !== "undefined" && community) {
+  //     setCommunityUrl(`${window.location.origin}/join/${community}`);
+  //   }
+  // }, [community]);
 
   // Soumission du formulaire
   function onSubmit(values: FormSchema) {
@@ -216,12 +221,13 @@ export default function CreateCommunity() {
           </CardContent>
         </TooltipProvider>
       </Card>
-      <ModalInvite
+      {/* LATER: reactiver quand on y aura besoin d'avoir d'autre user que le createur qui créé leurs compte sur snowledge */}
+      {/* <ModalInvite
         open={openInvite}
         onOpenChange={setOpenInvite}
         communityUrl={communityUrl}
         communitySlug={toSlug(community)}
-      />
+      /> */}
     </div>
   );
 }
