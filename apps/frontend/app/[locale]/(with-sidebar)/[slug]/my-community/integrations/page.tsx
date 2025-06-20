@@ -209,7 +209,7 @@ export default function Page() {
     console.log("platforms", platforms);
   }, [platforms]);
   return (
-    <section className="w-full flex flex-col gap-8">
+    <section className="w-full flex flex-col gap-8 p-8">
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
         <h1 className="text-2xl font-bold">Data Collection Setup</h1>
         <div className="flex items-center gap-2 text-primary font-medium text-base">
@@ -218,13 +218,13 @@ export default function Page() {
           collected.
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="flex flex-wrap gap-6 p-6">
         {platforms.map((platform) => {
           const isDisabled = !enabled[platform.key as keyof typeof enabled];
           return (
             <Card
               key={platform.key}
-              className="flex flex-col gap-4 p-6 border shadow-sm"
+              className="flex flex-col gap-4 p-6 border shadow-sm min-w-fit"
             >
               <div className="flex items-center gap-3">
                 <SocialIcon
