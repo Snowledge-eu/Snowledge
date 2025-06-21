@@ -186,7 +186,7 @@ export default function SignUpForm() {
                       age: value,
                     })
                   }
-                  initialFocus
+                  captionLayout="dropdown"
                 />
               </PopoverContent>
             </Popover>
