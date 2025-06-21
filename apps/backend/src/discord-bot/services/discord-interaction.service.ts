@@ -62,7 +62,7 @@ export class DiscordInteractionService implements OnModuleInit {
 					}
 				} catch (e) {
 					this.logger.error(
-						"Erreur lors du traitement de l'interaction Discord",
+						'Error processing Discord interaction',
 						e,
 					);
 				}
@@ -80,7 +80,7 @@ export class DiscordInteractionService implements OnModuleInit {
 							await reaction.fetch();
 						} catch (e) {
 							this.logger.error(
-								'Impossible de fetch la réaction partielle',
+								'Could not fetch partial reaction',
 								e,
 							);
 							return;
@@ -91,7 +91,7 @@ export class DiscordInteractionService implements OnModuleInit {
 							await user.fetch();
 						} catch (e) {
 							this.logger.error(
-								"Impossible de fetch l'utilisateur partiel",
+								'Could not fetch partial user',
 								e,
 							);
 							return;
@@ -102,10 +102,7 @@ export class DiscordInteractionService implements OnModuleInit {
 						user as User,
 					);
 				} catch (e) {
-					this.logger.error(
-						'Erreur lors du traitement de la réaction Discord',
-						e,
-					);
+					this.logger.error('Error processing Discord reaction', e);
 				}
 			},
 		);
@@ -113,18 +110,18 @@ export class DiscordInteractionService implements OnModuleInit {
 		client.on(Events.GuildCreate, async (guild) => {
 			try {
 				this.logger.log(
-					`[DEBUG] GuildCreate reçu pour ${guild.name} (${guild.id})`,
+					`[DEBUG] GuildCreate received for ${guild.name} (${guild.id})`,
 				);
-				// Log état du cache rôles
+				// Log role cache state
 				this.logger.log(
-					`[DEBUG] Rôles sur le serveur : ` +
+					`[DEBUG] Roles on server: ` +
 						guild.roles.cache
 							.map((r) => `${r.name} (${r.id})`)
 							.join(', '),
 				);
-				// Log état du cache salons
+				// Log channel cache state
 				this.logger.log(
-					`[DEBUG] Salons sur le serveur : ` +
+					`[DEBUG] Channels on server: ` +
 						guild.channels.cache
 							.map((c) => `${c.name} (${c.id}) [type=${c.type}]`)
 							.join(', '),
@@ -134,17 +131,17 @@ export class DiscordInteractionService implements OnModuleInit {
 					guild.id,
 				);
 				this.logger.log(
-					`[DEBUG] DiscordServer en base : ${JSON.stringify(discordServer)}`,
+					`[DEBUG] DiscordServer in DB: ${JSON.stringify(discordServer)}`,
 				);
 
-				// --- Gestion du rôle d'authentification ---
+				// --- Authentication role management ---
 				let role: any = null;
 				let roleWasMissing = false;
 				if (discordServer?.authRoleId) {
 					role = guild.roles.cache.get(discordServer.authRoleId);
 					if (!role) {
 						this.logger.warn(
-							`[DUPLICATION] L'id du rôle (${discordServer.authRoleId}) est en base mais n'existe plus sur Discord. On va le recréer.`,
+							`[DUPLICATION] Role ID (${discordServer.authRoleId}) is in the DB but no longer exists on Discord. Recreating it.`,
 						);
 						role = await guild.roles.create({
 							name: 'Snowledge Authenticated',
@@ -153,7 +150,7 @@ export class DiscordInteractionService implements OnModuleInit {
 							permissions: [],
 						});
 						this.logger.warn(
-							`[REPAIR] Rôle d'authentification recréé avec id ${role.id} sur ${guild.name}`,
+							`[REPAIR] Authentication role recreated with ID ${role.id} on ${guild.name}`,
 						);
 						roleWasMissing = true;
 					}
@@ -164,7 +161,7 @@ export class DiscordInteractionService implements OnModuleInit {
 					);
 					if (role) {
 						this.logger.warn(
-							`[DUPLICATION] Un rôle 'Snowledge Authenticated' existe déjà avec id ${role.id} mais il n'était pas référencé en base.`,
+							`[DUPLICATION] A 'Snowledge Authenticated' role already exists with ID ${role.id} but it was not referenced in the DB.`,
 						);
 					}
 				}
@@ -176,20 +173,20 @@ export class DiscordInteractionService implements OnModuleInit {
 						permissions: [],
 					});
 					this.logger.log(
-						`Rôle 'Snowledge Authenticated' créé avec id ${role.id} sur le serveur ${guild.name}`,
+						`'Snowledge Authenticated' role created with ID ${role.id} on server ${guild.name}`,
 					);
 					roleWasMissing = true;
 				}
 				if (roleWasMissing || discordServer?.authRoleId !== role.id) {
 					this.logger.log(
-						`[UPDATE] Mise à jour de l'id du rôle en base : ${role.id}`,
+						`[UPDATE] Updating role ID in DB: ${role.id}`,
 					);
 					await this.discordServerService.update(guild.id, {
 						authRoleId: role.id,
 					});
 				}
 
-				// --- Gestion du salon d'authentification ---
+				// --- Authentication channel management ---
 				let channel: any = null;
 				let channelWasMissing = false;
 				if (discordServer?.authChannelId) {
@@ -198,12 +195,12 @@ export class DiscordInteractionService implements OnModuleInit {
 					);
 					if (!channel) {
 						this.logger.warn(
-							`[DUPLICATION] L'id du salon (${discordServer.authChannelId}) est en base mais n'existe plus sur Discord. On va le recréer.`,
+							`[DUPLICATION] Channel ID (${discordServer.authChannelId}) is in the DB but no longer exists on Discord. Recreating it.`,
 						);
 						channel = await guild.channels.create({
-							name: 'validation-cgu-snowledge',
+							name: 'snowledge-tos-validation',
 							type: 0, // GUILD_TEXT
-							topic: 'Salon pour valider les CGU et autoriser Snowledge',
+							topic: 'Channel to validate TOS and authorize Snowledge',
 							permissionOverwrites: [
 								{
 									id: guild.roles.everyone.id,
@@ -221,7 +218,7 @@ export class DiscordInteractionService implements OnModuleInit {
 							],
 						});
 						this.logger.warn(
-							`[REPAIR] Salon d'authentification recréé avec id ${channel.id} sur ${guild.name}`,
+							`[REPAIR] Authentication channel recreated with ID ${channel.id} on ${guild.name}`,
 						);
 						channelWasMissing = true;
 					}
@@ -229,25 +226,25 @@ export class DiscordInteractionService implements OnModuleInit {
 				if (!channel) {
 					channel = guild.channels.cache.find(
 						(c) =>
-							c.name === 'validation-cgu-snowledge' &&
+							c.name === 'snowledge-tos-validation' &&
 							c.type === 0,
 					);
 					if (channel) {
 						this.logger.warn(
-							`[DUPLICATION] Un salon 'validation-cgu-snowledge' existe déjà avec id ${channel.id} mais il n'était pas référencé en base.`,
+							`[DUPLICATION] A 'snowledge-tos-validation' channel already exists with ID ${channel.id} but was not referenced in the DB.`,
 						);
 					}
 				}
 				if (!channel) {
 					if (!role) {
 						throw new Error(
-							"Le rôle d'authentification n'existe pas sur ce serveur !",
+							'The authentication role does not exist on this server!',
 						);
 					}
 					channel = await guild.channels.create({
-						name: 'validation-cgu-snowledge',
+						name: 'snowledge-tos-validation',
 						type: 0, // GUILD_TEXT
-						topic: 'Salon pour valider les CGU et autoriser Snowledge',
+						topic: 'Channel to validate TOS and authorize Snowledge',
 						permissionOverwrites: [
 							{
 								id: guild.roles.everyone.id,
@@ -265,7 +262,7 @@ export class DiscordInteractionService implements OnModuleInit {
 						],
 					});
 					this.logger.log(
-						`Salon 'validation-cgu-snowledge' créé avec id ${channel.id} sur le serveur ${guild.name}`,
+						`'snowledge-tos-validation' channel created with ID ${channel.id} on server ${guild.name}`,
 					);
 					channelWasMissing = true;
 				}
@@ -274,14 +271,14 @@ export class DiscordInteractionService implements OnModuleInit {
 					discordServer?.authChannelId !== channel.id
 				) {
 					this.logger.log(
-						`[UPDATE] Mise à jour de l'id du salon en base : ${channel.id}`,
+						`[UPDATE] Updating channel ID in DB: ${channel.id}`,
 					);
 					await this.discordServerService.update(guild.id, {
 						authChannelId: channel.id,
 					});
 				}
 
-				// Génération dynamique de l'URL OAuth2
+				// Dynamic generation of OAuth2 URL
 				const params = new URLSearchParams({
 					client_id: process.env.DISCORD_CLIENT_ID,
 					redirect_uri: `${process.env.BACK_URL}/discord-bot/link`,
@@ -298,21 +295,21 @@ export class DiscordInteractionService implements OnModuleInit {
 				} = require('discord.js');
 				const row = new ActionRowBuilder().addComponents(
 					new ButtonBuilder()
-						.setLabel('Autoriser Snowledge')
+						.setLabel('Authorize Snowledge')
 						.setStyle(ButtonStyle.Link)
 						.setURL(oauthUrl),
 				);
 				const message = await channel.send({
-					content: `Afin de pouvoir accéder aux fonctionnalités de Snowledge, vous devez accepter les conditions suivantes et autoriser la connexion à votre compte Discord.`,
+					content: `To access Snowledge features, you must accept the following conditions and authorize the connection to your Discord account.`,
 					components: [row],
 				});
 				await message.pin();
 				this.logger.log(
-					`Message d'autorisation envoyé et épinglé dans 'validation-cgu-snowledge' sur ${guild.name}`,
+					`Authorization message sent and pinned in 'snowledge-tos-validation' on ${guild.name}`,
 				);
 			} catch (e) {
 				this.logger.error(
-					`Erreur lors de la création du rôle, du salon ou de l'envoi du message sur le serveur ${guild.name}`,
+					`Error creating role, channel, or sending message on server ${guild.name}`,
 					e,
 				);
 			}
