@@ -125,16 +125,16 @@ export class DiscordBotController {
 			  </head>
 			  <body>
 				<div class="container">
-				  <img class="logo" src="${logoUrl}" alt="Logo Snowledge" />
-				  <h2>Merci d'avoir autorisé Snowledge !</h2>
+				  <img class="logo" src="${logoUrl}" alt="Snowledge Logo" />
+				  <h2>Thank you for authorizing Snowledge!</h2>
 				  <p>
-					Votre connexion a bien été prise en compte.<br>
-					Grâce à cette autorisation, vous pourrez accéder à toutes les fonctionnalités de Snowledge <b>directement depuis Discord</b>.
+					Your connection has been successfully registered.<br>
+					With this authorization, you will be able to access all of Snowledge's features <b>directly from Discord</b>.
 				  </p>
 				  <p>
-					La page va se fermer automatiquement dans <span id="timer">10</span> secondes...
+					This page will close automatically in <span id="timer">10</span> seconds...
 				  </p>
-				  <div class="timer">Vous pouvez fermer cette page si rien ne se passe.</div>
+				  <div class="timer">You can close this page if nothing happens.</div>
 				</div>
 				<script>
 				  let seconds = 10;
