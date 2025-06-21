@@ -38,13 +38,16 @@ export default function Page() {
   );
 
   // Filtrage
-  const filteredMembers = members.filter((m: Member) => {
-    const name = `${m.user.firstname} ${m.user.lastname}`.toLowerCase();
-    return (
-      name.includes(search.toLowerCase()) ||
-      m.user.email.toLowerCase().includes(search.toLowerCase())
-    );
-  });
+  const filteredMembers =
+    members.length > 0
+      ? members.filter((m: Member) => {
+          const name = `${m.user.firstname} ${m.user.lastname}`.toLowerCase();
+          return (
+            name.includes(search.toLowerCase()) ||
+            m.user.email.toLowerCase().includes(search.toLowerCase())
+          );
+        })
+      : [];
 
   return (
     <div className="p-8">
