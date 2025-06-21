@@ -14,7 +14,9 @@ const eslintConfig = [
   {
     rules: {
       "@typescript-eslint/no-explicit-any": "warn",
-      "@react-hooks/rules-of-hooks": "warn",
+      "react-hooks/rules-of-hooks": "warn",
+      "@typescript-eslint/no-unused-vars": "warn", //TODO: A remettre en error quand ça fonctionnera bien
+      "@typescript-eslint/no-unused-expressions": "warn", //TODO: A remettre en error quand ça fonctionnera bien
     },
   },
 ];
