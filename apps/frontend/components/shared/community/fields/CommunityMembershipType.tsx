@@ -34,8 +34,13 @@ export function CommunityMembershipType({ value, onChange, error, t }: Props) {
           </Tooltip>
         </div>
         <div className="flex items-center space-x-2">
-          <RadioGroupItem value="paid" id="paid" />
-          <Label htmlFor="paid" className="font-normal">
+          <RadioGroupItem
+            value="paid"
+            id="paid"
+            disabled
+            className="!cursor-not-allowed"
+          />
+          <Label htmlFor="paid" className="font-normal !cursor-not-allowed">
             {t("membership.paid")}
           </Label>
           <Tooltip>
