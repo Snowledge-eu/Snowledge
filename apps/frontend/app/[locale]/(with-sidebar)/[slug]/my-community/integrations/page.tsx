@@ -31,6 +31,8 @@ import { useAuth } from "@/contexts/auth-context";
 export default function Page() {
   const { user, fetcher } = useAuth();
   const { activeCommunity } = useCurrentCommunity();
+  const [open, setOpen] = useState(false);
+  const [manageIntegrationsOpen, setManageIntegrationsOpen] = useState(false);
 
   const state = encodeURIComponent(
     JSON.stringify({ communityId: localStorage.getItem("activeCommunityId") })
@@ -165,13 +167,15 @@ export default function Page() {
       const info: {
         server_id: string;
         server_name: string;
-        channels: [{ id: string; name: string }];
+        channels: { id: string; name: string }[];
       } = await data.json();
 
       console.log("info", info);
       const options: Array<{ label: string; value: string }> = [];
-      for (const channel of info.channels) {
-        options.push({ label: `#${channel.name}`, value: channel.id });
+      if (Array.isArray(info.channels)) {
+        for (const channel of info.channels) {
+          options.push({ label: `#${channel.name}`, value: channel.id });
+        }
       }
       setPlatforms((prev) =>
         prev.map((platform) =>
@@ -203,6 +207,17 @@ export default function Page() {
     console.log(activeCommunity);
     console.log(user);
   }, [activeCommunity]);
+
+  useEffect(() => {
+    //Si l'url contient ?connect=true alors on ouvre la modal
+    if (window.location.search.includes("connect=true")) {
+      setOpen(true);
+    }
+    //Si l'url contient ?manageIntegrations=true alors on ouvre la modal
+    if (window.location.search.includes("manageIntegrations=true")) {
+      setManageIntegrationsOpen(true);
+    }
+  }, []);
 
   useEffect(() => {
     console.log("platforms", platforms);
@@ -358,6 +373,10 @@ export default function Page() {
                 </div>
                 <div className="flex flex-row items-center justify-between gap-2 mt-4">
                   <PlatformSettingsDialog
+                    open={open}
+                    setOpen={setOpen}
+                    manageIntegrationsOpen={manageIntegrationsOpen}
+                    setManageIntegrationsOpen={setManageIntegrationsOpen}
                     platform={{
                       key: platform.key,
                       name: platform.name,

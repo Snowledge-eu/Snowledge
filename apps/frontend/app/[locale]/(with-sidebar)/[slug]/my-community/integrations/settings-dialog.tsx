@@ -101,15 +101,21 @@ const recurrenceOptions = [
 // RETURNS: Dialog UI for the platform
 // ============
 function PlatformSettingsDialog({
+  open,
+  setOpen,
   platform,
   communityId,
+  manageIntegrationsOpen,
+  setManageIntegrationsOpen,
 }: {
+  open: boolean;
+  setOpen: (open: boolean) => void;
   platform: PlatformProps;
   communityId: number;
+  manageIntegrationsOpen: boolean;
+  setManageIntegrationsOpen: (open: boolean) => void;
 }) {
   const router = useRouter();
-  const [open, setOpen] = useState(false);
-  const [manageIntegrationsOpen, setManageIntegrationsOpen] = useState(false);
   const [account, setAccount] = useState<AccountPlatform>(
     platform.accountPlatform
   );
