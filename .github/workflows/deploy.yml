@@ -77,29 +77,17 @@ jobs:
             git fetch origin
             git checkout staging
             git reset --hard origin/staging
-            echo "DISCORD_BOT_TOKEN=${{ secrets.DISCORD_BOT_TOKEN }}" > .env
-            echo "DISCORD_CLIENT_SECRET=${{ secrets.DISCORD_CLIENT_SECRET }}" >> .env
+            echo "DISCORD_BOT_TOKEN=${{ secrets.DISCORD_BOT_TOKEN_PREPROD }}" > .env
+            echo "DISCORD_CLIENT_SECRET=${{ secrets.DISCORD_CLIENT_SECRET_PREPROD }}" >> .env
             echo "OVH_AI_ENDPOINTS_ACCESS_TOKEN=${{ secrets.OVH_AI_ENDPOINTS_ACCESS_TOKEN }}" >> .env
             echo "MG_USER=${{ secrets.MG_USER }}" >> .env
             echo "MG_PASSWORD=${{ secrets.MG_PASSWORD }}" >> .env
             echo "PGSQL_NAME=${{ secrets.PGSQL_NAME_PREPROD }}" >> .env
             echo "PGSQL_PWD=${{ secrets.PGSQL_PWD_PREPROD }}" >> .env
-            echo "PGSQL_HOST=postgresql-02aff275-o9835f167.database.cloud.ovh.net" >> .env
-            echo "PGSQL_PORT=20184" >> .env
-            echo "PGSQL_DB=defaultdb" >> .env
-            echo "PGSQL_SSL=true" >> .env
-            echo "BACK_URL=https://test.snowledge.eu/api" >> .env
-            echo "FRONT_URL=https://test.snowledge.eu" >> .env
-            echo "NEXT_PUBLIC_BACKEND_URL=https://test.snowledge.eu/api" >> .env
-            echo "NEXT_PUBLIC_FRONTEND_URL=https://test.snowledge.eu" >> .env
-            echo "NEXT_PUBLIC_ANALYSER_URL=https://test.snowledge.eu/analyzer" >> .env
-            echo "NEXT_PUBLIC_DSD_CLIENT_ID=1377545849126518784" >> .env
-            echo "ORIGIN_CORS= ["https://test.snowledge.eu"]" >> .env
             rm pg-ca.crt
             echo "${{ secrets.PGSQL_SSL_CERTIFICATE }}" >> pg-ca.crt
             docker compose down
-            docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
-
+            docker compose -f docker-compose.yml -f docker-compose.preprod.yml up -d --build
       - name: Déploiement sur OVH (prod)
         if: github.ref == 'refs/heads/main'
         uses: appleboy/ssh-action@v1.0.3
@@ -120,12 +108,9 @@ jobs:
             echo "OVH_AI_ENDPOINTS_ACCESS_TOKEN=${{ secrets.OVH_AI_ENDPOINTS_ACCESS_TOKEN }}" >> .env
             echo "MG_USER=${{ secrets.MG_USER }}" >> .env
             echo "MG_PASSWORD=${{ secrets.MG_PASSWORD }}" >> .env
-            echo "BACK_URL=https://hi.snowledge.eu/api" >> .env
-            echo "FRONT_URL=https://hi.snowledge.eu" >> .env
-            echo "NEXT_PUBLIC_BACKEND_URL=https://hi.snowledge.eu/api" >> .env
-            echo "NEXT_PUBLIC_FRONTEND_URL=https://hi.snowledge.eu" >> .env
-            echo "NEXT_PUBLIC_ANALYSER_URL=https://hi.snowledge.eu/analyzer" >> .env
-            echo "NEXT_PUBLIC_DSD_CLIENT_ID=1377545849126518784" >> .env
-            echo "ORIGIN_CORS= ["https://hi.snowledge.eu"]" >> .env
+            echo "PGSQL_NAME=${{ secrets.PGSQL_NAME_PROD }}" >> .env
+            echo "PGSQL_PWD=${{ secrets.PGSQL_PWD_PROD }}" >> .env
+            rm pg-ca.crt
+            echo "${{ secrets.PGSQL_SSL_CERTIFICATE }}" >> pg-ca.crt
             docker compose down
             docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
