@@ -52,6 +52,10 @@ dist/
 # vscode
 .vscode
 apps/backend/tsconfig.build.tsbuildinfo
-.env.dev
+
+# Ignore tous les fichiers .env, sauf le fichier d'exemple
+.env
+.env.*
+!/.env.example
 
 .cursor

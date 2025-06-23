@@ -12,13 +12,14 @@ services:
     #   - ./apps/frontend:/app
     # - /app/node_modules
     # - ./apps/frontend/.env:/app/.env
+    env_file:
+      - .env.dev
     environment:
       - CHOKIDAR_USEPOLLING=true
       - NEXT_TELEMETRY_DISABLED=1
       - NODE_ENV=development
       - NEXT_PUBLIC_BACKEND_URL=http://localhost:4000/api
       - NEXT_PUBLIC_ANALYSER_URL=http://localhost:8000/analyzer
-      - NEXT_PUBLIC_DSD_CLIENT_ID=1377545849126518784
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/snowledge
     networks:
       - snowledge_network
@@ -40,6 +41,10 @@ services:
       - snowledge_network
     environment:
       - NODE_ENV=development
+      - SMTP_HOST=smtp.exemple.com
+      - SMTP_PORT=587
+      - SMTP_USER=ton_user
+      - SMTP_PASS=ton_mot_de_passe
       - PGSQL_HOST=postgres
       - PGSQL_PORT=5432
       - PGSQL_DB=snowledge
@@ -48,10 +53,9 @@ services:
       - MG_NAME=social_data
       - MG_HOST=mongo
       - MG_PORT=27017
-      - MG_USER=admin
-      - MG_PASSWORD=adminpass
-      - DISCORD_CLIENT_ID=1377545849126518784
-
+      - ORIGIN_CORS=["localhost:3000"]
+      - BACK_URL=http://localhost:4000/api
+      - FRONT_URL=http://localhost:3000
   analyzer:
     build:
       context: .
@@ -61,8 +65,6 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - PYTHONIOENCODING=UTF-8
-      - DISCORD_CLIENT_ID=1377545849126518784
-      - DISCORD_PUBLIC_KEY=b070d4bde7773615aa052a7bf6ef7608b2d2fde3e5939c2bb15a581939a30230
       - OVH_API_BASE_URL=https://oai.endpoints.kepler.ai.cloud.ovh.net/v1/chat/completions
       - MG_NAME=social_data
       - MG_HOST=mongo
