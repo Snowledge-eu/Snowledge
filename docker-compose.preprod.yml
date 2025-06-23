@@ -14,10 +14,6 @@ services:
       - NEXT_TELEMETRY_DISABLED=1
       - PORT=3000
       - NODE_ENV=production
-      - NEXT_PUBLIC_BACKEND_URL=https://test.snowledge.eu/api
-      - NEXT_PUBLIC_FRONTEND_URL=https://test.snowledge.eu
-      - NEXT_PUBLIC_ANALYSER_URL=https://test.snowledge.eu/analyzer
-      - NEXT_PUBLIC_DSD_CLIENT_ID=1386722785069367356
   # Service pour le backend
   backend:
     volumes:
