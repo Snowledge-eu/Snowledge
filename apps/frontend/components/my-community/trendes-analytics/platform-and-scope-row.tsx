@@ -13,8 +13,8 @@ import { SocialIcon } from 'react-social-icons';
 // RETURNS: JSX.Element
 // ============
 export interface PlatformAndScopeRowProps {
-  platform: string
-  scope: string
+  platform?: string
+  scope?: string
   label?: string
 }
 
@@ -28,7 +28,7 @@ export function PlatformAndScopeRow({ platform, scope, label }: PlatformAndScope
         className="flex justify-center items-center"
       >
         <SocialIcon
-          network={platform.toLowerCase()}
+          network={platform?.toLowerCase()}
           style={{ height: 24, width: 24 }}
         />
       </span>

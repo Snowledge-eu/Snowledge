@@ -20,8 +20,10 @@ import {
 import { useTranslations } from "next-intl";
 import NavUser from "./nav-user";
 import { useNavGlobal } from "./hooks/useNavGlobal";
+import { useAuth } from "@/contexts/auth-context";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { user, fetcher } = useAuth();
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -33,9 +35,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarFooter>
         <NavUser
           user={{
-            name: "shadcn",
-            email: "m@example.com",
-            avatar: "https://github.com/shadcn.png",
+            name: user?.pseudo || "Def",
+            email: user?.email || "Mail",
+            avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(
+              user?.pseudo || "Def"
+            )}&rounded=true&background=random`,
           }}
         />
       </SidebarFooter>

@@ -23,22 +23,16 @@ export default function DiscordSummaryCard({
   summary,
   action_points,
   timeframe,
-  activityLevel = "Medium",
+  activityLevel,
   notable_users,
-  platform = "discord",
-  scope = "all",
+  platform,
+  scope,
 }: DiscordSummary & { platform?: string; scope?: string }) {
   // Use FAKE_SUMMARY_HISTORY[0] as fallback if no prop provided
-  const fallback = FAKE_SUMMARY_HISTORY[0];
-  const displaySummary = summary || fallback.summary;
-  const displayActionPoints =
-    action_points && action_points.length > 0
-      ? action_points
-      : fallback.action_points || [];
-  const displayNotableUsers =
-    notable_users && notable_users.length > 0
-      ? notable_users
-      : fallback.notable_users || [];
+  // const fallback = FAKE_SUMMARY_HISTORY[0];
+  const displaySummary = summary;
+  const displayActionPoints = action_points;
+  const displayNotableUsers = notable_users;
   return (
     <Card className="w-full max-w-5xl mx-auto p-6 md:p-8 shadow-lg border bg-white space-y-6">
       <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-2">
@@ -56,7 +50,7 @@ export default function DiscordSummaryCard({
       <PlatformAndScopeRow
         platform={platform}
         scope={scope}
-        label={platform.charAt(0).toUpperCase() + platform.slice(1)}
+        label={(platform) ? platform.charAt(0).toUpperCase() + platform.slice(1) : ''}
       />
 
       <CardContent className="space-y-8">

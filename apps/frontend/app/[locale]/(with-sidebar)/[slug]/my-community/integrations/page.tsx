@@ -16,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
   Separator,
+  Spinner,
   Switch,
 } from "@repo/ui";
 import { CalendarIcon, Download, Info } from "lucide-react";
@@ -36,11 +37,7 @@ export default function Page() {
   );
   // TODO: change to the correct client id
   const clientId = process.env.NEXT_PUBLIC_DSD_CLIENT_ID;
-  console.log(clientId);
-  console.log(process.env.NEXT_PUBLIC_BACKEND_URL);
 
-  console.log(process.env.NEXT_PUBLIC_ANALYSER_URL);
-  // Mock data
   const initialPlatforms = [
     {
       key: "discord",
@@ -50,7 +47,7 @@ export default function Page() {
       color: "#5865F2",
       options: [{ label: "", value: "" }],
       estimatedVolume: 1240,
-      lastFetched: "2024-06-01",
+      lastFetched: "-",
       type: "channels",
       account: {
         id: "",
@@ -89,6 +86,7 @@ export default function Page() {
     //   type: 'posts',
     // },
   ];
+  const [channelFetched, setChannelFetched] = useState(false);
   const [platforms, setPlatforms] = useState(initialPlatforms);
   const [enabled, setEnabled] = useState({ discord: false }); //, youtube: false, x: false
   const [selected, setSelected] = useState({
@@ -193,6 +191,7 @@ export default function Page() {
             : platform
         )
       );
+      setChannelFetched(true);
     } catch (error) {
       console.error(error);
     }
@@ -209,7 +208,7 @@ export default function Page() {
     console.log("platforms", platforms);
   }, [platforms]);
   return (
-    <section className="w-full flex flex-col gap-8 p-8">
+    <section className="w-full flex flex-col gap-8 p-4">
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
         <h1 className="text-2xl font-bold">Data Collection Setup</h1>
         <div className="flex items-center gap-2 text-primary font-medium text-base">
@@ -273,7 +272,7 @@ export default function Page() {
                       <SelectItem value="last-day">Last day</SelectItem>
                       <SelectItem value="last-week">Last week</SelectItem>
                       <SelectItem value="last-month">Last month</SelectItem>
-                      <SelectItem value="custom">Custom</SelectItem>
+                      {/* <SelectItem value="custom">Custom</SelectItem> */}
                     </SelectContent>
                   </Select>
                 </div>
@@ -330,19 +329,25 @@ export default function Page() {
                       platform.type.slice(1)}
                   </Label>
                   <div className="w-64">
-                    <MultiSelect
-                      options={platform.options}
-                      // value={selected[platform.key as keyof typeof selected]}
-                      onChange={(vals) =>
-                        setSelected((s: any) => ({
-                          ...s,
-                          [platform.key]: vals,
-                        }))
-                      }
-                      placeholder={`Select ${platform.type}...`}
-                      // label={undefined}
-                      // disabled={isDisabled}
-                    />
+                    {channelFetched ? (
+                      <MultiSelect
+                        options={platform.options}
+                        // value={selected[platform.key as keyof typeof selected]}
+                        onChange={(vals) =>
+                          setSelected((s: any) => ({
+                            ...s,
+                            [platform.key]: vals,
+                          }))
+                        }
+                        placeholder={`Select ${platform.type}...`}
+                        // label={undefined}
+                        // disabled={isDisabled}
+                      />
+                    ) : (
+                      <div>
+                        <Spinner size="small" />
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="text-xs text-muted-foreground mt-1">

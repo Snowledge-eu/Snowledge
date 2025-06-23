@@ -110,6 +110,7 @@ export {
   useSidebarAccordion,
 } from "./sidebar";
 export { Switch } from "./switch";
+export { Spinner } from "./spinner";
 export {
   Table,
   TableBody,
