@@ -358,8 +358,7 @@ export default function Page() {
                       type: platform.type,
                       options: platform.options,
                       accountPlatform: platform.account,
-                    }} 
-                    activeCommunityId={activeCommunity?.id || 0} 
+                    }}
                   />
                   <Button
                     className="flex items-center gap-2 w-32 justify-center"
