@@ -23,7 +23,7 @@ export const voteSchema = (t: any) =>
       .string()
       .max(400, { message: t("errors.comments_too_long") })
       .optional(),
-    isContributor: z.boolean().optional(),
+    isContributor: z.boolean().nullable().optional(),
   });
 
 export type VoteFormValues = z.infer<ReturnType<typeof voteSchema>>;

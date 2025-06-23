@@ -28,7 +28,7 @@ const CreateProposalScreen = ({ communitySlug }: { communitySlug: string }) => {
       description: "",
       format: undefined,
       comments: undefined,
-      isContributor: false,
+      isContributor: null,
     },
   });
   const format = watch("format");
@@ -74,11 +74,12 @@ const CreateProposalScreen = ({ communitySlug }: { communitySlug: string }) => {
           error={errors.format}
           t={t}
         />
-        <SwitchContributeur
+        {/* TODO: Pour le moment, y a que le createur qui peut proposer un sujet ici */}
+        {/* <SwitchContributeur
           value={isContributor}
           onChange={(v: boolean) => setValue("isContributor", v)}
           t={t}
-        />
+        /> */}
         {/* <CommentsField register={register} error={errors.comments} t={t} />
         {createProposal.isError && (
           <div className="text-red-500 text-sm" role="alert">
