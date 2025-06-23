@@ -67,13 +67,14 @@ export const ChannelSections: React.FC<ChannelSectionsProps> = ({
   return (
     <div className="space-y-4">
       {(["propose", "vote", "result"] as const).map((type) => (
-        <div>
+        <div key={type}>
           <ChannelSection
-            key={type}
             type={type}
             label={typeLabel(type)}
             value={
-              mode === "firstConfig" || missing[type] ? names[type] : rename[type]
+              mode === "firstConfig" || missing[type]
+                ? names[type]
+                : rename[type]
             }
             onChange={(v) =>
               mode === "firstConfig" || missing[type]
@@ -90,7 +91,9 @@ export const ChannelSections: React.FC<ChannelSectionsProps> = ({
                 ? () => handleRename(type)
                 : undefined
             }
-            isLoading={mode === "firstConfig" ? isLoadingCreate : isLoadingRename}
+            isLoading={
+              mode === "firstConfig" ? isLoadingCreate : isLoadingRename
+            }
             isMissing={
               mode === "firstConfig"
                 ? { all: true }
