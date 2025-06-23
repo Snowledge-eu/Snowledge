@@ -480,5 +480,97 @@
     "successRename": "Channel renamed successfully!",
     "errorRename": "Error while renaming the Discord channel.",
     "validate": "Validate"
+  },
+  "dashboard": {
+    "title": "Your Community Control Center",
+    "description": "Turn your Discord conversations into decisions and relevant content. Listen, analyze, act.",
+    "quickActions": {
+      "title": "Your Quick Actions",
+      "proposal": {
+        "title": "Survey your community",
+        "subtitle": "Create a proposal",
+        "description": "Start a vote on a new idea or an important question.",
+        "button": "New proposal"
+      },
+      "activeCollection": {
+        "title": "Active Collection",
+        "subtitle": "Manage voting channels",
+        "description": "Modify the channels used for proposals and results.",
+        "button": "Manage channels"
+      },
+      "passiveCollection": {
+        "title": "Passive Collection",
+        "subtitle": "Manage analysis channels",
+        "description": "Add or remove channels for trend analysis by the AI.",
+        "button": "Manage channels"
+      }
+    },
+    "setupGuide": {
+      "title": "Finalize your community setup",
+      "step1": {
+        "title": "Step 1",
+        "subtitle": "Your Community is Ready",
+        "description": "Your centralized space on Snowledge is created and ready to be connected.",
+        "button": "Completed"
+      },
+      "step2": {
+        "title": "Step 2",
+        "subtitle": "Connect your Discord",
+        "description": "This is the essential step to enable data collection and voting.",
+        "button": "Link a server"
+      }
+    },
+    "features": {
+      "title": "At the heart of your community reactor",
+      "description": "Discover how our tools turn information into action.",
+      "passive": {
+        "tab": "Passive Collection: Trends & Analysis",
+        "title": "AI at the service of your intuition",
+        "description": "Once you have authorized our bot to read certain channels, our system gets to work. All conversations are aggregated and can be sent to our LLM. With one click from your \"Trends and Analytics\" tab, request a sentiment analysis to know if the mood is positive, a summary of key points from the last 24 hours, or an identification of recurring topics. No more navigating blindly, understand what makes your community tick."
+      },
+      "active": {
+        "tab": "Active Collection: Proposals & Votes",
+        "title": "Give your community a voice",
+        "description": "Active collection is your governance tool. By activating this function, the bot deploys three dedicated channels on your Discord: one for members to submit ideas (#proposals), one to vote (#votes), and one to display the final decisions (#results). All these activities are synchronized on your Snowledge platform in the \"Voting\" tab, giving you an overview and full control over the decisions that shape your community."
+      },
+      "management": {
+        "tab": "Community Management",
+        "title": "A simple and secure integration",
+        "description": "When our bot joins your server, it creates a welcome channel. Your Discord members can click a button there to authorize Snowledge, which creates an account for them in a flash and assigns them the \"Snowledge Authenticated\" role. This role is key: it gives them access to all the special channels you create via the bot, such as voting channels. This way, you keep control over who participates in the decision-making processes."
+      }
+    },
+    "tips": {
+      "permissions": {
+        "title": "Pro tip: Bot Permissions",
+        "description": "For passive collection to work on private channels, make sure the Snowledge bot has the necessary role and permissions to read messages in those channels."
+      },
+      "relevance": {
+        "title": "For relevant analyses",
+        "description": "The quality of the AI's analyses depends on the conversations. Choose active channels where discussions are richest to get the best summaries and trends."
+      }
+    },
+    "faq": {
+      "title": "Frequently Asked Questions (FAQ)",
+      "q1_trigger": "How do my users sign up for Snowledge?",
+      "q1_content": "It's very simple. The bot creates a channel on your Discord with an authorization button. By clicking it, the user accepts our terms and a Snowledge account is created for them, linked to their Discord ID.",
+      "q2_trigger": "What is the 'Snowledge Authenticated' role for?",
+      "q2_content": "This role is automatically assigned to users who have linked their account. It allows you to give them access to exclusive channels, such as those for proposals and votes, ensuring that only engaged members participate.",
+      "q3_trigger": "Does the bot read all my messages?",
+      "q3_content": "No. The bot will only read messages from the channels you have explicitly selected for passive collection in your interface. You have full control over the data you want to analyze.",
+      "q4_trigger": "Can I use Snowledge without Discord?",
+      "q4_content": "For now, Discord is our first and main integration, as it is where many communities live. We plan to integrate other platforms like Telegram, YouTube, and WhatsApp in the future."
+    },
+    "future": {
+      "title": "Our vision for the future",
+      "description": "Snowledge is just getting started. Here's what's next on the adventure.",
+      "contentCreation": {
+        "title": "Content creation assistance",
+        "description": "We will integrate AI tools to help you transform community trends into drafts of articles, video scripts, or posts, directly from Snowledge."
+      },
+      "rewards": {
+        "title": "Contributor reward system",
+        "description": "Automatically identify and thank the most active and relevant members of your community. Highlight your ambassadors and encourage positive engagement."
+      }
+    }
   }
 }

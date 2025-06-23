@@ -396,6 +396,98 @@
     "accepted": "Accepté",
     "rejected": "Rejeté"
   },
+  "dashboard": {
+    "title": "Votre Centre de Contrôle Communautaire",
+    "description": "Transformez les conversations de votre Discord en décisions et en contenu pertinent. Écoutez, analysez, agissez.",
+    "quickActions": {
+      "title": "Vos actions rapides",
+      "proposal": {
+        "title": "Sonder votre communauté",
+        "subtitle": "Créer une proposition",
+        "description": "Lancez un vote sur une nouvelle idée ou une question importante.",
+        "button": "Nouvelle proposition"
+      },
+      "activeCollection": {
+        "title": "Collecte Active",
+        "subtitle": "Gérer les salons de vote",
+        "description": "Modifiez les salons utilisés pour les propositions et les résultats.",
+        "button": "Gérer les salons"
+      },
+      "passiveCollection": {
+        "title": "Collecte Passive",
+        "subtitle": "Gérer les salons d'analyse",
+        "description": "Ajoutez ou retirez des salons pour l'analyse des tendances par l'IA.",
+        "button": "Gérer les salons"
+      }
+    },
+    "setupGuide": {
+      "title": "Finalisez la configuration de votre communauté",
+      "step1": {
+        "title": "Étape 1",
+        "subtitle": "Votre Communauté est Prête",
+        "description": "Votre espace centralisé sur Snowledge est créé et prêt à être connecté.",
+        "button": "Terminé"
+      },
+      "step2": {
+        "title": "Étape 2",
+        "subtitle": "Connectez votre Discord",
+        "description": "C'est l'étape essentielle pour activer la collecte de données et les votes.",
+        "button": "Lier un serveur"
+      }
+    },
+    "features": {
+      "title": "Au cœur de votre réacteur communautaire",
+      "description": "Découvrez comment nos outils transforment l'information en action.",
+      "passive": {
+        "tab": "Collecte Passive : Tendances & Analyse",
+        "title": "L'IA au service de votre intuition",
+        "description": "Une fois que vous avez autorisé notre bot à lire certains canaux, notre système se met au travail. Toutes les conversations sont agrégées et peuvent être envoyées à notre LLM. En un clic depuis votre onglet \"Tendance et Analytics\", demandez une analyse de sentiment pour savoir si l'ambiance est positive, un résumé des points clés des dernières 24h, ou une identification des sujets récurrents. Ne naviguez plus à vue, comprenez ce qui fait vibrer votre communauté."
+      },
+      "active": {
+        "tab": "Collecte Active : Propositions & Votes",
+        "title": "Donnez une voix à votre communauté",
+        "description": "La collecte active est votre outil de gouvernance. En activant cette fonction, le bot déploie trois salons dédiés sur votre Discord : un pour que les membres soumettent des idées (#propositions), un pour voter (#votes), et un pour afficher les décisions finales (#résultats). Toutes ces activités sont synchronisées sur votre plateforme Snowledge dans l'onglet \"Voting\", vous donnant une vue d'ensemble et un contrôle total sur les décisions qui façonnent votre communauté."
+      },
+      "management": {
+        "tab": "Gestion de la communauté",
+        "title": "Une intégration simple et sécurisée",
+        "description": "Lorsque notre bot rejoint votre serveur, il crée un salon d'accueil. Les membres de votre Discord peuvent y cliquer sur un bouton pour autoriser Snowledge, ce qui leur crée un compte en un clin d'œil et leur attribue le rôle \"Snowledge Authenticated\". Ce rôle est la clé : il leur donne accès à tous les canaux spéciaux que vous créez via le bot, comme les salons de vote. Vous gardez ainsi le contrôle sur qui participe aux processus de décision."
+      }
+    },
+    "tips": {
+      "permissions": {
+        "title": "Astuce de pro : Permissions du Bot",
+        "description": "Pour que la collecte passive fonctionne sur des salons privés, assurez-vous que le bot Snowledge a bien le rôle et les permissions nécessaires pour lire les messages dans ces canaux."
+      },
+      "relevance": {
+        "title": "Pour des analyses pertinentes",
+        "description": "La qualité des analyses de l'IA dépend des conversations. Choisissez des salons actifs où les discussions sont les plus riches pour obtenir les meilleurs résumés et tendances."
+      }
+    },
+    "faq": {
+      "title": "Questions Fréquentes (FAQ)",
+      "q1_trigger": "Comment mes utilisateurs s'inscrivent-ils à Snowledge ?",
+      "q1_content": "C'est très simple. Le bot crée un salon sur votre Discord avec un bouton d'autorisation. En cliquant dessus, l'utilisateur accepte nos conditions et un compte Snowledge est créé pour lui, lié à son identifiant Discord.",
+      "q2_trigger": "À quoi sert le rôle \"Snowledge Authenticated\" ?",
+      "q2_content": "Ce rôle est attribué automatiquement aux utilisateurs qui ont lié leur compte. Il vous permet de leur donner accès à des canaux exclusifs, comme ceux pour les propositions et les votes, assurant que seuls les membres engagés participent.",
+      "q3_trigger": "Est-ce que le bot lit tous mes messages ?",
+      "q3_content": "Non. Le bot ne lira que les messages des canaux que vous aurez explicitement sélectionnés pour la collecte passive dans votre interface. Vous avez le contrôle total sur les données que vous souhaitez analyser.",
+      "q4_trigger": "Puis-je utiliser Snowledge sans Discord ?",
+      "q4_content": "Pour le moment, Discord est notre première et principale intégration, car c'est là que vivent de nombreuses communautés. Nous prévoyons d'intégrer d'autres plateformes comme Telegram, YouTube et WhatsApp à l'avenir."
+    },
+    "future": {
+      "title": "Notre vision pour l'avenir",
+      "description": "Snowledge ne fait que commencer. Voici la suite de l'aventure.",
+      "contentCreation": {
+        "title": "Aide à la création de contenu",
+        "description": "Nous allons intégrer des outils d'IA pour vous aider à transformer les tendances de votre communauté en ébauches d'articles, de scripts vidéo ou de posts, directement depuis Snowledge."
+      },
+      "rewards": {
+        "title": "Système de récompenses pour contributeurs",
+        "description": "Identifiez et remerciez automatiquement les membres les plus actifs et pertinents de votre communauté. Mettez en valeur vos ambassadeurs et encouragez l'engagement positif."
+      }
+    }
+  },
   "manageIntegrations": {
     "loading": "Chargement...",
     "title": "Gestion des channels Discord",
