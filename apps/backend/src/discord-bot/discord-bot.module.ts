@@ -18,6 +18,7 @@ import { LearnerService } from 'src/learner/learner.service';
 import { DiscordServerModule } from 'src/discord-server/discord-server.module';
 import { DiscordProposalModule } from './discord-proposal.module';
 import { ProposalModule } from 'src/proposal/proposal.module';
+import { VoteModule } from 'src/vote/vote.module';
 
 @Module({
 	imports: [
@@ -33,6 +34,7 @@ import { ProposalModule } from 'src/proposal/proposal.module';
 		DiscordServerModule,
 		DiscordProposalModule,
 		ProposalModule,
+		VoteModule,
 	],
 	controllers: [DiscordBotController],
 	providers: [

@@ -103,6 +103,18 @@ export class ProposalService {
 		return savedProposal;
 	}
 
+	async findOneByMessageId(messageId: string): Promise<Proposal | null> {
+		return this.proposalRepository.findOne({
+			where: { messageId },
+			relations: [
+				'community',
+				'votes',
+				'submitter',
+				'community.learners',
+			],
+		});
+	}
+
 	async updateProposalStatus(proposal: Proposal) {
 		const now = new Date();
 		const quorumReached = proposal.votes.length >= proposal.quorum.required;

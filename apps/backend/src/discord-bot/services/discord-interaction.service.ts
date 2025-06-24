@@ -6,18 +6,16 @@ import {
 	PartialMessageReaction,
 	User,
 	PartialUser,
+	EmbedBuilder,
+	TextChannel,
 } from 'discord.js';
 import { DiscordClientService } from './discord-client.service';
 import { DiscordProposalService } from './discord-proposal.service';
 import { DiscordServerService } from '../../discord-server/discord-server.service';
 import { ProposalService } from 'src/proposal/proposal.service';
-import { Community } from 'src/community/entities/community.entity';
-import { Vote } from 'src/vote/entities/vote.entity';
-import { Proposal } from 'src/proposal/entities/proposal.entity';
-import { User as UserEntity } from 'src/user/entities/user.entity';
-import { DataSource, Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
-import { EmbedBuilder, TextChannel } from 'discord.js';
+import { CommunityService } from 'src/community/community.service';
+import { VoteService } from 'src/vote/vote.service';
+import type { Proposal } from 'src/proposal/entities/proposal.entity';
 
 @Injectable()
 export class DiscordInteractionService implements OnModuleInit {
@@ -28,9 +26,8 @@ export class DiscordInteractionService implements OnModuleInit {
 		private readonly discordProposalService: DiscordProposalService,
 		private readonly discordServerService: DiscordServerService,
 		private readonly proposalService: ProposalService,
-		@InjectRepository(Community)
-		private communityRepository: Repository<Community>,
-		private readonly dataSource: DataSource,
+		private readonly communityService: CommunityService,
+		private readonly voteService: VoteService,
 	) {}
 
 	onModuleInit() {
@@ -331,18 +328,13 @@ export class DiscordInteractionService implements OnModuleInit {
 	async handleMessageReactionAdd(reaction: MessageReaction, user: User) {
 		if (user.bot) return;
 
-		const discordServer = await this.communityRepository.manager
-			.getRepository(Community)
-			.createQueryBuilder('community')
-			.leftJoinAndSelect('community.discordServer', 'discordServer')
-			.where('discordServer.guildId = :guildId', {
-				guildId: reaction.message.guild.id,
-			})
-			.getOne();
+		const community = await this.communityService.findOneByDiscordServerId(
+			reaction.message.guild.id,
+		);
 
-		if (!discordServer) return;
+		if (!community) return;
 
-		const voteChannelId = discordServer.discordServer?.voteChannelId;
+		const voteChannelId = community.discordServer?.voteChannelId;
 		if (reaction.message.channel.id !== voteChannelId) return;
 
 		try {
@@ -353,88 +345,14 @@ export class DiscordInteractionService implements OnModuleInit {
 				);
 			if (!isProposalMessage) return;
 
-			await this.dataSource.transaction(
-				async (transactionalEntityManager) => {
-					const proposal = await transactionalEntityManager
-						.getRepository(Proposal)
-						.findOne({
-							where: { messageId: reaction.message.id },
-						});
-
-					if (!proposal || proposal.status !== 'in_progress') return;
-
-					let voteType: 'subject' | 'format' | null = null;
-					let voteValue: 'for' | 'against' | null = null;
-
-					if (reaction.emoji.name === '✅') voteType = 'subject';
-					if (reaction.emoji.name === '❌') voteType = 'subject';
-					if (reaction.emoji.name === '👍') voteType = 'format';
-					if (reaction.emoji.name === '👎') voteType = 'format';
-					if (['✅', '👍'].includes(reaction.emoji.name))
-						voteValue = 'for';
-					if (['❌', '👎'].includes(reaction.emoji.name))
-						voteValue = 'against';
-
-					if (!voteType || !voteValue) return;
-
-					const voter = await transactionalEntityManager
-						.getRepository(UserEntity)
-						.findOne({ where: { discordId: user.id } });
-					if (!voter) return;
-
-					const existingVote = await transactionalEntityManager
-						.getRepository(Vote)
-						.findOne({
-							where: {
-								proposal: { id: proposal.id },
-								user: { id: voter.id },
-							},
-						});
-
-					if (existingVote) {
-						const payload: Partial<Vote> = {};
-						if (voteType === 'subject') payload.choice = voteValue;
-						if (voteType === 'format')
-							payload.formatChoice = voteValue;
-						await transactionalEntityManager
-							.getRepository(Vote)
-							.update(existingVote.id, payload);
-					} else {
-						const newVote = transactionalEntityManager
-							.getRepository(Vote)
-							.create({
-								proposal: { id: proposal.id },
-								user: { id: voter.id },
-								choice:
-									voteType === 'subject'
-										? voteValue
-										: undefined,
-								formatChoice:
-									voteType === 'format'
-										? voteValue
-										: undefined,
-							});
-						await transactionalEntityManager.save(newVote);
-					}
-				},
+			const updatedProposal = await this.voteService.handleReactionVote(
+				reaction,
+				user,
 			);
 
-			const proposal = await this.dataSource
-				.getRepository(Proposal)
-				.findOne({
-					where: { messageId: reaction.message.id },
-					relations: [
-						'community',
-						'votes',
-						'submitter',
-						'community.learners',
-					],
-				});
+			if (!updatedProposal) return;
 
-			if (!proposal) return;
-
-			const updatedProposal =
-				await this.proposalService.updateProposalStatus(proposal);
+			await this.proposalService.updateProposalStatus(updatedProposal);
 
 			const channel = reaction.message.channel as TextChannel;
 			const message = await channel.messages.fetch(reaction.message.id);
@@ -449,7 +367,7 @@ export class DiscordInteractionService implements OnModuleInit {
 				await message.edit({ embeds: [resultEmbed], components: [] });
 
 				const resultsChannelId =
-					discordServer.discordServer?.resultChannelId;
+					community.discordServer?.resultChannelId;
 				if (resultsChannelId) {
 					const resultsChannel = (await channel.guild.channels.fetch(
 						resultsChannelId,

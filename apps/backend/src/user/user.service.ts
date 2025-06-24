@@ -49,6 +49,12 @@ export class UserService {
 		});
 	}
 
+	findOneByDiscordId(discordId: string): Promise<User | null> {
+		return this.userRepository.findOne({
+			where: { discordId: discordId },
+		});
+	}
+
 	update(id: number, updateUserDto: UpdateUserDto) {
 		return this.userRepository.update(id, updateUserDto);
 	}
