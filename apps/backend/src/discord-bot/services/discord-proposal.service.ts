@@ -190,13 +190,13 @@ export class DiscordProposalService {
 					if (name === (resultName ? resultName : undefined))
 						resultChannel = found;
 				} else {
-					// TODO: dangereux d'avoir le nom en dur
+					// TODO: having the role name hardcoded is dangerous
 					const role = guild.roles.cache.find(
 						(r) => r.name === 'Snowledge Authenticated',
 					);
 					if (!role) {
 						throw new Error(
-							"Le rôle 'Snowledge Authenticated' n'existe pas sur ce serveur !",
+							"The 'Snowledge Authenticated' role does not exist on this server!",
 						);
 					}
 					const createdChannel = await guild.channels.create({
@@ -389,18 +389,18 @@ export class DiscordProposalService {
 			});
 			const embed = new EmbedBuilder()
 				.setColor('#0099ff')
-				.setTitle(`📢 Nouvelle idée proposée par ${user.firstname}`)
-				.setDescription(`**Sujet :** ${sujet}\n\n> ${description}`)
+				.setTitle(`📢 New idea proposed by ${user.firstname}`)
+				.setDescription(`**Subject:** ${sujet}\n\n> ${description}`)
 				.addFields(
-					{ name: 'Format proposé', value: format, inline: true },
+					{ name: 'Proposed format', value: format, inline: true },
 					{
-						name: 'Contributeur potentiel',
-						value: contributeur ? 'Oui' : 'Non',
+						name: 'Potential contributor',
+						value: contributeur ? 'Yes' : 'No',
 						inline: true,
 					},
 				)
 				.setFooter({
-					text: 'Réagissez pour voter !',
+					text: 'React to vote!',
 				});
 			const message = await channel.send({ embeds: [embed] });
 			await message.react('✅');

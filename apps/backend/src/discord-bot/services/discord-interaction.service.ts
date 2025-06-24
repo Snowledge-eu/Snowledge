@@ -349,7 +349,7 @@ export class DiscordInteractionService implements OnModuleInit {
 			const isProposalMessage =
 				reaction.message.embeds.length > 0 &&
 				reaction.message.embeds[0].title?.startsWith(
-					'📢 Nouvelle idée',
+					'📢 New idea proposed by',
 				);
 			if (!isProposalMessage) return;
 
@@ -484,41 +484,39 @@ export class DiscordInteractionService implements OnModuleInit {
 
 		const embed = new EmbedBuilder()
 			.setColor('#0099ff')
-			.setTitle(
-				`📢 Nouvelle idée proposée par ${proposal.submitter.firstname}`,
-			)
+			.setTitle(`📢 New idea proposed by ${proposal.submitter.firstname}`)
 			.setDescription(
-				`**Sujet :** ${proposal.title}\n\n> ${proposal.description}`,
+				`**Subject:** ${proposal.title}\n\n> ${proposal.description}`,
 			)
 			.addFields(
 				{
-					name: 'Format proposé',
+					name: 'Proposed Format',
 					value: proposal.format,
 					inline: true,
 				},
 				{
-					name: 'Contributeur potentiel',
-					value: proposal.isContributor ? 'Oui' : 'Non',
+					name: 'Potential Contributor',
+					value: proposal.isContributor ? 'Yes' : 'No',
 					inline: true,
 				},
 				{
-					name: 'Fin du vote',
+					name: 'Vote ends',
 					value: `<t:${Math.floor(proposal.deadline.getTime() / 1000)}:R>`,
 					inline: true,
 				},
 				{
-					name: `Votes sur le sujet (${totalVoters}/${quorum})`,
-					value: `✅ Pour : ${yesVotes}\n❌ Contre : ${noVotes}`,
+					name: `Votes on subject (${totalVoters}/${quorum})`,
+					value: `✅ For: ${yesVotes}\n❌ Against: ${noVotes}`,
 					inline: true,
 				},
 				{
-					name: 'Votes sur le format',
-					value: `👍 Pour : ${yesFormatVotes}\n👎 Contre : ${noFormatVotes}`,
+					name: 'Votes on format',
+					value: `👍 For: ${yesFormatVotes}\n👎 Against: ${noFormatVotes}`,
 					inline: true,
 				},
 			)
 			.setFooter({
-				text: 'Réagissez pour voter !',
+				text: 'React to vote!',
 			});
 
 		return embed;
@@ -527,7 +525,7 @@ export class DiscordInteractionService implements OnModuleInit {
 	private createProposalResultEmbed(proposal: Proposal): EmbedBuilder {
 		const statusIcon = proposal.status === 'accepted' ? '✅' : '❌';
 		const statusText =
-			proposal.status === 'accepted' ? 'Acceptée' : 'Rejetée';
+			proposal.status === 'accepted' ? 'Accepted' : 'Rejected';
 		const color = proposal.status === 'accepted' ? '#2ECC71' : '#E74C3C';
 
 		let formatResult = proposal.format;
@@ -535,14 +533,14 @@ export class DiscordInteractionService implements OnModuleInit {
 			proposal.status === 'accepted' &&
 			proposal.format === 'toBeDefined'
 		) {
-			formatResult = 'À redéfinir (format initial refusé)';
+			formatResult = 'To be redefined (initial format rejected)';
 		}
 
 		const embed = new EmbedBuilder()
 			.setColor(color)
-			.setTitle(`${statusIcon} Proposition ${statusText}`)
-			.setDescription(`**Sujet :** ${proposal.title}`)
-			.addFields({ name: 'Format final', value: formatResult });
+			.setTitle(`${statusIcon} Proposal ${statusText}`)
+			.setDescription(`**Subject:** ${proposal.title}`)
+			.addFields({ name: 'Final Format', value: formatResult });
 
 		return embed;
 	}
