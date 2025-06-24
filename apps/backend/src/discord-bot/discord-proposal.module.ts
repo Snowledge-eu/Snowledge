@@ -1,19 +1,32 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { DiscordServer } from 'src/discord-server/entities/discord-server-entity';
-import { Proposal } from 'src/proposal/entities/proposal.entity';
-import { User as UserEntity } from 'src/user/entities/user.entity';
 import { DiscordProposalService } from './services/discord-proposal.service';
 import { DiscordProposalFormService } from './services/discord-proposal-form.service';
 import { DiscordClientService } from './services/discord-client.service';
+import { DiscordProposalProvider } from './providers/discord-proposal.provider';
+import { DiscordLogicModule } from './discord-logic.module';
+import { ProposalModule } from 'src/proposal/proposal.module';
+import { UserModule } from 'src/user/user.module';
+import { CommunityModule } from 'src/community/community.module';
+import { DiscordServerModule } from 'src/discord-server/discord-server.module';
 
 @Module({
-	imports: [TypeOrmModule.forFeature([DiscordServer, Proposal, UserEntity])],
+	imports: [
+		DiscordLogicModule,
+		ProposalModule,
+		UserModule,
+		CommunityModule,
+		DiscordServerModule,
+	],
 	providers: [
 		DiscordProposalService,
 		DiscordProposalFormService,
 		DiscordClientService,
+		DiscordProposalProvider,
 	],
-	exports: [DiscordProposalService, DiscordProposalFormService],
+	exports: [
+		DiscordProposalService,
+		DiscordProposalFormService,
+		DiscordProposalProvider,
+	],
 })
 export class DiscordProposalModule {}

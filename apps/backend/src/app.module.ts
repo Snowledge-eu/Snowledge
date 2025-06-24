@@ -22,8 +22,10 @@ import mongoConfig, { formatURIMongo } from './config/mongo.config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { YoutubeModule } from './youtube/youtube.module';
 import { AnalysisModule } from './analysis/analysis.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 @Module({
 	imports: [
+		EventEmitterModule.forRoot(),
 		ConfigModule.forRoot({
 			envFilePath: ['.env.dev', '.env.prod'],
 			isGlobal: true,

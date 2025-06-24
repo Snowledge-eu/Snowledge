@@ -6,10 +6,9 @@ import { Vote } from './entities/vote.entity';
 import { Proposal } from '../proposal/entities/proposal.entity';
 import { User } from '../user/entities/user.entity';
 import { Community } from 'src/community/entities/community.entity';
-import { ProposalService } from 'src/proposal/proposal.service';
-import { DiscordBotModule } from 'src/discord-bot/discord-bot.module';
 import { ProposalModule } from 'src/proposal/proposal.module';
 import { UserModule } from 'src/user/user.module';
+import { VoteProvider } from './vote.provider';
 
 @Module({
 	imports: [
@@ -17,8 +16,8 @@ import { UserModule } from 'src/user/user.module';
 		ProposalModule,
 		UserModule,
 	],
-	providers: [VoteService],
+	providers: [VoteService, VoteProvider],
 	controllers: [VoteController],
-	exports: [VoteService],
+	exports: [VoteService, VoteProvider],
 })
 export class VoteModule {}

@@ -1,18 +1,18 @@
 import { Controller, Get, Post, Body, Param } from '@nestjs/common';
-import { ProposalService } from './proposal.service';
+import { ProposalProvider } from './proposal.provider';
 import { CreateProposalDto } from './dto/create-proposal.dto/create-proposal.dto';
 import { Proposal } from './entities/proposal.entity';
 
 @Controller('communities/:communitySlug/proposals')
 export class ProposalController {
-	constructor(private readonly proposalService: ProposalService) {}
+	constructor(private readonly proposalProvider: ProposalProvider) {}
 
 	// GET /proposals
 	@Get()
 	findAll(
 		@Param('communitySlug') communitySlug: string,
 	): Promise<Proposal[]> {
-		return this.proposalService.findAllForACommunityBySlug(communitySlug);
+		return this.proposalProvider.findAllForACommunityBySlug(communitySlug);
 	}
 
 	// POST /proposals
@@ -21,6 +21,6 @@ export class ProposalController {
 		@Param('communitySlug') communitySlug: string,
 		@Body() createProposalDto: CreateProposalDto,
 	): Promise<Proposal> {
-		return this.proposalService.create(createProposalDto, communitySlug);
+		return this.proposalProvider.create(createProposalDto, communitySlug);
 	}
 }

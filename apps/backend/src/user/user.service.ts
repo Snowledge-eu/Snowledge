@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 // This should be a real class/interface representing a user entity
-import { Repository } from 'typeorm';
+import { Repository, EntityManager } from 'typeorm';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UpdateUserDto } from './dto';
@@ -36,10 +36,10 @@ export class UserService {
 		return this.userRepository.find();
 	}
 
-	findOneById(id: number): Promise<User | null> {
+	async findOneById(id: number): Promise<User | null> {
 		return this.userRepository.findOne({
 			where: { id },
-			relations: ['discordAccess'],
+			relations: ['communities', 'learners', 'learners.community'],
 		});
 	}
 	findOneByEmail(email: string): Promise<User | null> {
@@ -49,8 +49,14 @@ export class UserService {
 		});
 	}
 
-	findOneByDiscordId(discordId: string): Promise<User | null> {
-		return this.userRepository.findOne({
+	findOneByDiscordId(
+		discordId: string,
+		manager?: EntityManager,
+	): Promise<User | null> {
+		const repository = manager
+			? manager.getRepository(User)
+			: this.userRepository;
+		return repository.findOne({
 			where: { discordId: discordId },
 		});
 	}

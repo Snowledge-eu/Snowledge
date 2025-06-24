@@ -1,12 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { DiscordProposalService } from './services/discord-proposal.service';
+import { DiscordProposalService } from './discord-proposal.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { DiscordServer } from 'src/discord-server/entities/discord-server-entity';
 import { Proposal } from 'src/proposal/entities/proposal.entity';
 import { User as UserEntity } from 'src/user/entities/user.entity';
 import { Community } from 'src/community/entities/community.entity';
 import { Vote } from 'src/vote/entities/vote.entity';
-import { DiscordClientService } from './services/discord-client.service';
+import { DiscordClientService } from './discord-client.service';
 
 describe('DiscordProposalService', () => {
 	let service: DiscordProposalService;

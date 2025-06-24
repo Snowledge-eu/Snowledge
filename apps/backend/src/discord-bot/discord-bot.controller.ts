@@ -9,18 +9,18 @@ import {
 	Res,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { DiscordProposalService } from './services/discord-proposal.service';
-import { DiscordBotProvider } from './discord-bot.provider';
+import { DiscordLinkProvider } from './providers/discord-link.provider';
 import { Public } from 'src/auth/auth.decorator';
 import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
+import { DiscordProposalProvider } from './providers/discord-proposal.provider';
 
 @ApiTags('Discord Bot')
 @Controller('discord-bot')
 export class DiscordBotController {
 	constructor(
-		private readonly discordProposalService: DiscordProposalService,
-		private readonly discordBotProvider: DiscordBotProvider,
+		private readonly discordProposalProvider: DiscordProposalProvider,
+		private readonly discordLinkProvider: DiscordLinkProvider,
 		private readonly configService: ConfigService,
 	) {}
 
@@ -35,7 +35,7 @@ export class DiscordBotController {
 			resultName?: string;
 		},
 	) {
-		return this.discordProposalService.createChannelsIfNotExist(
+		return this.discordProposalProvider.createChannelsIfNotExist(
 			body.guildId,
 			body.proposeName,
 			body.voteName,
@@ -53,7 +53,7 @@ export class DiscordBotController {
 			newNames: { propose: string; vote: string; result: string };
 		},
 	) {
-		return this.discordProposalService.renameChannels(
+		return this.discordProposalProvider.renameChannels(
 			body.guildId,
 			body.oldNames,
 			body.newNames,
@@ -63,7 +63,7 @@ export class DiscordBotController {
 	// Endpoint pour lister les channels textuels (GET avec query param)
 	@Get('list-channels')
 	async listChannels(@Query('guildId') guildId: string) {
-		return this.discordProposalService.listTextChannels(guildId);
+		return this.discordProposalProvider.listTextChannels(guildId);
 	}
 
 	@Public()
@@ -75,7 +75,7 @@ export class DiscordBotController {
 		@Res() res: Response,
 	) {
 		if (code) {
-			await this.discordBotProvider.linkDiscord(code, guildId);
+			await this.discordLinkProvider.handleDiscordLink(code, guildId);
 			const logoUrl =
 				'https://test-image-snowledge.s3.eu-west-par.io.cloud.ovh.net/logo/logo.png';
 			res.setHeader('Content-Type', 'text/html');

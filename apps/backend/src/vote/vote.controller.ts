@@ -1,19 +1,20 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-import { VoteService } from './vote.service';
+import { VoteProvider } from './vote.provider';
 import { CreateVoteDto } from './dto/create-vote.dto';
 import { User } from '../user/decorator';
 import { User as UserEntity } from '../user/entities/user.entity';
 
 @Controller('/communities/:communitySlug/votes')
 export class VoteController {
-	constructor(private readonly voteService: VoteService) {}
+	constructor(private readonly voteProvider: VoteProvider) {}
 
 	@Post(':proposalId')
 	create(
 		@Param('proposalId') proposalId: number,
 		@Body() createVoteDto: CreateVoteDto,
+		@User() user: UserEntity,
 	) {
-		return this.voteService.create(proposalId, createVoteDto);
+		return this.voteProvider.create(proposalId, createVoteDto, user.id);
 	}
 
 	@Get()
@@ -21,6 +22,6 @@ export class VoteController {
 		@Param('communitySlug') communitySlug: string,
 		@User() user: UserEntity,
 	) {
-		return this.voteService.findAllByUserId(communitySlug, user.id);
+		return this.voteProvider.findAllByUserId(communitySlug, user.id);
 	}
 }

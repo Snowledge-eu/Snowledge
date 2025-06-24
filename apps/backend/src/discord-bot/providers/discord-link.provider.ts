@@ -1,22 +1,23 @@
-import { Injectable } from '@nestjs/common';
-import { DiscordService } from '../discord/services/discord.service';
+import { Injectable, Logger } from '@nestjs/common';
+import { DiscordService } from 'src/discord/services/discord.service';
 import { UserService } from 'src/user/user.service';
-import { Gender } from 'src/shared/enums/Gender';
+import { DiscordClientService } from '../services/discord-client.service';
 import { CommunityService } from 'src/community/community.service';
 import { LearnerService } from 'src/learner/learner.service';
-import { DiscordClientService } from './services/discord-client.service';
+import { Gender } from 'src/shared/enums/Gender';
 
 @Injectable()
-export class DiscordBotProvider {
+export class DiscordLinkProvider {
+	private readonly logger = new Logger(DiscordLinkProvider.name);
+
 	constructor(
 		private readonly discordService: DiscordService,
 		private readonly userService: UserService,
+		private readonly discordClientService: DiscordClientService,
 		private readonly communityService: CommunityService,
 		private readonly learnerService: LearnerService,
-		private readonly discordClientService: DiscordClientService,
 	) {}
-
-	async linkDiscord(code: string, guildId: string) {
+	async handleDiscordLink(code: string, guildId: string) {
 		console.log('code', code);
 		const response = await fetch('https://discord.com/api/oauth2/token', {
 			method: 'POST',

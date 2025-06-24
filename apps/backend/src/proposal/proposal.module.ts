@@ -3,17 +3,18 @@ import { ProposalService } from './proposal.service';
 import { ProposalController } from './proposal.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Proposal } from './entities/proposal.entity';
-import { Community } from '../community/entities/community.entity';
-import { User } from '../user/entities/user.entity';
-import { DiscordProposalModule } from 'src/discord-bot/discord-proposal.module';
+import { ProposalProvider } from './proposal.provider';
+import { CommunityModule } from 'src/community/community.module';
+import { UserModule } from 'src/user/user.module';
 
 @Module({
 	imports: [
-		TypeOrmModule.forFeature([Proposal, Community, User]),
-		DiscordProposalModule,
+		TypeOrmModule.forFeature([Proposal]),
+		CommunityModule,
+		UserModule,
 	],
-	providers: [ProposalService],
 	controllers: [ProposalController],
-	exports: [ProposalService],
+	providers: [ProposalService, ProposalProvider],
+	exports: [ProposalService, ProposalProvider],
 })
 export class ProposalModule {}
