@@ -48,6 +48,7 @@ export default function NavUser({
         credentials: "include",
       });
       if (response.status === 204) {
+        localStorage.removeItem('activeCommunityId');
         window.location.href = "/";
       } else {
         console.error("Failed to sign out");
