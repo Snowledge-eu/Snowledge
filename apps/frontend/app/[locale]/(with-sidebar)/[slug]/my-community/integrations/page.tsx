@@ -27,6 +27,7 @@ import { SocialIcon } from "react-social-icons";
 import { MultiSelect } from "@/components/shared/community/ui/MultiSelect";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/auth-context";
+import { DiscordHarvestJob } from "@/shared/interfaces/IDiscordHarvestJob";
 
 export default function Page() {
   const { user, fetcher } = useAuth();
@@ -47,7 +48,13 @@ export default function Page() {
       color: "#5865F2",
       options: [{ label: "", value: "" }],
       estimatedVolume: 1240,
-      lastFetched: "-",
+      lastFetched: {
+        date: new Date,
+        channels: [{
+          name: '',
+          qty: 0,
+        }]
+      },
       type: "channels",
       account: {
         id: "",
@@ -159,7 +166,7 @@ export default function Page() {
         }
       );
       // console.log("data", data);
-      const harvest = await fetcher(
+      const harvest: DiscordHarvestJob & { lastFetched: { date: Date, channels: Array<{ name: string, qty: number }> } } = await fetcher(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/discord/last-harvest/${guildId}`
       ).catch((err) => console.error(err));
       const info: {
@@ -168,8 +175,8 @@ export default function Page() {
         channels: [{ id: string; name: string }];
       } = await data.json();
 
-      console.log("info", info);
       const options: Array<{ label: string; value: string }> = [];
+      
       for (const channel of info.channels) {
         options.push({ label: `#${channel.name}`, value: channel.id });
       }
@@ -184,9 +191,7 @@ export default function Page() {
                   name: info.server_name,
                   connected: true,
                 },
-                lastFetched: harvest?.created_at
-                  ? new Date(harvest?.created_at).toLocaleDateString()
-                  : "-",
+                lastFetched: harvest.lastFetched
               }
             : platform
         )
@@ -328,33 +333,41 @@ export default function Page() {
                     {platform.type.charAt(0).toUpperCase() +
                       platform.type.slice(1)}
                   </Label>
-                  <div className="w-64">
                     {channelFetched ? (
-                      <MultiSelect
-                        options={platform.options}
-                        // value={selected[platform.key as keyof typeof selected]}
-                        onChange={(vals) =>
-                          setSelected((s: any) => ({
-                            ...s,
-                            [platform.key]: vals,
-                          }))
-                        }
-                        placeholder={`Select ${platform.type}...`}
-                        // label={undefined}
-                        // disabled={isDisabled}
-                      />
-                    ) : (
+                      <>
+                    <div className="w-64">
+                        <MultiSelect
+                          options={platform.options}
+                          // value={selected[platform.key as keyof typeof selected]}
+                          onChange={(vals) =>
+                            setSelected((s: any) => ({
+                              ...s,
+                              [platform.key]: vals,
+                            }))
+                          }
+                          placeholder={`Select ${platform.type}...`}
+                          // label={undefined}
+                          // disabled={isDisabled}
+                        />
+                    </div>
+                      
+                    <div className="text-xs text-muted-foreground mt-1">
+                      Last fetched:{" "}
+                      <span className="font-semibold text-foreground">
+                        {new Date(platform.lastFetched.date).toLocaleDateString()}
+                      </span>
+                      <br />
+                      {platform.lastFetched.channels.map((channel, id) => (
+                        <span key={id}>{channel.name} - {channel.qty} message{channel.qty > 1 && 's'} téléchargé{channel.qty > 1 && 's'}</span>
+                      ))}
+                    </div>
+                  </>
+                   ) : (
                       <div>
-                        <Spinner size="small" />
-                      </div>
+                      <Spinner size="small" />
+                    </div> 
                     )}
-                  </div>
-                </div>
-                <div className="text-xs text-muted-foreground mt-1">
-                  Last fetched:{" "}
-                  <span className="font-semibold text-foreground">
-                    {platform.lastFetched}
-                  </span>
+                  {/* </div> */}
                 </div>
                 <div className="flex flex-row items-center justify-between gap-2 mt-4">
                   <PlatformSettingsDialog
