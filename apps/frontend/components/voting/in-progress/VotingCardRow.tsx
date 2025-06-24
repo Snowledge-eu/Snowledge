@@ -111,7 +111,7 @@ const VotingCardRow = ({
           {proposal.submitter.firstname} {proposal.submitter.lastname}
         </span>
         <span className="text-xs text-muted-foreground">{t("submitter")}</span>
-        {proposal.submitter.id !== user.id && !alreadyVoted ? (
+        {/* {proposal.submitter.id !== user.id && !alreadyVoted ? (
           <Button size="sm" className="mt-2" onClick={onVoteNow}>
             {t("vote_now")}
           </Button>
@@ -129,7 +129,7 @@ const VotingCardRow = ({
             </TooltipTrigger>
             <TooltipContent>{t("not_eligible_reason")}</TooltipContent>
           </Tooltip>
-        )}
+        )} */}
       </div>
     </Card>
   );
