@@ -25,7 +25,7 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-    const pathname = usePathname();
+  const pathname = usePathname();
   const router = useRouter();
   
   const [user, setUser] = useState(null);
@@ -199,7 +199,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (token) {
       setAccessToken(token);
     } else {
-      refreshAccessToken();
+      if(pathname.split('/').length > 2){
+        refreshAccessToken();
+      }
     }
   }, []);
 

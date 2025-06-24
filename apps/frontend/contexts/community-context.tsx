@@ -4,6 +4,7 @@ import { useUserCommunities } from "../hooks/useUserCommunities";
 import { Community } from "@/types/community";
 import { useAuth } from "@/contexts/auth-context";
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 
 export const CommunityContext = React.createContext<{
   activeCommunity: Community | null;
@@ -12,6 +13,7 @@ export const CommunityContext = React.createContext<{
 } | null>(null);
 
 export function CommunityProvider({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
   const { user, fetchDataUser } = useAuth();
   const { data: communities, isSuccess } = useUserCommunities(user?.id || 0);
   const [activeCommunity, setActiveCommunity] =
@@ -19,7 +21,9 @@ export function CommunityProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     //TODO verifier le comportement
+    if(pathname.split('/').length > 2){
       fetchDataUser();
+    }
     
   }, []);
 
