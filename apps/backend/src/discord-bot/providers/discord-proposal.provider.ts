@@ -19,7 +19,7 @@ import {
 	getResultExplanation,
 } from '../utils/discord-proposal.utils';
 import { DiscordClientService } from '../services/discord-client.service';
-import { Proposal } from 'src/proposal/entities/proposal.entity';
+import type { Proposal } from 'src/proposal/entities/proposal.entity';
 
 @Injectable()
 export class DiscordProposalProvider {
