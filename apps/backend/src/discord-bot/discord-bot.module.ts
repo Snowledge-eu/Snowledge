@@ -8,9 +8,6 @@ import { Community } from 'src/community/entities/community.entity';
 import { Vote } from 'src/vote/entities/vote.entity';
 import { DiscordClientService } from './services/discord-client.service';
 import { DiscordInteractionService } from './services/discord-interaction.service';
-import { DiscordProposalService } from './services/discord-proposal.service';
-import { DiscordProposalFormService } from './services/discord-proposal-form.service';
-import { DiscordProposalVoteService } from './services/discord-proposal-vote.service';
 import { DiscordBotProvider } from './discord-bot.provider';
 import { DiscordService } from 'src/discord/services/discord.service';
 import { UserService } from 'src/user/user.service';
@@ -19,6 +16,8 @@ import { Learner } from 'src/learner/entities/learner/learner';
 import { CommunityService } from 'src/community/community.service';
 import { LearnerService } from 'src/learner/learner.service';
 import { DiscordServerModule } from 'src/discord-server/discord-server.module';
+import { DiscordProposalModule } from './discord-proposal.module';
+import { ProposalModule } from 'src/proposal/proposal.module';
 
 @Module({
 	imports: [
@@ -32,27 +31,19 @@ import { DiscordServerModule } from 'src/discord-server/discord-server.module';
 			Learner,
 		]),
 		DiscordServerModule,
+		DiscordProposalModule,
+		ProposalModule,
 	],
 	controllers: [DiscordBotController],
 	providers: [
 		DiscordClientService,
 		DiscordInteractionService,
-		DiscordProposalService,
-		DiscordProposalFormService,
-		DiscordProposalVoteService,
-
 		DiscordBotProvider,
 		DiscordService,
 		UserService,
 		CommunityService,
 		LearnerService,
 	],
-	exports: [
-		DiscordClientService,
-		DiscordInteractionService,
-		DiscordProposalService,
-		DiscordProposalFormService,
-		DiscordProposalVoteService,
-	],
+	exports: [DiscordClientService, DiscordInteractionService],
 })
 export class DiscordBotModule {}

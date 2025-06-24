@@ -80,28 +80,32 @@ export class ProposalService {
 			community,
 			submitter,
 		});
-		const savedProposal = await this.proposalRepository.save(proposal);
+		let savedProposal = await this.proposalRepository.save(proposal);
 
-		// Envoi sur Discord si la communauté a un serveur Discord
 		const discordServer = community.discordServer;
 		if (discordServer && submitter.discordId) {
-			await this.discordProposalService.sendProposalToDiscordChannel({
-				guildId: discordServer.guildId,
-				sujet: proposal.title,
-				description: proposal.description,
-				format: proposal.format,
-				contributeur: proposal.isContributor,
-				discordUserId: submitter.discordId,
-			});
+			const message =
+				await this.discordProposalService.sendProposalToDiscordChannel({
+					guildId: discordServer.guildId,
+					sujet: proposal.title,
+					description: proposal.description,
+					format: proposal.format,
+					contributeur: proposal.isContributor,
+					discordUserId: submitter.discordId,
+				});
+
+			if (message) {
+				savedProposal.messageId = message.id;
+				savedProposal =
+					await this.proposalRepository.save(savedProposal);
+			}
 		}
 		return savedProposal;
 	}
 
-	async updateProposalStatus(proposal: Proposal, community: Community) {
+	async updateProposalStatus(proposal: Proposal) {
 		const now = new Date();
-		const totalLearners = community.learners.length;
-		const votes = proposal.votes.length;
-		const quorumReached = votes > totalLearners / 2;
+		const quorumReached = proposal.votes.length >= proposal.quorum.required;
 		const timeOver = now > proposal.deadline;
 
 		if (proposal.status !== 'in_progress') return proposal; // déjà terminé
@@ -114,6 +118,21 @@ export class ProposalService {
 				(v) => v.choice === 'against',
 			).length;
 			proposal.status = yesVotes > noVotes ? 'accepted' : 'rejected';
+
+			// Si la proposition est acceptée, on vérifie le vote sur le format
+			if (proposal.status === 'accepted') {
+				const yesFormatVotes = proposal.votes.filter(
+					(v) => v.formatChoice === 'for',
+				).length;
+				const noFormatVotes = proposal.votes.filter(
+					(v) => v.formatChoice === 'against',
+				).length;
+
+				if (noFormatVotes >= yesFormatVotes) {
+					proposal.format = 'toBeDefined';
+				}
+			}
+
 			proposal.endedAt = now;
 			await this.proposalRepository.save(proposal);
 		}

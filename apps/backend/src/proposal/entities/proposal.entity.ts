@@ -38,6 +38,9 @@ export class Proposal {
 	@Column({ type: 'timestamptz', nullable: true })
 	endedAt: Date;
 
+	@Column({ nullable: true, unique: true })
+	messageId?: string;
+
 	@ManyToOne(() => Community, (community) => community.proposals, {
 		cascade: false,
 		nullable: false,

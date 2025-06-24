@@ -5,7 +5,7 @@ import { DiscordServer } from 'src/discord-server/entities/discord-server-entity
 import { Proposal } from 'src/proposal/entities/proposal.entity';
 import { User as UserEntity } from 'src/user/entities/user.entity';
 import { randomUUID } from 'crypto';
-import { ChannelType, MessageReaction, User } from 'discord.js';
+import { ChannelType, MessageReaction, User, EmbedBuilder } from 'discord.js';
 import {
 	getSubmissionExplanation,
 	getVoteExplanation,
@@ -13,7 +13,6 @@ import {
 } from '../utils/discord-proposal.utils';
 import { DiscordClientService } from './discord-client.service';
 import { DiscordProposalFormService } from './discord-proposal-form.service';
-import { DiscordProposalVoteService } from './discord-proposal-vote.service';
 
 @Injectable()
 export class DiscordProposalService {
@@ -32,7 +31,6 @@ export class DiscordProposalService {
 		private userRepository: Repository<UserEntity>,
 		private readonly discordClientService: DiscordClientService,
 		private readonly formService: DiscordProposalFormService,
-		private readonly voteService: DiscordProposalVoteService,
 	) {}
 
 	async handleProposerIdee(interaction: any) {
@@ -93,7 +91,7 @@ export class DiscordProposalService {
 			return;
 		}
 		const { sujet, description, format } = proposal;
-		await this.sendProposalToDiscordChannel({
+		const message = await this.sendProposalToDiscordChannel({
 			guildId: interaction.guild.id,
 			sujet,
 			description,
@@ -138,6 +136,10 @@ export class DiscordProposalService {
 						submitter: submitter,
 						community: discordServerForDb.community,
 					});
+
+					if (message) {
+						proposalEntity.messageId = message.id;
+					}
 					await this.proposalRepository.save(proposalEntity);
 				}
 			}
@@ -157,19 +159,6 @@ export class DiscordProposalService {
 				e,
 			);
 		}
-	}
-
-	async handleMessageReactionAdd(reaction: MessageReaction, user: User) {
-		if (user.bot) return;
-		const discordServer = await this.discordServerRepository.findOne({
-			where: { guildId: reaction.message.guild.id },
-			relations: ['community'],
-		});
-		await this.voteService.handleMessageReactionAdd(
-			reaction,
-			user,
-			discordServer,
-		);
 	}
 
 	async createChannelsIfNotExist(
@@ -379,26 +368,48 @@ export class DiscordProposalService {
 		discordUserId: string;
 	}) {
 		const client = this.discordClientService.getClient();
-		const discordServer = await this.discordServerRepository.findOne({
-			where: { guildId: guildId },
-		});
-		const voteChannelId = discordServer?.voteChannelId;
-		if (!voteChannelId)
-			throw new Error('No vote channel assigned in database.');
-		const guild = await client.guilds.fetch(guildId);
-		const salonVotes = guild.channels.cache.get(voteChannelId);
-		if (!salonVotes || salonVotes.type !== ChannelType.GuildText) {
-			throw new Error(
-				'The vote channel does not exist or is not a text channel.',
+		try {
+			const guild = await client.guilds.fetch(guildId);
+			const discordServer = await this.discordServerRepository.findOneBy({
+				guildId,
+			});
+			if (!discordServer?.voteChannelId) {
+				this.logger.error('Vote channel not configured');
+				return;
+			}
+			const channel = await guild.channels.fetch(
+				discordServer.voteChannelId,
 			);
+			if (channel?.type !== ChannelType.GuildText) {
+				this.logger.error('Vote channel is not a text channel');
+				return;
+			}
+			const user = await this.userRepository.findOneBy({
+				discordId: discordUserId,
+			});
+			const embed = new EmbedBuilder()
+				.setColor('#0099ff')
+				.setTitle(`📢 Nouvelle idée proposée par ${user.firstname}`)
+				.setDescription(`**Sujet :** ${sujet}\n\n> ${description}`)
+				.addFields(
+					{ name: 'Format proposé', value: format, inline: true },
+					{
+						name: 'Contributeur potentiel',
+						value: contributeur ? 'Oui' : 'Non',
+						inline: true,
+					},
+				)
+				.setFooter({
+					text: 'Réagissez pour voter !',
+				});
+			const message = await channel.send({ embeds: [embed] });
+			await message.react('✅');
+			await message.react('❌');
+			await message.react('👍');
+			await message.react('👎');
+			return message;
+		} catch (error) {
+			this.logger.error('Failed to send proposal to Discord:', error);
 		}
-		const messageVote = await salonVotes.send(
-			`📢 New idea proposed by <@${discordUserId}> :\n\n**Subject** : ${sujet}\n**Description** : ${description}\n**Format** : ${format}\n**Contributor** : ${contributeur ? 'Yes' : 'No'}\n\n**Vote Subject** : ✅ = Yes | ❌ = No\n**Vote Format** : 👍 = Yes | 👎 = No`,
-		);
-		await messageVote.react('✅');
-		await messageVote.react('❌');
-		await messageVote.react('👍');
-		await messageVote.react('👎');
-		return messageVote;
 	}
 }

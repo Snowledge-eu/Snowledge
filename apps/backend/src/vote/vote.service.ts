@@ -47,10 +47,7 @@ export class VoteService {
 			relations: ['community', 'votes'],
 		});
 
-		await this.proposalService.updateProposalStatus(
-			updatedProposal,
-			community,
-		);
+		await this.proposalService.updateProposalStatus(updatedProposal);
 
 		return vote;
 	}
