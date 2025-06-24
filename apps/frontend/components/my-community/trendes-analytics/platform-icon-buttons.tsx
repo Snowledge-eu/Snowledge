@@ -8,11 +8,12 @@ import { SocialIcon } from 'react-social-icons';
 // PARAMS: network: string, color: string, selected: boolean, onClick: () => void, label: string
 // RETURNS: JSX.Element
 // ============
-export function PlatformIconButton({ network, color, selected, onClick, label }: { network: string, color: string, selected: boolean, onClick: () => void, label: string }) {
+export function PlatformIconButton({ network, color, selected, disabled, onClick, label }: { network: string, color: string, selected: boolean, disabled?: boolean, onClick: () => void, label: string }) {
   return (
     <button
       type="button"
       onClick={onClick}
+      disabled={disabled}
       aria-label={label}
       className={`focus:outline-none bg-transparent p-0 m-0 border-none flex flex-col items-center transition-all ${selected ? 'ring-2 ring-primary ring-offset-2 shadow-lg' : ''}`}
       style={{ boxShadow: 'none', border: 'none', background: 'none', outline: 'none' }}
@@ -46,6 +47,7 @@ export function PlatformIconButtons({ platforms, selectedPlatform, onSelectPlatf
           network={p.key}
           color={p.color}
           selected={selectedPlatform === p.key}
+          disabled={p.name != 'discord'}
           onClick={() => onSelectPlatform(p.key)}
           label={p.name}
         />

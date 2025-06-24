@@ -62,54 +62,105 @@ export default function Page() {
         connected: false,
       },
     },
-    // {
-    //   key: 'youtube',
-    //   name: 'YouTube',
-    //   url: 'https://youtube.com',
-    //   urlAuth: '',
-    //   color: '#FF0000',
-    //   options: [
-    //     { label: 'Intro to Voting', value: 'vid1' },
-    //     { label: 'Community AMA', value: 'vid2' },
-    //     { label: 'Feature Update', value: 'vid3' },
-    //   ],
-    //   estimatedVolume: 3,
-    //   lastFetched: '2024-05-28',
-    //   type: 'videos',
-    // },
-    // {
-    //   key: 'x',
-    //   name: 'X',
-    //   url: 'https://x.com',
-    //   urlAuth: '',
-    //   color: '#000000',
-    //   options: [
-    //     { label: 'Post 1', value: 'post1' },
-    //     { label: 'Post 2', value: 'post2' },
-    //     { label: 'Post 3', value: 'post3' },
-    //   ],
-    //   estimatedVolume: 12,
-    //   lastFetched: '2024-05-30',
-    //   type: 'posts',
-    // },
+    {
+      key: 'youtube',
+      name: 'YouTube',
+      url: 'https://youtube.com',
+      urlAuth: '',
+      color: '#FF0000',
+      options: [
+        { label: 'Intro to Voting', value: 'vid1' },
+        { label: 'Community AMA', value: 'vid2' },
+        { label: 'Feature Update', value: 'vid3' },
+      ],
+      estimatedVolume: 3,
+      lastFetched:  {
+        date: new Date,
+        channels: [{
+          name: '',
+          qty: 0,
+        }]
+      },
+      type: 'videos',
+      account: {
+        id: "",
+        name: "",
+        connected: false,
+      },
+    },
+    {
+      key: 'x',
+      name: 'X',
+      url: 'https://x.com',
+      urlAuth: '',
+      color: '#000000',
+      options: [
+        { label: 'Post 1', value: 'post1' },
+        { label: 'Post 2', value: 'post2' },
+        { label: 'Post 3', value: 'post3' },
+      ],
+      estimatedVolume: 12,
+      lastFetched: {
+        date: new Date,
+        channels: [{
+          name: '',
+          qty: 0,
+        }]
+      },
+      type: 'posts',
+      account: {
+        id: "",
+        name: "",
+        connected: false,
+      },
+    },
+        {
+      key: 'instagram',
+      name: 'instragrm',
+      url: 'https://instagram.com',
+      urlAuth: '',
+      color: '#000000',
+      options: [
+        { label: 'Post 1', value: 'post1' },
+        { label: 'Post 2', value: 'post2' },
+        { label: 'Post 3', value: 'post3' },
+      ],
+      estimatedVolume: 12,
+      lastFetched: {
+        date: new Date,
+        channels: [{
+          name: '',
+          qty: 0,
+        }]
+      },
+      type: 'posts',
+      account: {
+        id: "",
+        name: "",
+        connected: false,
+      },
+    },
   ];
   const [channelFetched, setChannelFetched] = useState(false);
   const [platforms, setPlatforms] = useState(initialPlatforms);
-  const [enabled, setEnabled] = useState({ discord: false }); //, youtube: false, x: false
+  const [enabled, setEnabled] = useState({ discord: false, youtube: false, x: false, instagram: false }); //, youtube: false, x: false
   const [selected, setSelected] = useState({
     discord: [] as Array<{ label: string; value: string }>,
     youtube: [] as string[],
     x: [] as string[],
+    instagram: [] as string[],
   });
   const [dates, setDates] = useState({
     discord: undefined as Date | undefined,
     youtube: undefined as Date | undefined,
     x: undefined as Date | undefined,
+    instagram: undefined as Date | undefined,
   });
   const [timeRange, setTimeRange] = useState({
     discord: "last-week",
     youtube: "last-week",
     x: "last-week",
+    instagram: "last-week",
   });
   const [isCollecting, setIsCollecting] = useState(false);
 
@@ -354,7 +405,11 @@ export default function Page() {
                     <div className="text-xs text-muted-foreground mt-1">
                       Last fetched:{" "}
                       <span className="font-semibold text-foreground">
-                        {new Date(platform.lastFetched.date).toLocaleDateString()}
+                        {
+                          new Date(platform.lastFetched.date).toLocaleDateString() != new Date().toLocaleDateString() 
+                          ? new Date(platform.lastFetched.date).toLocaleDateString()
+                          : '-'
+                        }
                       </span>
                       <br />
                       {platform.lastFetched.channels.map((channel, id) => (

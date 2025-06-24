@@ -27,30 +27,32 @@ const platforms = [
     ],
     type: "channels",
   },
-  //   {
-  //     key: 'youtube',
-  //     name: 'YouTube',
-  //     url: 'https://youtube.com',
-  //     color: '#FF0000',
-  //     options: [
-  //       { label: 'Intro to Voting', value: 'vid1' },
-  //       { label: 'Community AMA', value: 'vid2' },
-  //       { label: 'Feature Update', value: 'vid3' },
-  //     ],
-  //     type: 'videos',
-  //   },
-  //   {
-  //     key: 'x',
-  //     name: 'X',
-  //     url: 'https://x.com',
-  //     color: '#000000',
-  //     options: [
-  //       { label: 'Post 1', value: 'post1' },
-  //       { label: 'Post 2', value: 'post2' },
-  //       { label: 'Post 3', value: 'post3' },
-  //     ],
-  //     type: 'posts',
-  //   },
+    {
+      key: 'youtube',
+      name: 'YouTube',
+      url: 'https://youtube.com',
+      color: '#FF0000',
+      options: [
+        { label: 'Intro to Voting', value: 'vid1' },
+        { label: 'Community AMA', value: 'vid2' },
+        { label: 'Feature Update', value: 'vid3' },
+      ],
+      type: 'videos',
+    },
+    {
+      key: 'x',
+      name: 'X',
+      url: 'https://x.com',
+      color: '#000000',
+      options: [
+        { label: 'Post 1', value: 'post1' },
+        { label: 'Post 2', value: 'post2' },
+        { label: 'Post 3', value: 'post3' },
+      ],
+      type: 'posts',
+    },
+    { key: 'instagram', name: 'Instagram', color: '#000000' },
+
 ];
 export default function Page() {
   const { user, fetcher } = useAuth();
