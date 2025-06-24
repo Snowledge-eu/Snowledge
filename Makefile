@@ -96,3 +96,9 @@ rebuild-backend:
 	@$(COMPOSE) up -d
 	@echo "✅ Reconstruction terminée" 
 
+rebuild-frontend:
+	@echo "🔄 Reconstruction du frontend"
+	@$(COMPOSE) down
+	@$(COMPOSE) build frontend --no-cache
+	@$(COMPOSE) up -d
+	@echo "✅ Reconstruction terminée" 

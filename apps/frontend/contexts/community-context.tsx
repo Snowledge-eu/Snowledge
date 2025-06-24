@@ -5,6 +5,7 @@ import { Community } from "@/types/community";
 import { useAuth } from "@/contexts/auth-context";
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { accessiblePath } from "@/shared/accessible-path";
 
 export const CommunityContext = React.createContext<{
   activeCommunity: Community | null;
@@ -21,7 +22,7 @@ export function CommunityProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     //TODO verifier le comportement
-    if(pathname.split('/').length > 2){
+    if(pathname.split('/').length > 2 && !accessiblePath.some(val => pathname.split('/').includes(val))){
       fetchDataUser();
     }
     

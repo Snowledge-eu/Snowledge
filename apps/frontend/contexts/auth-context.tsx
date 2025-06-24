@@ -1,5 +1,6 @@
 "use client";
 
+import { accessiblePath } from "@/shared/accessible-path";
 import { FormDataSignUp } from "@/shared/interfaces/ISignUp";
 import { usePathname, useRouter } from "next/navigation";
 import React, {
@@ -25,6 +26,7 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  
   const pathname = usePathname();
   const router = useRouter();
   
@@ -199,7 +201,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (token) {
       setAccessToken(token);
     } else {
-      if(pathname.split('/').length > 2){
+      if(pathname.split('/').length > 2 && !accessiblePath.some(val => pathname.split('/').includes(val))){
         refreshAccessToken();
       }
     }
