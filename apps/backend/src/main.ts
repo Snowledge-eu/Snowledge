@@ -17,6 +17,8 @@ async function bootstrap() {
 		new ClassSerializerInterceptor(app.get(Reflector)),
 	);
 
+	// Définir un préfixe api
+	app.setGlobalPrefix('api');
 	const configService = app.get(ConfigService);
 	app.enableCors(configService.get('serverConfig.cors'));
 	app.use(cookieParser());
@@ -34,6 +36,7 @@ async function bootstrap() {
 				},
 				'access_token',
 			)
+			.setBasePath('api')
 			.setTitle('Snowlegde')
 			.setDescription('The Snowledge API description')
 			.setVersion('1.0')
@@ -46,8 +49,6 @@ async function bootstrap() {
 	// Sert le dossier public à la racine de l'API
 	app.useStaticAssets(join(__dirname, '..', 'public'));
 
-	// Définir un préfixe api
-	app.setGlobalPrefix('api');
 
 	await app.listen(configService.get('serverConfig.port'));
 

@@ -22,6 +22,7 @@ import mongoConfig, { formatURIMongo } from './config/mongo.config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { YoutubeModule } from './youtube/youtube.module';
 import { AnalysisModule } from './analysis/analysis.module';
+import { XrplModule } from './xrpl/xrpl.module';
 @Module({
 	imports: [
 		ConfigModule.forRoot({
@@ -70,6 +71,7 @@ import { AnalysisModule } from './analysis/analysis.module';
 		DiscordServerModule,
 		YoutubeModule,
 		AnalysisModule,
+		XrplModule,
 	],
 	controllers: [AppController],
 	providers: [AppService],
