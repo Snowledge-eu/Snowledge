@@ -1,26 +1,42 @@
 import { Injectable } from '@nestjs/common';
-import { CreateXrplDto } from './dto/create-xrpl.dto';
-import { UpdateXrplDto } from './dto/update-xrpl.dto';
+import { XrplHelper } from './xrpl.helper';
+import { Wallet, convertStringToHex } from 'xrpl';
 
 @Injectable()
 export class XrplService {
-  create(createXrplDto: CreateXrplDto) {
-    return 'This action adds a new xrpl';
-  }
+	constructor(private readonly xrplHelper: XrplHelper) {}
 
-  findAll() {
-    return `This action returns all xrpl`;
-  }
+	async generateAccountAndMintNft(email: string) {
+		await this.xrplHelper.connect();
+		const client = this.xrplHelper.getClient();
 
-  findOne(id: number) {
-    return `This action returns a #${id} xrpl`;
-  }
+		// Generate a new wallet
+		const newWallet = Wallet.generate();
 
-  update(id: number, updateXrplDto: UpdateXrplDto) {
-    return `This action updates a #${id} xrpl`;
-  }
+		console.log('newWallet', newWallet);
 
-  remove(id: number) {
-    return `This action removes a #${id} xrpl`;
-  }
+		// Fund the new wallet from the faucet
+		await client.fundWallet(newWallet);
+
+		// Prepare the NFT minting transaction
+		const transaction = await client.autofill({
+			TransactionType: 'NFTokenMint',
+			Account: newWallet.classicAddress,
+			NFTokenTaxon: 0,
+			Flags: 8, // tfTransferable
+			URI: convertStringToHex(email),
+		});
+
+		// Sign and submit the transaction
+		const signed = newWallet.sign(transaction);
+		const result = await client.submitAndWait(signed.tx_blob);
+
+		await this.xrplHelper.disconnect();
+
+		return {
+			account: newWallet.classicAddress,
+			seed: newWallet.seed,
+			nftResult: result,
+		};
+	}
 }
