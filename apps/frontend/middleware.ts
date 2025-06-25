@@ -36,7 +36,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL(`${newUrl}`, request.url));
   }
   const protectedRoutes =
-    /^\/(fr|en)\/(community|create-community|dev-trooper|profile)(\/|$)/;
+    /^\/(fr|en)\/(community|create-community|profile)(\/|$)/;
   if (protectedRoutes.test(pathname)) {
     const accessToken = request.cookies.get("access-token")?.value;
     const refreshToken = request.cookies.get("refresh-token")?.value;

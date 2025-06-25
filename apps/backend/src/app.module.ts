@@ -23,6 +23,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { YoutubeModule } from './youtube/youtube.module';
 import { AnalysisModule } from './analysis/analysis.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { XrplModule } from './xrpl/xrpl.module';
 @Module({
 	imports: [
 		EventEmitterModule.forRoot(),
@@ -72,6 +73,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 		DiscordServerModule,
 		YoutubeModule,
 		AnalysisModule,
+		XrplModule,
 	],
 	controllers: [AppController],
 	providers: [AppService],

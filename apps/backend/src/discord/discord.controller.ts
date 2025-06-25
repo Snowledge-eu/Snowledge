@@ -9,6 +9,8 @@ import {
 	Param,
 	Post,
 	Body,
+	UsePipes,
+	UseInterceptors,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { DiscordProvider } from './discord.provider';
@@ -18,12 +20,15 @@ import { Response } from 'express';
 import { DiscordHarvestJobService } from './services/discord-harvest-job.service';
 import { DiscordHarvestJob } from './schemas/discord-harvest-job.schema';
 import { DiscordMessageService } from './services/discord-message.service';
+import { DiscordChannelService } from './services/discord-channel.service';
+import { TransformLongToStringInterceptor } from 'src/shared/interceptors/transform-long-to-string.pipe';
 @ApiTags('auth')
 @Controller('discord')
 export class DiscordController {
 	// private readonly logger = new Logger(DiscordController.name);
 	constructor(
 		private discordProvider: DiscordProvider,
+		private discordChannelService: DiscordChannelService,
 		private discordHarvestJobService: DiscordHarvestJobService,
 		private discordMessageService: DiscordMessageService,
 	) {}
@@ -56,12 +61,28 @@ export class DiscordController {
 	}
 
 	@Get('last-harvest/:guildId')
+	@UseInterceptors(TransformLongToStringInterceptor)
 	async getLastHarvest(
 		@Param('guildId') guildId: string,
-	): Promise<DiscordHarvestJob> {
-		return await this.discordHarvestJobService.findLastHarvestJobByDiscordServerId(
+	): Promise<DiscordHarvestJob & { lastFetched: { date: Date, channels: Array<{ name: string, qty: number }> } }> {
+		const last =  await this.discordHarvestJobService.findLastHarvestJobByDiscordServerId(
 			guildId,
 		);
+		const arrInfo: Array<{ name: string, qty: number }> = [];
+		for(const channel of last.channels){
+			const channelInfo = await this.discordChannelService.findOne(channel.toString());
+			const countMess = await this.discordMessageService.countMessageForDate(channel, last.created_at)
+			arrInfo.push({
+				name: channelInfo.name,
+				qty: countMess,
+			})
+		}
+		const lastFetched = {
+			date: last.created_at,
+			channels: arrInfo,
+		}
+
+		return { ...last, lastFetched };
 	}
 
 	@Post('count-message')
@@ -75,8 +96,7 @@ export class DiscordController {
 		const now = new Date();
 		let startDate: Date;
 		let count = 0;
-		const find = await this.discordMessageService.findAll();
-		console.log(find);
+
 		switch (info.interval) {
 			case 'last_day':
 				startDate = new Date(now);
@@ -93,13 +113,13 @@ export class DiscordController {
 			default:
 				throw new Error(`Invalid interval: ${info.interval}`);
 		}
-		console.log(info);
+
 		for (const id of info.channelId) {
-			console.log(id, startDate);
-			count = await this.discordMessageService.countMessageForPeriod(
+			const tmpcount = await this.discordMessageService.countMessageForPeriod(
 				id,
 				startDate,
 			);
+			count += tmpcount;
 		}
 		return count;
 	}

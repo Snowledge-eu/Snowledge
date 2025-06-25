@@ -16,12 +16,12 @@ export class DiscordHarvestJob {
 	@Prop({ required: true })
 	discordId: string;
 
-	@Transform(({ value }) => value.toString())
 	@Prop({ type: Object, required: true })
+	@Transform(({ value }) => value.toString())
 	serverId: Long;
 
-	@Transform(({ value }) => value.map((v) => v.toString()))
 	@Prop({ type: [Object], required: true })
+	@Transform(({ value }) => value.map((v) => v.toString()))
 	channels: Long[];
 
 	@Prop()
@@ -41,5 +41,12 @@ export class DiscordHarvestJob {
 
 	@Prop()
 	error?: string;
+
+	@Prop()
+	created_at: Date;
+
+	@Prop()
+	updated_at: Date;
+
 }
 export const DiscordHarvestJobSchema = SchemaFactory.createForClass(DiscordHarvestJob);

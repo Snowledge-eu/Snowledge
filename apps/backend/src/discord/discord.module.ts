@@ -26,6 +26,7 @@ import {
 import { DiscordServerModule } from 'src/discord-server/discord-server.module';
 import { DiscordHarvestJobService } from './services/discord-harvest-job.service';
 import { DiscordMessageService } from './services/discord-message.service';
+import { DiscordChannelService } from './services/discord-channel.service';
 
 @Module({
 	imports: [
@@ -44,6 +45,7 @@ import { DiscordMessageService } from './services/discord-message.service';
 	providers: [
 		DiscordProvider,
 		DiscordService,
+		DiscordChannelService,
 		DiscordHarvestJobService,
 		DiscordMessageService,
 	],

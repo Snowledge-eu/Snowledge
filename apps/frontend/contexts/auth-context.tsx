@@ -1,5 +1,6 @@
 "use client";
 
+import { accessiblePath } from "@/shared/accessible-path";
 import { FormDataSignUp } from "@/shared/interfaces/ISignUp";
 import { usePathname, useRouter } from "next/navigation";
 import React, {
@@ -25,7 +26,8 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-    const pathname = usePathname();
+  
+  const pathname = usePathname();
   const router = useRouter();
   
   const [user, setUser] = useState(null);
@@ -80,9 +82,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         token = await refreshAccessToken();
         if (!token) {
           if(!pathname.split('/').includes('sign-in')) {
-              toast.error("Votre session a expiré, veuillez vous reconnecter.", {
-                position: "top-center",
-              });
+            toast.error("Votre session a expiré, veuillez vous reconnecter.", {
+              position: "top-center",
+            });
             
     
             if (typeof window !== "undefined") {
@@ -102,8 +104,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         credentials: 'include',
       });
       if (!res.ok) {
-        if (res.status === 401) return false;
-        else throw new Error("Failed. Please try again.");
+        if (res.status === 401){
+          toast.error("Votre session a expiré, veuillez vous reconnecter.", {
+            position: "top-center",
+          });
+          if (typeof window !== "undefined") {
+            setTimeout(() => {
+              router.push("/sign-in");
+            }, 4000);
+          }
+        } else throw new Error("Failed. Please try again.");
       }
       if (res.headers.get('Content-Length') === '0') {
         return null;
@@ -199,7 +209,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (token) {
       setAccessToken(token);
     } else {
-      refreshAccessToken();
+      console.log('pathname', pathname)
+      if(pathname.split('/').length > 2 && !accessiblePath.some(val => pathname.split('/').includes(val))){
+        refreshAccessToken();
+      }
     }
   }, []);
 

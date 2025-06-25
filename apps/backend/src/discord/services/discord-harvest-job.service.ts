@@ -16,7 +16,7 @@ export class DiscordHarvestJobService {
 	findLastHarvestJobByDiscordServerId(guildId: string): Promise<DiscordHarvestJob> {
 		return this.harvestJobModel
 			.findOne()
-			.where({ serverId: Long.fromString(guildId) })
+			.where({ serverId: Long.fromString(guildId), inserted: { $gt: 0} })
 			.sort({ created_at: 'desc' })
 			.lean();
 	}

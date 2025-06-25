@@ -4,6 +4,7 @@ import { Document, ObjectId } from 'mongoose';
 
 export type DiscordServerDocument = DiscordServer & Document;
 @Schema({
+	collection: 'discord_servers',
 	timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
 	toJSON: { virtuals: true },
 })
