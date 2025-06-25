@@ -150,90 +150,6 @@ export default function Page() {
         connected: false,
       },
     },
-    {
-      key: "youtube",
-      name: "YouTube",
-      url: "https://youtube.com",
-      urlAuth: "",
-      color: "#FF0000",
-      options: [
-        { label: "Intro to Voting", value: "vid1" },
-        { label: "Community AMA", value: "vid2" },
-        { label: "Feature Update", value: "vid3" },
-      ],
-      estimatedVolume: 3,
-      lastFetched: {
-        date: new Date(),
-        channels: [
-          {
-            name: "",
-            qty: 0,
-          },
-        ],
-      },
-      type: "videos",
-      account: {
-        id: "",
-        name: "",
-        connected: false,
-      },
-    },
-    {
-      key: "x",
-      name: "X",
-      url: "https://x.com",
-      urlAuth: "",
-      color: "#000000",
-      options: [
-        { label: "Post 1", value: "post1" },
-        { label: "Post 2", value: "post2" },
-        { label: "Post 3", value: "post3" },
-      ],
-      estimatedVolume: 12,
-      lastFetched: {
-        date: new Date(),
-        channels: [
-          {
-            name: "",
-            qty: 0,
-          },
-        ],
-      },
-      type: "posts",
-      account: {
-        id: "",
-        name: "",
-        connected: false,
-      },
-    },
-    {
-      key: "instagram",
-      name: "instragrm",
-      url: "https://instagram.com",
-      urlAuth: "",
-      color: "#000000",
-      options: [
-        { label: "Post 1", value: "post1" },
-        { label: "Post 2", value: "post2" },
-        { label: "Post 3", value: "post3" },
-      ],
-      estimatedVolume: 12,
-      lastFetched: {
-        date: new Date(),
-        channels: [
-          {
-            name: "",
-            qty: 0,
-          },
-        ],
-      },
-      type: "posts",
-      account: {
-        id: "",
-        name: "",
-        connected: false,
-      },
-    },
   ];
   const [channelFetched, setChannelFetched] = useState(false);
   const [platforms, setPlatforms] = useState(initialPlatforms);
@@ -347,7 +263,10 @@ export default function Page() {
                   name: info.server_name,
                   connected: true,
                 },
-                lastFetched: harvest.lastFetched,
+                lastFetched: harvest?.lastFetched || {
+                  date: null,
+                  channels: [],
+                },
               }
             : platform
         )
