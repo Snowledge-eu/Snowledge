@@ -57,6 +57,9 @@ export class User {
 	@Column({ nullable: true, unique: true })
 	discordId: string;
 
+	@Column({ nullable: true })
+	discordAvatar: string;
+
 	@Column({ nullable: true, unique: true })
 	youtubeId: string;
 

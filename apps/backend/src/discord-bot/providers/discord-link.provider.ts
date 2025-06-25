@@ -96,6 +96,7 @@ export class DiscordLinkProvider {
 			await this.userService.update(user.id, {
 				discordAccess: discordAccess,
 				discordId: discordUser.id,
+				discordAvatar: discordUser.avatar,
 			});
 		}
 		// Attribution du rôle Discord
@@ -115,8 +116,9 @@ export class DiscordLinkProvider {
 		await member.roles.add(role.id);
 
 		// Mint NFT
-		await this.xrplProvider.generateAccountAndMintNft(email);
+		const updatedUser = await this.userService.findOneById(user.id);
+		await this.xrplProvider.generateAccountAndMintNft(updatedUser);
 
-		return user;
+		return updatedUser;
 	}
 }

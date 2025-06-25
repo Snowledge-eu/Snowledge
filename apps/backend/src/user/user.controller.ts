@@ -7,6 +7,7 @@ import {
 	Delete,
 	Logger,
 	Query,
+	NotFoundException,
 } from '@nestjs/common';
 import { UpdateUserDto } from './dto';
 import { ApiTags } from '@nestjs/swagger';
@@ -31,6 +32,31 @@ export class UserController {
 	@Get()
 	async findOne(@User() user: UserEntity) {
 		return { user };
+	}
+
+	@Public()
+	@Get(':id/nft-metadata')
+	async getNftMetadata(@Param('id') id: string) {
+		const user = await this.userService.findOneById(+id);
+		if (!user || !user.discordId) {
+			throw new NotFoundException('User or Discord profile not found');
+		}
+
+		return {
+			name: `Snowledge Profile: ${user.firstname}`,
+			description: `This NFT represents the user ${user.firstname} on the Snowledge platform.`,
+			image: `https://cdn.discordapp.com/avatars/${user.discordId}/${user.discordAvatar}.png`,
+			attributes: [
+				{
+					trait_type: 'Snowledge User ID',
+					value: user.id,
+				},
+				{
+					trait_type: 'Discord Username',
+					value: user.firstname,
+				},
+			],
+		};
 	}
 
 	@Delete('/by-email/:email')

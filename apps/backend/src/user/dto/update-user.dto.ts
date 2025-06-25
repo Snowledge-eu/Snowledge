@@ -1,12 +1,19 @@
 import { ApiProperty, getSchemaPath, OmitType } from '@nestjs/swagger';
 import { SignUpDto } from '../../auth/dto';
-import { IsDate, IsEmail, IsEnum, IsOptional, IsString, ValidateNested } from 'class-validator';
+import {
+	IsDate,
+	IsEmail,
+	IsEnum,
+	IsOptional,
+	IsString,
+	ValidateNested,
+} from 'class-validator';
 import { Gender } from 'src/shared/enums/Gender';
 import { DiscordAccess } from 'src/discord/entities/discord-access.entity';
 
 export class UpdateUserDto {
-	@ApiProperty({ 
-		enum: Gender 
+	@ApiProperty({
+		enum: Gender,
 	})
 	@IsEnum(Gender)
 	gender?: Gender;
@@ -52,7 +59,7 @@ export class UpdateUserDto {
 	@IsDate()
 	@IsOptional()
 	age?: Date;
-	
+
 	@ApiProperty({
 		type: String,
 	})
@@ -71,6 +78,11 @@ export class UpdateUserDto {
 	@ApiProperty({ type: String })
 	@IsOptional()
 	discordId?: string;
+
+	@IsString()
+	@ApiProperty({ type: String })
+	@IsOptional()
+	discordAvatar?: string;
 
 	@IsString()
 	@ApiProperty({ type: String })
