@@ -10,6 +10,9 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
 } from "@repo/ui";
 import {
   Dialog,
@@ -244,14 +247,30 @@ function PlatformSettingsDialog({
                     </Button>
                   )}
                 </div>
-              ) : (
-                <Button
-                  size="sm"
-                  onClick={handleConnect}
-                  aria-label={`Connect ${platform.name}`}
-                >
-                  <LogIn className="w-4 h-4 mr-1" /> Connect
-                </Button>
+              ) : (platform.urlAuth != '' 
+                ? (<Button
+                    size="sm"
+                    onClick={handleConnect}
+                    aria-label={`Connect ${platform.name}`}
+                  >
+                    <LogIn className="w-4 h-4 mr-1" /> Connect
+                  </Button>)
+                : (<Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        size="sm"
+                        onClick={()=>{}}
+                        aria-label={`Connect ${platform.name}`}
+                        disabled
+                      >
+                        <LogIn className="w-4 h-4 mr-1" /> Connect
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Coming soon !</p>
+                    </TooltipContent>
+                  </Tooltip>
+                )                
               )}
             </div>
             <div className="flex flex-col gap-2">

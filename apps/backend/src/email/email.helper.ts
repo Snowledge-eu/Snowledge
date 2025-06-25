@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { MailerService } from '@nestjs-modules/mailer';
 
 @Injectable()
 export class EmailHelper {
+	private readonly logger = new Logger(EmailHelper.name);
 	constructor(private readonly mailerService: MailerService) {}
 
 	async codeEmail(email: string, code: number) {
@@ -18,14 +19,19 @@ export class EmailHelper {
 	}
 
 	async tokenEmail(email: string, code: string) {
-		// const { email, name } = data;
+		try {
+			const subject = `Code d'identification`;
+	
+			const mailSend = await this.mailerService.sendMail({
+				to: email,
+				subject,
+				text: `Veuillez cliquer sur le lien suivant pour valider votre adresse mail : ${process.env.FRONT_URL}/profile?token=${code}`,
+			});
 
-		const subject = `Code d'identification`;
+			console.log(mailSend);
+		} catch (error) {
+			this.logger.error(error);
+		}
 
-		await this.mailerService.sendMail({
-			to: email,
-			subject,
-			text: `Veuillez cliquer sur le lien suivant pour valider votre adresse mail : ${process.env.FRONT_URL}/fr/profile?token=${code}`,
-		});
 	}
 }

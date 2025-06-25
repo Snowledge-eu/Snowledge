@@ -21,8 +21,9 @@ export default function Page() {
   // Réutilisation des props pour la démo
   const platforms = [
     { key: "discord", name: "Discord", color: "#5865F2" },
-    // { key: 'youtube', name: 'YouTube', color: '#FF0000' },649369247843090445
-    // { key: 'x', name: 'X', color: '#000000' },
+    { key: 'youtube', name: 'YouTube', color: '#FF0000' },
+    { key: 'x', name: 'X', color: '#000000' },
+    { key: 'instagram', name: 'Instagram', color: '#000000' },
   ];
   const [selectedPlatform, setSelectedPlatform] = useState("discord");
   const [scope, setScope] = useState<"all" | "custom">("all");
