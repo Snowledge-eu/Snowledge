@@ -62,25 +62,42 @@ export class DiscordController {
 
 	@Get('last-harvest/:guildId')
 	@UseInterceptors(TransformLongToStringInterceptor)
-	async getLastHarvest(
-		@Param('guildId') guildId: string,
-	): Promise<DiscordHarvestJob & { lastFetched: { date: Date, channels: Array<{ name: string, qty: number }> } }> {
-		const last =  await this.discordHarvestJobService.findLastHarvestJobByDiscordServerId(
-			guildId,
-		);
-		const arrInfo: Array<{ name: string, qty: number }> = [];
-		for(const channel of last.channels){
-			const channelInfo = await this.discordChannelService.findOne(channel.toString());
-			const countMess = await this.discordMessageService.countMessageForDate(channel, last.created_at)
+	async getLastHarvest(@Param('guildId') guildId: string): Promise<
+		DiscordHarvestJob & {
+			lastFetched: {
+				date: Date;
+				channels: Array<{ name: string; qty: number }>;
+			};
+		}
+	> {
+		const last =
+			await this.discordHarvestJobService.findLastHarvestJobByDiscordServerId(
+				guildId,
+			);
+
+		if (!last) {
+			return null;
+		}
+
+		const arrInfo: Array<{ name: string; qty: number }> = [];
+		for (const channel of last.channels) {
+			const channelInfo = await this.discordChannelService.findOne(
+				channel.toString(),
+			);
+			const countMess =
+				await this.discordMessageService.countMessageForDate(
+					channel,
+					last.created_at,
+				);
 			arrInfo.push({
 				name: channelInfo.name,
 				qty: countMess,
-			})
+			});
 		}
 		const lastFetched = {
 			date: last.created_at,
 			channels: arrInfo,
-		}
+		};
 
 		return { ...last, lastFetched };
 	}
@@ -115,10 +132,11 @@ export class DiscordController {
 		}
 
 		for (const id of info.channelId) {
-			const tmpcount = await this.discordMessageService.countMessageForPeriod(
-				id,
-				startDate,
-			);
+			const tmpcount =
+				await this.discordMessageService.countMessageForPeriod(
+					id,
+					startDate,
+				);
 			count += tmpcount;
 		}
 		return count;
