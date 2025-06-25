@@ -80,6 +80,7 @@ jobs:
             echo "DISCORD_BOT_TOKEN=${{ secrets.DISCORD_BOT_TOKEN_PREPROD }}" > .env
             echo "DISCORD_CLIENT_SECRET=${{ secrets.DISCORD_CLIENT_SECRET_PREPROD }}" >> .env
             echo "OVH_AI_ENDPOINTS_ACCESS_TOKEN=${{ secrets.OVH_AI_ENDPOINTS_ACCESS_TOKEN }}" >> .env
+            echo "PASS_BREVO=${{ secrets.PASS_BREVO }}" >> .env
             echo "MG_USER=${{ secrets.MG_USER }}" >> .env
             echo "MG_PASSWORD=${{ secrets.MG_PASSWORD }}" >> .env
             echo "PGSQL_NAME=${{ secrets.PGSQL_NAME_PREPROD }}" >> .env
@@ -114,6 +115,7 @@ jobs:
             echo "MG_PASSWORD=${{ secrets.MG_PASSWORD }}" >> .env
             echo "PGSQL_NAME=${{ secrets.PGSQL_NAME_PROD }}" >> .env
             echo "PGSQL_PWD=${{ secrets.PGSQL_PWD_PROD }}" >> .env
+            echo "PASS_BREVO=${{ secrets.PASS_BREVO }}" >> .env
             echo "NEXT_PUBLIC_BACKEND_URL=https://hi.snowledge.eu/api" >> .env
             echo "NEXT_PUBLIC_FRONTEND_URL=https://hi.snowledge.eu" >> .env
             echo "NEXT_PUBLIC_ANALYSER_URL=https://hi.snowledge.eu/analyzer" >> .env
