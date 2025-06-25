@@ -32,7 +32,7 @@ import { DiscordHarvestJob } from "@/shared/interfaces/IDiscordHarvestJob";
 export default function Page() {
   const { user, fetcher } = useAuth();
   const { activeCommunity } = useCurrentCommunity();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState<string | null>(null);
   const [manageIntegrationsOpen, setManageIntegrationsOpen] = useState(false);
 
   const state = encodeURIComponent(
@@ -287,7 +287,7 @@ export default function Page() {
   useEffect(() => {
     //Si l'url contient ?connect=true alors on ouvre la modal
     if (window.location.search.includes("connect=true")) {
-      setOpen(true);
+      setOpen("discord");
     }
     //Si l'url contient ?manageIntegrations=true alors on ouvre la modal
     if (window.location.search.includes("manageIntegrations=true")) {
@@ -468,8 +468,14 @@ export default function Page() {
                 </div>
                 <div className="flex flex-row items-center justify-between gap-2 mt-4">
                   <PlatformSettingsDialog
-                    open={open}
-                    setOpen={setOpen}
+                    open={open === platform.key}
+                    setOpen={(isOpen) => {
+                      if (isOpen) {
+                        setOpen(platform.key);
+                      } else {
+                        setOpen(null);
+                      }
+                    }}
                     manageIntegrationsOpen={manageIntegrationsOpen}
                     setManageIntegrationsOpen={setManageIntegrationsOpen}
                     platform={{
