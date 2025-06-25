@@ -33,6 +33,8 @@ export class XrplService {
 
 		await this.xrplHelper.disconnect();
 
+		console.log('result', result);
+
 		return {
 			account: newWallet.classicAddress,
 			seed: newWallet.seed,

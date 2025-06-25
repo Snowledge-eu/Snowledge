@@ -13,6 +13,7 @@ import { LearnerModule } from 'src/learner/learner.module';
 import { DiscordProposalProvider } from './providers/discord-proposal.provider';
 import { DiscordProposalService } from './services/discord-proposal.service';
 import { DiscordProposalFormService } from './services/discord-proposal-form.service';
+import { XrplModule } from 'src/xrpl/xrpl.module';
 
 @Module({
 	imports: [
@@ -23,6 +24,7 @@ import { DiscordProposalFormService } from './services/discord-proposal-form.ser
 		DiscordServerModule,
 		DiscordLogicModule,
 		LearnerModule,
+		XrplModule,
 	],
 	controllers: [DiscordBotController],
 	providers: [

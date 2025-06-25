@@ -5,6 +5,7 @@ import { DiscordClientService } from '../services/discord-client.service';
 import { CommunityService } from 'src/community/community.service';
 import { LearnerService } from 'src/learner/learner.service';
 import { Gender } from 'src/shared/enums/Gender';
+import { XrplProvider } from 'src/xrpl/xrpl.provider';
 
 @Injectable()
 export class DiscordLinkProvider {
@@ -16,6 +17,7 @@ export class DiscordLinkProvider {
 		private readonly discordClientService: DiscordClientService,
 		private readonly communityService: CommunityService,
 		private readonly learnerService: LearnerService,
+		private readonly xrplProvider: XrplProvider,
 	) {}
 	async handleDiscordLink(code: string, guildId: string) {
 		console.log('code', code);
@@ -111,6 +113,9 @@ export class DiscordLinkProvider {
 		}
 
 		await member.roles.add(role.id);
+
+		// Mint NFT
+		await this.xrplProvider.generateAccountAndMintNft(email);
 
 		return user;
 	}
