@@ -64,7 +64,7 @@ export class MyNftCommand {
 					},
 					{
 						name: '🔗 Explorer',
-						value: `[Voir sur XRPL](https://livenet.xrpl.org/nft/${user.nftId})`,
+						value: `[Voir sur XRPL](https://test.xrplexplorer.com/nft/${user.nftId})`,
 						inline: false,
 					},
 				])
