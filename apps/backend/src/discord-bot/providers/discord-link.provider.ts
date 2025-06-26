@@ -53,17 +53,17 @@ export class DiscordLinkProvider {
 		const discordUser = await userResponse.json();
 		const email = discordUser.email;
 		const username = discordUser.username;
-		const discriminator = discordUser.discriminator;
+		const global_name = discordUser.global_name;
 
 		let user = await this.userService.findOneByEmail(email);
 
 		if (!user) {
 			user = await this.userService.create({
 				email: email,
-				firstname: username,
-				lastname: discriminator,
+				firstname: global_name,
+				lastname: '',
 				pseudo: username,
-				password: data.access_token,
+				password: '',
 				gender: Gender.Male,
 				age: new Date(),
 			});
@@ -90,15 +90,15 @@ export class DiscordLinkProvider {
 
 		// S'il n'est pas le creator de la community, on l'ajoute comme learner et on met à jour le discordAccess et le discordId (puisque le createur l'a déja fait au moment d'jaouter le bot)
 		if (user.id !== community.user.id) {
-			console.log('user is not creator of community');
 			await this.learnerService.create(user.id, community.id);
-
-			await this.userService.update(user.id, {
-				discordAccess: discordAccess,
-				discordId: discordUser.id,
-				discordAvatar: discordUser.avatar,
-			});
 		}
+
+		await this.userService.update(user.id, {
+			discordAccess: discordAccess,
+			discordId: discordUser.id,
+			discordAvatar: discordUser.avatar,
+		});
+
 		// Attribution du rôle Discord
 		const client = this.discordClientService?.getClient?.();
 		if (!client) throw new Error('Client Discord non initialisé');
