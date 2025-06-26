@@ -33,7 +33,7 @@ export function CommunitySwitcher() {
   const { accessToken, user, fetchDataUser } = useAuth();
   const { data: communities } = useUserCommunities(user?.id || 0);
   useEffect(() => {
-    if(accessToken){
+    if (accessToken) {
       fetchDataUser();
     }
   }, []);
@@ -70,23 +70,24 @@ export function CommunitySwitcher() {
             <DropdownMenuLabel className="text-muted-foreground text-xs">
               Communautés
             </DropdownMenuLabel>
-            {communities?.map((community: Community, index: number) => (
-              <DropdownMenuItem
-                key={community.name}
-                onClick={() => {
-                  setActiveCommunity(community);
-                  router.push(`/${toSlug(community.name)}`);
-                  console.log(`/${toSlug(community.name)}`);
-                }}
-                className="gap-2 p-2"
-              >
-                <div className="flex size-6 items-center justify-center rounded-md border">
-                  {community.name.charAt(0)}
-                </div>
-                {community.name}
-                <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
-              </DropdownMenuItem>
-            ))}
+            {communities &&
+              communities?.map((community: Community, index: number) => (
+                <DropdownMenuItem
+                  key={community.name}
+                  onClick={() => {
+                    setActiveCommunity(community);
+                    router.push(`/${toSlug(community.name)}`);
+                    console.log(`/${toSlug(community.name)}`);
+                  }}
+                  className="gap-2 p-2"
+                >
+                  <div className="flex size-6 items-center justify-center rounded-md border">
+                    {community.name.charAt(0)}
+                  </div>
+                  {community.name}
+                  <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
+                </DropdownMenuItem>
+              ))}
             {features.createCommunity.enabled && (
               <>
                 <DropdownMenuSeparator />

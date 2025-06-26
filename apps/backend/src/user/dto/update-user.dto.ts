@@ -87,6 +87,11 @@ export class UpdateUserDto {
 	@IsString()
 	@ApiProperty({ type: String })
 	@IsOptional()
+	nftId?: string;
+
+	@IsString()
+	@ApiProperty({ type: String })
+	@IsOptional()
 	youtubeId?: string;
 
 	@ValidateNested()

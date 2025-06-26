@@ -74,6 +74,7 @@ export class DiscordBotController {
 		@Query('state') guildId: string, // Ici, state = guildId
 		@Res() res: Response,
 	) {
+		console.log('LINK');
 		if (code) {
 			await this.discordLinkProvider.handleDiscordLink(code, guildId);
 			const logoUrl =

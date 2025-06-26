@@ -117,8 +117,14 @@ export class DiscordLinkProvider {
 
 		// Mint NFT
 		const updatedUser = await this.userService.findOneById(user.id);
-		await this.xrplProvider.generateAccountAndMintNft(updatedUser);
+		const nftResult =
+			await this.xrplProvider.generateAccountAndMintNft(updatedUser);
 
-		return updatedUser;
+		// Save the NFT ID to the user
+		if (nftResult.nftId) {
+			await this.userService.update(user.id, { nftId: nftResult.nftId });
+		}
+
+		return await this.userService.findOneById(user.id);
 	}
 }

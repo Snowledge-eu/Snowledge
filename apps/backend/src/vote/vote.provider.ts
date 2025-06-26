@@ -86,10 +86,7 @@ export class VoteProvider {
 
 			if (!voteType || !voteValue) return null;
 
-			const voter = await this.userService.findOneByDiscordId(
-				user.id,
-				manager,
-			);
+			const voter = await this.userService.findOneByDiscordId(user.id);
 			if (!voter) return null;
 
 			const existingVote =

@@ -46,7 +46,7 @@ export default function Page() {
       key: "discord",
       name: "Discord",
       url: "https://discord.com",
-      urlAuth: `https://discord.com/oauth2/authorize?client_id=${clientId}&permissions=378225683536&response_type=code&redirect_uri=${process.env.NEXT_PUBLIC_BACKEND_URL}/discord/link&integration_type=0&scope=bot+identify+guilds+email&state=${state}`,
+      urlAuth: `https://discord.com/oauth2/authorize?client_id=${clientId}&permissions=8&response_type=code&redirect_uri=${process.env.NEXT_PUBLIC_BACKEND_URL}/discord/link&integration_type=0&scope=bot+applications.commands+identify+guilds+email&state=${state}`,
       color: "#5865F2",
       options: [{ label: "", value: "" }],
       estimatedVolume: 1240,

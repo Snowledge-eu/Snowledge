@@ -49,16 +49,18 @@ export class UserService {
 		});
 	}
 
-	findOneByDiscordId(
-		discordId: string,
-		manager?: EntityManager,
-	): Promise<User | null> {
-		const repository = manager
-			? manager.getRepository(User)
-			: this.userRepository;
-		return repository.findOne({
-			where: { discordId: discordId },
-		});
+	async findOneByDiscordId(discordId: string): Promise<User | null> {
+		const queryRunner =
+			this.userRepository.manager.connection.createQueryRunner();
+		try {
+			await queryRunner.connect();
+			const user = await queryRunner.manager.findOne(User, {
+				where: { discordId: discordId },
+			});
+			return user;
+		} finally {
+			await queryRunner.release();
+		}
 	}
 
 	update(id: number, updateUserDto: UpdateUserDto) {

@@ -31,11 +31,15 @@ export class XrplService {
 
 		await this.xrplHelper.disconnect();
 
+		const nftId =
+			result.result.meta['nftoken_id'] || result.result.meta['NFTokenID'];
+
 		return {
 			account: newWallet.classicAddress,
 			seed: newWallet.seed,
 			nftResult: result,
 			metadataUrl,
+			nftId,
 		};
 	}
 }

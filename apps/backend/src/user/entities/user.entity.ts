@@ -60,6 +60,9 @@ export class User {
 	@Column({ nullable: true })
 	discordAvatar: string;
 
+	@Column({ type: 'text', nullable: true, unique: true })
+	nftId: string;
+
 	@Column({ nullable: true, unique: true })
 	youtubeId: string;
 
