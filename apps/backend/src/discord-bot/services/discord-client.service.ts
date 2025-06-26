@@ -44,36 +44,12 @@ export class DiscordClientService implements OnModuleInit {
 			this.logger.log(
 				`Bot ajouté au serveur: ${guild.name} (${guild.id})`,
 			);
-			await this.registerCommandsForGuild(guild.id);
+			// Note: Les commandes doivent être enregistrées manuellement via le script
+			// npm run discord:register-commands guild ${guild.id}
 		});
 	}
 
-	private async registerCommandsForGuild(guildId: string) {
-		try {
-			const commands = [
-				new SlashCommandBuilder()
-					.setName('mynft')
-					.setDescription("Affiche votre NFT d'identité Snowledge."),
-			].map((command) => command.toJSON());
-
-			await this.rest.put(
-				Routes.applicationGuildCommands(
-					process.env.DISCORD_CLIENT_ID,
-					guildId,
-				),
-				{ body: commands },
-			);
-
-			this.logger.log(
-				`Commandes enregistrées pour le serveur ${guildId}`,
-			);
-		} catch (error) {
-			this.logger.error(
-				`Erreur lors de l'enregistrement des commandes pour ${guildId}:`,
-				error,
-			);
-		}
-	}
+	// Méthode supprimée - utiliser le script register-commands.ts à la place
 
 	async onModuleInit() {
 		await this.login();

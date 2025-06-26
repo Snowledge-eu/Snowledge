@@ -6,13 +6,11 @@ import {
 	PartialMessageReaction,
 	User,
 	PartialUser,
-	GuildMember,
-	EmbedBuilder,
 } from 'discord.js';
 import { DiscordClientService } from './discord-client.service';
 import { DiscordLogicProvider } from '../providers/discord-logic.provider';
 import { DiscordProposalProvider } from '../providers/discord-proposal.provider';
-import { UserService } from 'src/user/user.service';
+import { DiscordCommandService } from './discord-command.service';
 
 @Injectable()
 export class DiscordInteractionService implements OnModuleInit {
@@ -22,7 +20,7 @@ export class DiscordInteractionService implements OnModuleInit {
 		private readonly discordClientService: DiscordClientService,
 		private readonly discordProposalProvider: DiscordProposalProvider,
 		private readonly discordLogicProvider: DiscordLogicProvider,
-		private readonly userService: UserService,
+		private readonly discordCommandService: DiscordCommandService,
 	) {}
 
 	onModuleInit() {
@@ -36,81 +34,12 @@ export class DiscordInteractionService implements OnModuleInit {
 			async (interaction: Interaction) => {
 				try {
 					if (interaction.isChatInputCommand()) {
-						console.log(
+						this.logger.log(
 							`Commande reçue: ${interaction.commandName}`,
 						);
-
-						try {
-							if (interaction.commandName === 'mynft') {
-								await interaction.deferReply({
-									flags: 'Ephemeral',
-								});
-
-								console.log('Exécution /mynft...');
-
-								const member =
-									interaction.member as GuildMember;
-								if (
-									!member.roles.cache.some(
-										(r) =>
-											r.name ===
-											'Snowledge Authenticated',
-									)
-								) {
-									await interaction.editReply({
-										content:
-											'Vous devez avoir le rôle "Snowledge Authenticated" pour utiliser cette commande.',
-									});
-									return;
-								}
-
-								const user =
-									await this.userService.findOneByDiscordId(
-										interaction.user.id,
-									);
-
-								if (!user || !user.nftId) {
-									await interaction.editReply({
-										content:
-											"Nous n'avons pas trouvé de NFT associé à votre compte. Avez-vous bien lié votre compte Discord à la plateforme ?",
-									});
-									return;
-								}
-
-								const embed = new EmbedBuilder()
-									.setColor('#0099ff')
-									.setTitle(
-										"🖼️ Votre NFT d'Identité Snowledge",
-									)
-									.setDescription(
-										`Voici votre NFT personnel. Il représente votre identité unique au sein de l'écosystème Snowledge.`,
-									)
-									.addFields({
-										name: "Consulter sur l'explorateur",
-										value: `[Cliquez ici pour voir votre NFT](https://test.xrplexplorer.com/en/nft/${user.nftId})`,
-									})
-									.setThumbnail(
-										interaction.user.displayAvatarURL(),
-									)
-									.setTimestamp()
-									.setFooter({
-										text: 'Snowledge NFT System',
-										iconURL:
-											'https://test-image-snowledge.s3.eu-west-par.io.cloud.ovh.net/logo/logo.png',
-									});
-
-								await interaction.editReply({
-									embeds: [embed],
-								});
-
-								console.log('/mynft exécutée avec succès');
-							}
-						} catch (e) {
-							this.logger.error(
-								'Error processing Discord interaction',
-								e,
-							);
-						}
+						await this.discordCommandService.executeCommand(
+							interaction,
+						);
 					}
 
 					if (
