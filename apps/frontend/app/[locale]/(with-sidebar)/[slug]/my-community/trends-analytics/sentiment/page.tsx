@@ -21,9 +21,9 @@ export default function Page() {
   // Réutilisation des props pour la démo
   const platforms = [
     { key: "discord", name: "Discord", color: "#5865F2" },
-    { key: 'youtube', name: 'YouTube', color: '#FF0000' },
-    { key: 'x', name: 'X', color: '#000000' },
-    { key: 'instagram', name: 'Instagram', color: '#000000' },
+    { key: "youtube", name: "YouTube", color: "#FF0000" },
+    { key: "x", name: "X", color: "#000000" },
+    { key: "instagram", name: "Instagram", color: "#000000" },
   ];
   const [selectedPlatform, setSelectedPlatform] = useState("discord");
   const [scope, setScope] = useState<"all" | "custom">("all");
@@ -95,7 +95,9 @@ export default function Page() {
           messages: JSON.parse(analysis?.result?.choices[0].message.content)
             .representative_messages,
           date: new Date(analysis?.created_at).toLocaleDateString(),
-          score: getRandomByLevel(JSON.parse(analysis?.result?.choices[0].message.content).confidence),
+          score: getRandomByLevel(
+            JSON.parse(analysis?.result?.choices[0].message.content).confidence
+          ),
           summary: JSON.parse(analysis?.result?.choices[0].message.content)
             .reasoning,
         });
@@ -129,7 +131,7 @@ export default function Page() {
     }
 
     return Math.floor(Math.random() * (max - min + 1)) + min;
-  };
+  }
   const fetchAnalysis = async () => {
     const body = {
       platform: "discord",
@@ -161,12 +163,21 @@ export default function Page() {
         timeframe: `${new Date(item?.period.from).toLocaleDateString()} to ${new Date(item?.period.to).toLocaleDateString()}`,
         platform: item?.platform,
         scope: "Custom", //TODO définir regle All | Custom vient du back
-        sentiment: JSON.parse(item?.result?.choices[0].message.content).sentiment,
-        messages: JSON.parse(item?.result?.choices[0].message.content)
-          .representative_messages.map((msg: string) => {return {user: msg.split(': ')[0].split(']')[1], text: msg.split(': ')[1].trim()}}),
+        sentiment: JSON.parse(item?.result?.choices[0].message.content)
+          .sentiment,
+        messages: JSON.parse(
+          item?.result?.choices[0].message.content
+        ).representative_messages.map((msg: string) => {
+          return {
+            user: msg.split(": ")[0].split("]")[1],
+            text: msg.split(": ")[1].trim(),
+          };
+        }),
         date: new Date(item?.created_at).toLocaleDateString(),
         // dataCount: -1, // qte mess fetch sur period choisi
-        score: getRandomByLevel(JSON.parse(item?.result?.choices[0].message.content).confidence),
+        score: getRandomByLevel(
+          JSON.parse(item?.result?.choices[0].message.content).confidence
+        ),
         summary: JSON.parse(item?.result?.choices[0].message.content).reasoning,
       });
     }
@@ -188,13 +199,12 @@ export default function Page() {
         channels: [{ id: string; name: string }];
       } = await data.json();
 
-      const options = info.channels.map(channel => ({
+      const options = info.channels.map((channel) => ({
         label: `#${channel.name}`,
-        value: channel.id
+        value: channel.id,
       }));
       setDiscordChannels(options);
       setSelectedChannels(options);
-
     } catch (error) {
       console.error(error);
     }
@@ -202,9 +212,9 @@ export default function Page() {
   const fetchMessageCount = async (
     channels: Array<{ label: string; value: string }>,
     interval: string
-  ) =>{
+  ) => {
     const body = {
-      channelId: channels.map(chan => chan.value),
+      channelId: channels.map((chan) => chan.value),
       interval: interval,
     };
     try {
@@ -219,15 +229,15 @@ export default function Page() {
         }
       );
       setMessageCount(data);
-    } catch(error) {
+    } catch (error) {
       console.error(error);
     }
-  }
-useEffect(() => {
-  if (selectedChannels.length > 0 && timeRange) {
-    fetchMessageCount(selectedChannels, timeRange);
-  }
-}, [selectedChannels, timeRange]);
+  };
+  useEffect(() => {
+    if (selectedChannels.length > 0 && timeRange) {
+      fetchMessageCount(selectedChannels, timeRange);
+    }
+  }, [selectedChannels, timeRange]);
   useEffect(() => {
     if (activeCommunity?.discordServerId) {
       fetchChannels(activeCommunity?.discordServerId);

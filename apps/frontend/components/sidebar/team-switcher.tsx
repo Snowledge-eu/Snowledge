@@ -71,7 +71,8 @@ export function CommunitySwitcher() {
               Communautés
             </DropdownMenuLabel>
             {communities &&
-              communities?.map((community: Community, index: number) => (
+              Array.isArray(communities) &&
+              communities.map((community: Community, index: number) => (
                 <DropdownMenuItem
                   key={community.name}
                   onClick={() => {
