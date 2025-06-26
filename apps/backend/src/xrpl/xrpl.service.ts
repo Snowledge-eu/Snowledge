@@ -12,7 +12,6 @@ export class XrplService {
 		const client = this.xrplHelper.getClient();
 
 		const newWallet = Wallet.generate();
-		console.log('newWallet', newWallet);
 
 		await client.fundWallet(newWallet);
 
@@ -28,18 +27,12 @@ export class XrplService {
 
 		const signed = newWallet.sign(transaction);
 
-		console.log('signed', signed);
-
 		const result = await client.submitAndWait(signed.tx_blob);
-
-		console.log('result', result);
 
 		await this.xrplHelper.disconnect();
 
 		const nftId =
 			result.result.meta['nftoken_id'] || result.result.meta['NFTokenID'];
-
-		console.log('nftId', nftId);
 
 		return {
 			account: newWallet.classicAddress,

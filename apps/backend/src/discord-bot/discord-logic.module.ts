@@ -4,11 +4,17 @@ import { CommunityModule } from 'src/community/community.module';
 import { VoteModule } from 'src/vote/vote.module';
 import { ProposalModule } from 'src/proposal/proposal.module';
 import { DiscordServerModule } from 'src/discord-server/discord-server.module';
-import { DiscordClientService } from './services/discord-client.service';
+import { DiscordSharedModule } from './discord-shared.module';
 
 @Module({
-	imports: [CommunityModule, VoteModule, ProposalModule, DiscordServerModule],
-	providers: [DiscordLogicProvider, DiscordClientService],
+	imports: [
+		CommunityModule,
+		VoteModule,
+		ProposalModule,
+		DiscordServerModule,
+		DiscordSharedModule,
+	],
+	providers: [DiscordLogicProvider],
 	exports: [DiscordLogicProvider],
 })
 export class DiscordLogicModule {}

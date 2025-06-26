@@ -24,18 +24,6 @@ export class DiscordProvider {
 		let data: any;
 		let community: Community;
 		try {
-			console.log(
-				'this.configDiscord.clientId',
-				this.configDiscord.clientId,
-			);
-			console.log(
-				'this.configDiscord.clientSecret',
-				this.configDiscord.clientSecret,
-			);
-			console.log(
-				'this.configDiscord.redirect',
-				this.configDiscord.redirect,
-			);
 			const response = await fetch(
 				'https://discord.com/api/oauth2/token',
 				{
@@ -54,16 +42,11 @@ export class DiscordProvider {
 				},
 			);
 			data = await response.json();
-			console.log('data', data);
 		} catch (error) {
-			console.log('error', error);
 			this.logger.error(error);
 		}
 
-		console.log('ICI');
-
 		if (data && !data.error) {
-			console.log('DATTT', data);
 			const discordAccess = await this.discordService.createDiscordAccess(
 				{
 					accessToken: data.access_token,
@@ -89,9 +72,7 @@ export class DiscordProvider {
 				this.logger.error(error);
 			}
 
-			console.log('userInfo', userInfo);
 			if (userInfo) {
-				console.log('communityId', communityId);
 				if (communityId) {
 					try {
 						// community =
@@ -99,8 +80,6 @@ export class DiscordProvider {
 						// 		communityId,
 						// 	);
 
-						console.log('data', data);
-						console.log('communityId', communityId);
 						const discordServer =
 							await this.discordServerService.create({
 								// communityId,

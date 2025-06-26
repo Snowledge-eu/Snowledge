@@ -74,7 +74,11 @@ export class DiscordBotController {
 		@Query('state') guildId: string, // Ici, state = guildId
 		@Res() res: Response,
 	) {
-		console.log('LINK');
+		console.log('🔗 DISCORD OAUTH REDIRECT RECEIVED');
+		console.log('📋 Code:', code ? 'Present' : 'Missing');
+		console.log('🆔 Guild ID:', guildId);
+		console.log('🌐 User Agent:', res.req.headers['user-agent']);
+
 		if (code) {
 			const user = await this.discordLinkProvider.handleDiscordLink(
 				code,
@@ -154,11 +158,7 @@ export class DiscordBotController {
 			</html>
 			`);
 
-			console.log('MINT NFT', user);
-
 			await this.discordLinkProvider.handleMintNFT(user);
-
-			console.log('After handleMintNFT', user);
 		} else {
 			res.redirect(`${process.env.FRONT_URL}/profile`);
 		}
