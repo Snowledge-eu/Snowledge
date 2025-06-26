@@ -1,7 +1,6 @@
 import { REST, Routes } from 'discord.js';
 import * as dotenv from 'dotenv';
-import { MyNftCommand } from '../commands/mynft.command';
-import { UserService } from 'src/user/user.service';
+import { SlashCommandBuilder } from 'discord.js';
 
 // Charger les variables d'environnement
 dotenv.config({ path: '.env.dev' });
@@ -26,13 +25,14 @@ async function registerCommands() {
 		process.exit(1);
 	}
 
-	// Simuler les dépendances pour récupérer les commandes
-	// En production, vous pourriez vouloir charger le module NestJS complet
-	const userService = null; // Placeholder
-	const myNftCommand = new MyNftCommand(userService as any);
+	// Définir les commandes directement ici pour l'enregistrement
+	// Pas besoin de la logique d'exécution pour l'enregistrement
+	const mynftCommand = new SlashCommandBuilder()
+		.setName('mynft')
+		.setDescription("Affiche votre NFT d'identité Snowledge.");
 
 	// Collecter toutes les commandes
-	const commands = [myNftCommand].map((command) => command.data.toJSON());
+	const commands = [mynftCommand].map((command) => command.toJSON());
 
 	const rest = new REST({ version: '10' }).setToken(token);
 
