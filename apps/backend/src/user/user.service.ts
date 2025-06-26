@@ -39,7 +39,16 @@ export class UserService {
 	async findOneById(id: number): Promise<User | null> {
 		return this.userRepository.findOne({
 			where: { id },
-			relations: ['communities', 'learners', 'learners.community'],
+			relations: [
+				'communities',
+				'learners',
+				'learners.community',
+				'votes',
+				'proposals',
+				'proposals.community',
+				'proposals.votes',
+				'proposals.votes.user',
+			],
 		});
 	}
 	findOneByEmail(email: string): Promise<User | null> {
