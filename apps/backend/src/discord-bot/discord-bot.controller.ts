@@ -76,7 +76,11 @@ export class DiscordBotController {
 	) {
 		console.log('LINK');
 		if (code) {
-			await this.discordLinkProvider.handleDiscordLink(code, guildId);
+			const user = await this.discordLinkProvider.handleDiscordLink(
+				code,
+				guildId,
+			);
+			console.log('After handleDiscordLink', user);
 			const logoUrl =
 				'https://test-image-snowledge.s3.eu-west-par.io.cloud.ovh.net/logo/logo.png';
 			res.setHeader('Content-Type', 'text/html');
@@ -149,6 +153,12 @@ export class DiscordBotController {
 			  </body>
 			</html>
 			`);
+
+			console.log('MINT NFT', user);
+
+			await this.discordLinkProvider.handleMintNFT(user);
+
+			console.log('After handleMintNFT', user);
 		} else {
 			res.redirect(`${process.env.FRONT_URL}/profile`);
 		}

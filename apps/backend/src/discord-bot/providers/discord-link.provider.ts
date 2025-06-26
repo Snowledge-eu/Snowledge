@@ -6,6 +6,7 @@ import { CommunityService } from 'src/community/community.service';
 import { LearnerService } from 'src/learner/learner.service';
 import { Gender } from 'src/shared/enums/Gender';
 import { XrplProvider } from 'src/xrpl/xrpl.provider';
+import type { User } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class DiscordLinkProvider {
@@ -115,7 +116,10 @@ export class DiscordLinkProvider {
 
 		await member.roles.add(role.id);
 
-		// Mint NFT
+		return await this.userService.findOneById(user.id);
+	}
+
+	async handleMintNFT(user: User) {
 		const updatedUser = await this.userService.findOneById(user.id);
 		const nftResult =
 			await this.xrplProvider.generateAccountAndMintNft(updatedUser);
@@ -124,7 +128,6 @@ export class DiscordLinkProvider {
 		if (nftResult.nftId) {
 			await this.userService.update(user.id, { nftId: nftResult.nftId });
 		}
-
-		return await this.userService.findOneById(user.id);
+		return nftResult;
 	}
 }

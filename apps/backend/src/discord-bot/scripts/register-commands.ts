@@ -15,30 +15,18 @@ const rest = new REST({ version: '10' }).setToken(
 
 (async () => {
 	try {
-		console.log(
-			'Started refreshing application (/) commands for the test guild.',
-		);
+		console.log('Started refreshing application (/) commands globally.');
 
-		// Pour un enregistrement global (prend ~1h à se propager sur tous les serveurs)
-		// commenté pour se concentrer sur le dev
-		// await rest.put(
-		// 	Routes.applicationCommands(process.env.DISCORD_CLIENT_ID),
-		// 	{ body: commands },
-		// );
-
-		// Pour un enregistrement sur un serveur de test (instantané)
-		// Remplacez 'YOUR_GUILD_ID' par l'ID de votre serveur de test
+		// Enregistrement global (disponible sur tous les serveurs)
+		// Prend ~1h à se propager mais fonctionne partout
 		await rest.put(
-			Routes.applicationGuildCommands(
-				process.env.DISCORD_CLIENT_ID,
-				process.env.DISCORD_GUILD_ID,
-			),
-			{ body: commands },
+			Routes.applicationCommands(process.env.DISCORD_CLIENT_ID),
+			{
+				body: commands,
+			},
 		);
 
-		console.log(
-			'Successfully reloaded application (/) commands for the guild.',
-		);
+		console.log('Successfully reloaded application (/) commands globally.');
 	} catch (error) {
 		console.error(error);
 	}
