@@ -8,8 +8,9 @@ import {
 	Logger,
 	Query,
 	NotFoundException,
+	Put,
 } from '@nestjs/common';
-import { UpdateUserDto } from './dto';
+import { AddExpertiseUserDto, UpdateUserDto } from './dto';
 import { ApiTags } from '@nestjs/swagger';
 import { User } from './decorator';
 import { User as UserEntity } from './entities/user.entity';
@@ -93,6 +94,10 @@ export class UserController {
 		};
 	}
 
+	@Put('add-expertise/:idUser')
+	async addExpertise(@Param('idUser') idUser: number, @Body() add: AddExpertiseUserDto) {
+		return this.userService.setExpertise(idUser, add.expertise);
+	}
 	@Delete('/by-email/:email')
 	byEmail(@Param('email') email: string) {
 		return this.userService.deleteByEmail(email);

@@ -72,6 +72,9 @@ export class User {
 	@Column({ unique: true })
 	referral: string;
 
+	@Column({ nullable: true })
+	expertise: string;
+
 	@OneToOne(() => DiscordAccess)
 	@JoinColumn()
 	@Type(() => DiscordAccess)

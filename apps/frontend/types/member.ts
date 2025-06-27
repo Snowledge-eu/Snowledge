@@ -5,6 +5,7 @@ export type Member = {
     firstname: string;
     lastname: string;
     email: string;
+    expertise: string;
   };
   isContributor: boolean;
   created_at: string;

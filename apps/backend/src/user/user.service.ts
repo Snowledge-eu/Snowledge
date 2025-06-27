@@ -71,7 +71,9 @@ export class UserService {
 			await queryRunner.release();
 		}
 	}
-
+	setExpertise(id: number, expertise: string) {
+		return this.userRepository.update(id, { expertise });
+	}
 	update(id: number, updateUserDto: UpdateUserDto) {
 		return this.userRepository.update(id, updateUserDto);
 	}
