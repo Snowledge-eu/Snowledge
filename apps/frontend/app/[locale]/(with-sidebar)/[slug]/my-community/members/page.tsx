@@ -51,7 +51,7 @@ export default function Page() {
   );
   const handleExpertiseChange = async (idContrib: number, value: string) => {
     const body = { expertise: value };
-    try{
+    try {
       await fetcher(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/add-expertise/${idContrib}`,
         {
@@ -63,26 +63,28 @@ export default function Page() {
         }
       ).catch((err) => console.error(err));
       // Mise à jour du cache React Query
-      queryClient.setQueryData(["learners", slug], (oldMembers: Member[] | undefined) => {
-        if (!oldMembers) return oldMembers;
+      queryClient.setQueryData(
+        ["learners", slug],
+        (oldMembers: Member[] | undefined) => {
+          if (!oldMembers) return oldMembers;
 
-        return oldMembers.map((member) =>
-          member.user.id === idContrib
-            ? {
-                ...member,
-                user: {
-                  ...member.user,
-                  expertise: value,
-                },
-              }
-            : member
-        );
-      });
+          return oldMembers.map((member) =>
+            member.user.id === idContrib
+              ? {
+                  ...member,
+                  user: {
+                    ...member.user,
+                    expertise: value,
+                  },
+                }
+              : member
+          );
+        }
+      );
     } catch (error) {
       console.error(error);
     }
-
-  }
+  };
   // Filtrage
   const filteredMembers =
     members.length > 0
@@ -111,6 +113,7 @@ export default function Page() {
           <TableRow>
             <TableHead>{t("role_member")}</TableHead>
             <TableHead>Email</TableHead>
+            <TableHead>Expertise</TableHead>
             <TableHead>{t("role_contributor")}</TableHead>
             <TableHead>{t("added_on")}</TableHead>
             <TableHead>{t("actions")}</TableHead>
@@ -123,12 +126,14 @@ export default function Page() {
                 {member.user.firstname} {member.user.lastname}
               </TableCell>
               <TableCell>{member.user.email}</TableCell>
-              <TableCell> 
-                <Select value={member.user.expertise} onValueChange={(value: string) => handleExpertiseChange(member.user.id, value)}>
-                  <SelectTrigger
-                    id={`${member.id}-expertise`}
-                    className="w-64"
-                  >
+              <TableCell>
+                <Select
+                  value={member.user.expertise}
+                  onValueChange={(value: string) =>
+                    handleExpertiseChange(member.user.id, value)
+                  }
+                >
+                  <SelectTrigger id={`${member.id}-expertise`} className="w-64">
                     <SelectValue placeholder="Select expertise" />
                   </SelectTrigger>
                   <SelectContent>
