@@ -16,7 +16,7 @@ export default function CommunityLayout({
   const { data: communities, isLoading } = useUserCommunities(user?.id || 0);
 
   useEffect(() => {
-    if (communities) {
+    if (communities && Array.isArray(communities)) {
       const community = communities.find((c) => c.slug === slug);
       if (!community) notFound();
     }
