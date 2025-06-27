@@ -40,8 +40,9 @@ export class DiscordProposalFormService {
 			.setCustomId(`choix_format|${id}`)
 			.setPlaceholder('Choose the format')
 			.addOptions([
-				{ label: 'Whitepaper', value: 'Whitepaper' },
-				{ label: 'Masterclass', value: 'Masterclass' },
+				{ label: 'Undefined', value: 'undefined' },
+				{ label: 'Whitepaper', value: 'whitepaper' },
+				{ label: 'Masterclass', value: 'masterclass' },
 			]);
 		const row = new ActionRowBuilder().addComponents(select);
 		return row;

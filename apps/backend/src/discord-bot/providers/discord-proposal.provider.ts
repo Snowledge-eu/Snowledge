@@ -86,7 +86,7 @@ export class DiscordProposalProvider {
 			this.pendingProposals.set(id, { subject, description });
 			const row = this.formService.createFormatSelect(id);
 			await interaction.reply({
-				content: 'Maintenant, choisis le format proposé',
+				content: 'Now, choose the format proposed',
 				components: [row.toJSON()],
 				ephemeral: true,
 			});
@@ -102,7 +102,7 @@ export class DiscordProposalProvider {
 			proposal.format = interaction.values[0];
 			const row = this.formService.createContributorSelect(id);
 			await interaction.update({
-				content: 'Serais-tu prêt à être contributeur sur ce sujet ?',
+				content: 'Would you like to be a contributor on this topic?',
 				components: [row.toJSON()],
 			});
 		}
@@ -115,7 +115,7 @@ export class DiscordProposalProvider {
 		const proposalData = this.pendingProposals.get(id);
 		if (!proposalData) {
 			await interaction.reply({
-				content: 'Proposition non trouvée',
+				content: 'Proposal not found',
 				ephemeral: true,
 			});
 			return;
@@ -163,8 +163,7 @@ export class DiscordProposalProvider {
 			);
 			this.pendingProposals.delete(id);
 			await interaction.update({
-				content:
-					'Une erreur est survenue lors de la création de ta proposition.',
+				content: 'An error occurred while creating your proposal.',
 				components: [],
 			});
 		}

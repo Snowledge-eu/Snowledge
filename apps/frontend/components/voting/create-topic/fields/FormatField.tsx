@@ -16,8 +16,9 @@ const FormatField = ({ value, onChange, error, t }: any) => (
         <SelectValue placeholder={t("format_placeholder")} />
       </SelectTrigger>
       <SelectContent>
+        <SelectItem value="undefined">{t("undefined")}</SelectItem>
         <SelectItem value="masterclass">{t("masterclass")}</SelectItem>
-        <SelectItem value="whitepaper">{t("white_paper")}</SelectItem>
+        <SelectItem value="whitepaper">{t("whitepaper")}</SelectItem>
       </SelectContent>
     </Select>
     {error && <span className="text-red-500 text-xs">{error.message}</span>}
