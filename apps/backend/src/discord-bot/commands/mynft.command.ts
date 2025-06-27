@@ -15,7 +15,7 @@ export class MyNftCommand {
 
 	get data() {
 		return new SlashCommandBuilder()
-			.setName('mynft')
+			.setName('myid')
 			.setDescription("Affiche votre NFT d'identité Snowledge.");
 	}
 
@@ -78,7 +78,7 @@ export class MyNftCommand {
 
 			await interaction.editReply({ embeds: [embed] });
 		} catch (error) {
-			this.logger.error('Error executing mynft command:', error);
+			this.logger.error('Error executing myId command:', error);
 			await interaction.editReply({
 				content:
 					'Une erreur est survenue lors de la récupération de votre NFT.',

@@ -164,7 +164,7 @@ npm run discord:register-commands
 ```
 ✅ Connected as SnowledgeDevAlex#5589    # Bot connecté
 Loaded 1 commands                        # Commandes chargées
-Commande reçue: mynft                    # Commande exécutée
+Commande reçue: myid                    # Commande exécutée
 ```
 
 ## 🔗 Références
