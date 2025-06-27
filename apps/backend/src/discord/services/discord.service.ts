@@ -18,5 +18,7 @@ export class DiscordService {
 		);
 		return this.discardAccessRepository.save(character);
 	}
-
+	async delete(id: number) {
+		return this.discardAccessRepository.delete({ id })
+	}
 }

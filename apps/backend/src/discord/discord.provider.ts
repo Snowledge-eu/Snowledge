@@ -107,4 +107,16 @@ export class DiscordProvider {
 		}
 		return community;
 	}
+	async disconnectDiscord(user: User) {
+		const findUser = await this.userService.findOneByEmail(user.email);
+		console.log(findUser)
+		await this.userService.update(user.id, {
+			discordId: '',
+			discordAccess: null,
+		});
+		if(findUser.discordAccess) {
+			await this.discordService.delete(findUser.discordAccess.id);
+		}
+		// TODO enelver le bot discord du serveur si c'est le créateur 
+	}
 }

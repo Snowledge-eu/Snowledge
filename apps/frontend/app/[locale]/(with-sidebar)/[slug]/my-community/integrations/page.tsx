@@ -261,7 +261,7 @@ export default function Page() {
                 account: {
                   id: info.server_id,
                   name: info.server_name,
-                  connected: true,
+                  connected: user.discordId != '',
                 },
                 lastFetched: harvest?.lastFetched || {
                   date: null,
