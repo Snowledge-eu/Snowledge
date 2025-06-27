@@ -13,6 +13,7 @@ export class DiscordProposalService {
 	async sendCreationNotification(
 		embed: EmbedBuilder,
 		community: Community,
+		formatIsDefined: boolean,
 	): Promise<{ messageId: string } | null> {
 		const client = this.discordClientService.getClient();
 		const guildId = community.discordServer.guildId;
@@ -39,8 +40,10 @@ export class DiscordProposalService {
 		const message = await channel.send({ embeds: [embed] });
 		await message.react('✅');
 		await message.react('❌');
-		await message.react('👍');
-		await message.react('👎');
+		if (formatIsDefined) {
+			await message.react('👍');
+			await message.react('👎');
+		}
 
 		return { messageId: message.id };
 	}

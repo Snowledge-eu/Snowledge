@@ -80,7 +80,9 @@ export class ProposalProvider {
 
 	async updateProposalStatus(proposal: Proposal): Promise<Proposal> {
 		const now = new Date();
-		const quorumReached = proposal.votes.length >= proposal.quorum.required;
+		const quorumReached =
+			proposal.votes.filter((v) => v.choice !== null).length >=
+			proposal.quorum.required;
 		const timeOver = now > proposal.deadline;
 
 		if (proposal.status !== 'in_progress') return proposal; // déjà terminé

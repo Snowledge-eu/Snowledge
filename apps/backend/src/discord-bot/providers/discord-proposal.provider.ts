@@ -47,14 +47,23 @@ export class DiscordProposalProvider {
 		);
 		try {
 			// 1. On crée l'embed
-			const embed =
-				this.discordLogicProvider.createProposalEmbed(proposal);
+			const embed = this.discordLogicProvider.createProposalEmbed(
+				proposal,
+				proposal.votes.length,
+				proposal.quorum.required,
+				proposal.votes.filter((v) => v.choice === 'for').length,
+				proposal.votes.filter((v) => v.choice === 'against').length,
+				proposal.votes.filter((v) => v.formatChoice === 'for').length,
+				proposal.votes.filter((v) => v.formatChoice === 'against')
+					.length,
+			);
 
 			// 2. On envoie le message sur Discord
 			const notificationResult =
 				await this.discordProposalService.sendCreationNotification(
 					embed,
 					proposal.community,
+					proposal.format !== 'undefined',
 				);
 
 			// 3. On met à jour la proposition avec l'ID du message

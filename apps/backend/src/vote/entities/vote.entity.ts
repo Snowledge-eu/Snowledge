@@ -22,8 +22,8 @@ export class Vote {
 	@ManyToOne(() => User, (user) => user.votes, { nullable: false })
 	user: User;
 
-	@Column({ length: 20 })
-	choice: string; // "for" | "against"
+	@Column({ length: 20, nullable: true })
+	choice?: string; // "for" | "against"
 
 	@Column({ length: 400, nullable: true })
 	comment?: string;

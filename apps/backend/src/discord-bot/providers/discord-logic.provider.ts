@@ -181,7 +181,21 @@ If you encounter any issues, contact an administrator for assistance.
 			const message = await channel.messages.fetch(reaction.message.id);
 
 			if (updatedProposal.status === 'in_progress') {
-				const updatedEmbed = this.createProposalEmbed(updatedProposal);
+				const updatedEmbed = this.createProposalEmbed(
+					updatedProposal,
+					updatedProposal.votes.length,
+					updatedProposal.quorum.required,
+					updatedProposal.votes.filter((v) => v.choice === 'for')
+						.length,
+					updatedProposal.votes.filter((v) => v.choice === 'against')
+						.length,
+					updatedProposal.votes.filter(
+						(v) => v.formatChoice === 'for',
+					).length,
+					updatedProposal.votes.filter(
+						(v) => v.formatChoice === 'against',
+					).length,
+				);
 				await message.edit({ embeds: [updatedEmbed] });
 			} else {
 				const resultEmbed =
@@ -204,60 +218,54 @@ If you encounter any issues, contact an administrator for assistance.
 		}
 	}
 
-	createProposalEmbed(proposal: Proposal): EmbedBuilder {
-		const yesVotes = proposal.votes.filter(
-			(v) => v.choice === 'for',
-		).length;
-		const noVotes = proposal.votes.filter(
-			(v) => v.choice === 'against',
-		).length;
-		const yesFormatVotes = proposal.votes.filter(
-			(v) => v.formatChoice === 'for',
-		).length;
-		const noFormatVotes = proposal.votes.filter(
-			(v) => v.formatChoice === 'against',
-		).length;
-		const totalVoters = proposal.votes.length;
-		const quorum = proposal.quorum.required;
-
+	public createProposalEmbed(
+		proposal: Proposal,
+		totalVoters: number,
+		quorum: number,
+		yesVotes: number,
+		noVotes: number,
+		yesFormatVotes: number,
+		noFormatVotes: number,
+	): EmbedBuilder {
 		const embed = new EmbedBuilder()
-			.setColor('#0099ff')
-			.setTitle(`📢 New idea proposed by ${proposal.submitter.firstname}`)
-			.setDescription(
-				`**Subject:** ${proposal.title}\n\n> ${proposal.description}`,
-			)
-			.addFields(
-				{
-					name: 'Proposed Format',
-					value: proposal.format,
-					inline: true,
-				},
-				{
-					name: 'Potential Contributor',
-					value: proposal.isContributor ? 'Yes' : 'No',
-					inline: true,
-				},
-				{
-					name: 'Vote ends',
-					value: `<t:${Math.floor(
-						proposal.deadline.getTime() / 1000,
-					)}:R>`,
-					inline: true,
-				},
-				{
-					name: `Votes on subject (${totalVoters}/${quorum})`,
-					value: `✅ For: ${yesVotes}\n❌ Against: ${noVotes}`,
-					inline: true,
-				},
-				{
-					name: 'Votes on format',
-					value: `👍 For: ${yesFormatVotes}\n👎 Against: ${noFormatVotes}`,
-					inline: true,
-				},
-			)
-			.setFooter({
-				text: 'React to vote!',
-			});
+			.setColor('#3498DB')
+			.setTitle('New Proposal')
+			.setDescription(`**Subject:** ${proposal.title}`);
+
+		const fields = [
+			proposal.format !== 'undefined' && {
+				name: 'Proposed Format',
+				value: proposal.format,
+				inline: true,
+			},
+			{
+				name: 'Want to contributes',
+				value: proposal.isContributor ? 'Yes' : 'No',
+				inline: true,
+			},
+			{
+				name: 'Vote ends',
+				value: `<t:${Math.floor(
+					proposal.deadline.getTime() / 1000,
+				)}:R>`,
+				inline: true,
+			},
+			{
+				name: `Votes on subject (${totalVoters}/${quorum})`,
+				value: `✅ For: ${yesVotes}\n❌ Against: ${noVotes}`,
+				inline: true,
+			},
+			proposal.format !== 'undefined' && {
+				name: 'Votes on format',
+				value: `👍 For: ${yesFormatVotes}\n👎 Against: ${noFormatVotes}`,
+				inline: true,
+			},
+		].filter(Boolean);
+
+		embed.addFields(fields);
+		embed.setFooter({
+			text: 'React to vote!',
+		});
 
 		return embed;
 	}
@@ -276,11 +284,14 @@ If you encounter any issues, contact an administrator for assistance.
 			formatResult = 'To be redefined (initial format rejected)';
 		}
 
-		const embed = new EmbedBuilder()
+		let embed = new EmbedBuilder()
 			.setColor(color)
 			.setTitle(`${statusIcon} Proposal ${statusText}`)
-			.setDescription(`**Subject:** ${proposal.title}`)
-			.addFields({ name: 'Final Format', value: formatResult });
+			.setDescription(`**Subject:** ${proposal.title}`);
+
+		if (proposal.status === 'accepted') {
+			embed.addFields({ name: 'Final Format', value: formatResult });
+		}
 
 		return embed;
 	}
