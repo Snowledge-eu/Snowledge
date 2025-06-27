@@ -2,6 +2,7 @@ export function toSlug(name: string): string {
   return name
     .normalize("NFD") // retire les accents
     .replace(/\p{Diacritic}/gu, "")
+    .replace(/_/g, "") // supprime les underscores
     .replace(/[^a-zA-Z0-9]+/g, "-") // remplace tout ce qui n'est pas lettre ou chiffre par un tiret
     .replace(/^-+|-+$/g, "") // retire les tirets en début/fin
     .replace(/--+/g, "-") // évite les doubles tirets
