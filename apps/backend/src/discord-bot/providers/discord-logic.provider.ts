@@ -165,12 +165,19 @@ If you encounter any issues, contact an administrator for assistance.
 				reaction.message.embeds[0].title?.startsWith(
 					'📢 New idea proposed by',
 				);
+
+			console.log('isProposalMessage', isProposalMessage);
+			console.log('reaction.message.embeds', reaction.message.embeds);
 			if (!isProposalMessage) return;
 
+			console.log('reaction', reaction);
 			const proposalWithVotes =
 				await this.voteProvider.handleReactionVote(reaction, user);
 
+			console.log('proposalWithVotes', proposalWithVotes);
 			if (!proposalWithVotes) return;
+
+			console.log('proposalWithVotes', proposalWithVotes);
 
 			const updatedProposal =
 				await this.proposalProvider.updateProposalStatus(
@@ -180,6 +187,7 @@ If you encounter any issues, contact an administrator for assistance.
 			const channel = reaction.message.channel as TextChannel;
 			const message = await channel.messages.fetch(reaction.message.id);
 
+			console.log('updatedProposal', updatedProposal);
 			if (updatedProposal.status === 'in_progress') {
 				const updatedEmbed = this.createProposalEmbed(
 					updatedProposal,
@@ -229,7 +237,7 @@ If you encounter any issues, contact an administrator for assistance.
 	): EmbedBuilder {
 		const embed = new EmbedBuilder()
 			.setColor('#3498DB')
-			.setTitle('New Proposal')
+			.setTitle(`📢 New idea proposed by ${proposal.submitter.firstname}`)
 			.setDescription(`**Subject:** ${proposal.title}`);
 
 		const fields = [
