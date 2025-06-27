@@ -75,6 +75,7 @@ export default function Page() {
   const [topP, setTopP] = useState(0.9);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
+  // const [analysisId, setAnalysisId] = useState<string>('');
   const [selectedResult, setSelectedResult] = useState<any>();
   const [trendHistory, setTrendHistory] = useState<any[]>([]);
   // Mock data for channels and message count
@@ -151,7 +152,9 @@ export default function Page() {
             }),
           }
         ).catch((err) => console.error(err));
+
         setSelectedResult({
+          _id: analysis?._id.toString(),
           id: shortenString(analysis?.result?.id),
           timeframe: `${new Date(analysis?.period.from).toLocaleDateString()} to ${new Date(analysis?.period.to).toLocaleDateString()}`,
           platform: analysis?.platform,
@@ -224,6 +227,7 @@ export default function Page() {
     const tempArr = [];
     for (const item of analysis) {
       tempArr.push({
+        _id: item?._id.toString(),
         id: shortenString(item?.result?.id),
         timeframe: `${new Date(item?.period.from).toLocaleDateString()} to ${new Date(item?.period.to).toLocaleDateString()}`,
         platform: item?.platform,
