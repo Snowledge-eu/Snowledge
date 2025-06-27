@@ -11,6 +11,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useUserCommunities } from "@/hooks/useUserCommunities";
 import { useAuth } from "@/contexts/auth-context";
 import { useEffect } from "react";
+import { useCurrentCommunity } from "@/hooks/useCurrentCommunity";
 
 export default function Home() {
   const { accessToken, user, fetchDataUser } = useAuth();
@@ -18,19 +19,27 @@ export default function Home() {
   const router = useRouter();
   // Appelle le hook directement dans le composant
   const { data: communities, isLoading } = useUserCommunities(user?.id || 0);
-
+  const { activeCommunity } = useCurrentCommunity();
   useEffect(() => {
     if (accessToken) {
       fetchDataUser();
     }
     if (!isLoading && communities && !noRedirect && user) {
       if (communities.length > 0) {
-        router.push(`/${communities[0].slug}`);
+        router.push(`/${activeCommunity?.slug || communities[0].slug}`);
       } else {
         router.push("/post-sign-up");
       }
     }
-  }, [isLoading, communities, noRedirect, router]);
+  }, [
+    isLoading,
+    communities,
+    noRedirect,
+    router,
+    activeCommunity,
+    accessToken,
+    user,
+  ]);
 
   // Si pas connecté : affiche la landing page
   if (!user || noRedirect) {
