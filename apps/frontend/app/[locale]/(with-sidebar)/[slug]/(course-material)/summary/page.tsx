@@ -1,48 +1,51 @@
-'use client'
+"use client";
 
 import { useAuth } from "@/contexts/auth-context";
-import { 
-    Avatar, 
-    AvatarFallback, 
-    Button, 
-    Card, 
-    CardContent, 
-    Input, 
-    Separator, 
-    Spinner, 
-    Tabs, 
-    TabsList, 
-    TabsTrigger, 
-    Textarea, 
-    Tooltip, 
-    TooltipContent, 
-    TooltipProvider, 
-    TooltipTrigger 
+import {
+  Avatar,
+  AvatarFallback,
+  Button,
+  Card,
+  CardContent,
+  Input,
+  Separator,
+  Spinner,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  Textarea,
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
 } from "@repo/ui";
 import { set } from "date-fns";
-import {
-  Info,
-  ExternalLink,
-} from "lucide-react";
+import { Info, ExternalLink } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const contributorsData = [
-  { id: 'AB', expertises: ['e1', 'e2'] },
-  { id: 'SB', expertises: ['e2', 'e3'] },
-  { id: 'NP', expertises: ['e1'] },
-]
+  { id: "AB", expertises: ["e1", "e2"] },
+  { id: "SB", expertises: ["e2", "e3"] },
+  { id: "NP", expertises: ["e1"] },
+];
 
 export default function Page() {
   const { fetcher } = useAuth();
   const searchParams = useSearchParams();
   const analysisId = searchParams.get("analysisId");
   const trendId = searchParams.get("trendId");
-  const [selectedContributors, setSelectedContributors] = useState<string[]>([])
-  const [activeExpertise, setActiveExpertise] = useState<string>('all')
-  const [outline, setOutline] = useState<Array<{title: string, description: string}>>([]);
+  const [selectedContributors, setSelectedContributors] = useState<string[]>(
+    []
+  );
+  const [activeExpertise, setActiveExpertise] = useState<string>("all");
+  const [outline, setOutline] = useState<
+    Array<{ title: string; description: string }>
+  >([]);
   const [resources, setResources] = useState<Array<string>>([]);
-  const [expertRequired, setExpertRequired] = useState<Array<{title: string, description: string}>>([]);
+  const [expertRequired, setExpertRequired] = useState<
+    Array<{ title: string; description: string }>
+  >([]);
   const [loader, setLoader] = useState(false);
   const fetchSummaryResult = async () => {
     setLoader(true);
@@ -50,16 +53,16 @@ export default function Page() {
     const resBackEnd = await fetcher(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/summary/${analysisId}?trendId=${trendId}`,
       {
-        method: 'GET'
+        method: "GET",
       }
     );
-    if(resBackEnd){
+    if (resBackEnd) {
       content = JSON.parse(resBackEnd.result.choices[0].message.content);
-    }else{
+    } else {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_ANALYSER_URL}/discord/trend-to-content/${analysisId}?trend_index=${trendId}`,
         {
-          method: 'GET',
+          method: "GET",
           headers: {
             "Content-Type": "application/json",
           },
@@ -69,198 +72,244 @@ export default function Page() {
       console.log(res);
       const data = await res.json();
       content = JSON.parse(data.choices[0].message.content);
-
     }
 
     setOutline(content.outline);
     setLoader(false);
     setResources(content.recommended_resources);
     setExpertRequired(content.required_expertise);
-  }
-  useEffect(()=>{
-    if(analysisId && trendId){
+  };
+  useEffect(() => {
+    if (analysisId && trendId) {
       fetchSummaryResult();
     }
-  },[])
+  }, []);
   const handleSelectContributor = (initials: string) => {
     setSelectedContributors((prev) =>
       prev.includes(initials)
         ? prev.filter((i) => i !== initials)
         : [...prev, initials]
-    )
-  }
+    );
+  };
 
   const filteredContributors =
-    activeExpertise === 'all'
+    activeExpertise === "all"
       ? contributorsData
-      : contributorsData.filter((c) => c.expertises.includes(activeExpertise))
+      : contributorsData.filter((c) => c.expertises.includes(activeExpertise));
 
   return (
-
     <>
-        <div className="flex items-center justify-between px-6 pt-8 pb-6">
-          <h1 className="text-2xl font-bold">Trend to content</h1>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button size="sm">Launch</Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Generate content based on the trend</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
+      <div className="flex items-center justify-between px-6 pt-8 pb-6">
+        <h1 className="text-2xl font-bold">Trend to content</h1>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button size="sm">Launch</Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Generate content based on the trend</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
 
-        <div className="flex flex-1 min-h-[calc(100vh-6rem)] flex-col md:flex-row gap-10 px-6 pb-16">
-          {loader ? (
-            <div className="w-full md:w-3/5 space-y-10">
-              <Spinner />
-            </div>
-          )
-          :(    
+      <div className="flex flex-1 min-h-[calc(100vh-6rem)] flex-col md:flex-row gap-10 px-6 pb-16">
+        {loader ? (
           <div className="w-full md:w-3/5 space-y-10">
-            
-            {outline.map((line, i) => (
-              (i===0) 
-                ? <div key={i}>
-                <div className="space-y-3">
-                  <label htmlFor="content-title" className="text-base font-semibold">
-                    Content Title
+            <Spinner />
+          </div>
+        ) : (
+          <div className="w-full md:w-3/5 space-y-10">
+            {outline.map((line, i) =>
+              i === 0 ? (
+                <div key={i}>
+                  <div className="space-y-3">
+                    <label
+                      htmlFor="content-title"
+                      className="text-base font-semibold"
+                    >
+                      Content Title
+                    </label>
+                    <Input id="content-title" placeholder={line.title} />
+                  </div>
+                  <div className="space-y-3">
+                    <label
+                      htmlFor="content-description"
+                      className="text-base font-semibold"
+                    >
+                      Description
+                    </label>
+                    <Textarea
+                      id="content-description"
+                      placeholder={line.title}
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div key={i} className="space-y-3">
+                  <label
+                    htmlFor={`outline-title-${i}`}
+                    className="text-base font-semibold"
+                  >
+                    Outline {i} title
                   </label>
-                  <Input id="content-title" placeholder={line.title} />
+                  <Input id={`outline-title-${i}`} placeholder={line.title} />
+                  <span className="text-sm text-muted-foreground">
+                    Edit the title if needed
+                  </span>
+                  <Textarea
+                    id={`outline-description-${i}`}
+                    placeholder={line.description}
+                  />
                 </div>
-                <div className="space-y-3">
-                  <label htmlFor="content-description" className="text-base font-semibold">
-                    Description
-                  </label>
-                  <Textarea id="content-description" placeholder={line.title} />
-                </div>
-                </div>
-                : <div key={i} className="space-y-3">
-                <label htmlFor={`outline-title-${i}`} className="text-base font-semibold">
-                  Outline {i} title
-                </label>
-                <Input id={`outline-title-${i}`} placeholder={line.title} />
-                <span className="text-sm text-muted-foreground">Edit the title if needed</span>
-                <Textarea id={`outline-description-${i}`} placeholder={line.description} />
-              </div>
-            ))}
+              )
+            )}
             <Card className="bg-blue-50">
               <CardContent className="p-4 text-sm text-muted-foreground">
                 <div className="flex items-start gap-2">
                   <Info className="w-4 h-4 mt-0.5" />
                   <span>
-                    Titles and descriptions are generated based on the trend. Make sure to edit them if needed.
+                    Titles and descriptions are generated based on the trend.
+                    Make sure to edit them if needed.
                   </span>
                 </div>
               </CardContent>
             </Card>
           </div>
-          )}
-          <Separator orientation="vertical" className="hidden md:block" />
+        )}
+        <Separator orientation="vertical" className="hidden md:block" />
 
-          <div className="w-full md:w-2/5 flex flex-col justify-between">
-            <div className="flex flex-col gap-12">
-              <div className="space-y-4">
-                <h2 className="uppercase text-sm tracking-wider font-bold text-center">Required expertises</h2>
-                <Card className="bg-blue-50">
-                  <CardContent className="p-4 text-sm text-muted-foreground">
-                    <div className="flex items-start gap-2">
-                      <Info className="w-4 h-4 mt-0.5" />
-                      <span>
-                        Based on the trend, we’ve selected the key expertises you might need to build this content.
-                      </span>
-                    </div>
-                  </CardContent>
-                </Card>
-                <Tabs defaultValue="all" onValueChange={(value) => setActiveExpertise(value)}>
-                  <TabsList className="w-full grid grid-cols-4 h-auto">
-                    <TabsTrigger value="all">All</TabsTrigger>
-                    {expertRequired.map((exp, i) => 
-                      <TabsTrigger className="whitespace-normal" value={exp.title}>{exp.title}</TabsTrigger>
-
-                    )}
-                    {/* <TabsTrigger value="e2">Expertise 2</TabsTrigger>
+        <div className="w-full md:w-2/5 flex flex-col justify-between">
+          <div className="flex flex-col gap-12">
+            <div className="space-y-4">
+              <h2 className="uppercase text-sm tracking-wider font-bold text-center">
+                Required expertises
+              </h2>
+              <Card className="bg-blue-50">
+                <CardContent className="p-4 text-sm text-muted-foreground">
+                  <div className="flex items-start gap-2">
+                    <Info className="w-4 h-4 mt-0.5" />
+                    <span>
+                      Based on the trend, we’ve selected the key expertises you
+                      might need to build this content.
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+              <Tabs
+                defaultValue="all"
+                onValueChange={(value) => setActiveExpertise(value)}
+              >
+                <TabsList className="w-full grid grid-cols-4 h-auto">
+                  <TabsTrigger value="all">All</TabsTrigger>
+                  {expertRequired.map((exp, i) => (
+                    <TabsTrigger
+                      key={i}
+                      className="whitespace-normal"
+                      value={exp.title}
+                    >
+                      {exp.title}
+                    </TabsTrigger>
+                  ))}
+                  {/* <TabsTrigger value="e2">Expertise 2</TabsTrigger>
                     <TabsTrigger value="e3">Expertise 3</TabsTrigger> */}
-                  </TabsList>
-                </Tabs>
+                </TabsList>
+              </Tabs>
+            </div>
+
+            <Separator />
+
+            <div className="space-y-4">
+              <h2 className="uppercase text-sm tracking-wider font-bold text-center">
+                Suggested contributors
+              </h2>
+              <div className="flex justify-center gap-3 flex-wrap">
+                {filteredContributors.map((contributor) => (
+                  <TooltipProvider key={contributor.id}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Avatar
+                          className={`cursor-pointer w-20 h-20 border ${selectedContributors.includes(contributor.id) ? "border-blue-500" : "border-muted"}`}
+                          onClick={() =>
+                            handleSelectContributor(contributor.id)
+                          }
+                        >
+                          <AvatarFallback>{contributor.id}</AvatarFallback>
+                        </Avatar>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{contributor.id} Name</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                ))}
               </div>
+              <Card className="bg-blue-50">
+                <CardContent className="p-4 text-sm text-muted-foreground">
+                  <div className="flex items-start gap-2">
+                    <Info className="w-4 h-4 mt-0.5" />
+                    <span>
+                      These contributors match the expertises needed for this
+                      trend.
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
 
-              <Separator />
+            <Separator />
 
-              <div className="space-y-4">
-                <h2 className="uppercase text-sm tracking-wider font-bold text-center">Suggested contributors</h2>
-                <div className="flex justify-center gap-3 flex-wrap">
-                  {filteredContributors.map((contributor) => (
-                    <TooltipProvider key={contributor.id}>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Avatar
-                            className={`cursor-pointer w-20 h-20 border ${selectedContributors.includes(contributor.id) ? 'border-blue-500' : 'border-muted'}`}
-                            onClick={() => handleSelectContributor(contributor.id)}
-                          >
-                            <AvatarFallback>{contributor.id}</AvatarFallback>
-                          </Avatar>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>{contributor.id} Name</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  ))}
-                </div>
-                <Card className="bg-blue-50">
-                  <CardContent className="p-4 text-sm text-muted-foreground">
-                    <div className="flex items-start gap-2">
-                      <Info className="w-4 h-4 mt-0.5" />
-                      <span>
-                        These contributors match the expertises needed for this trend.
-                      </span>
-                    </div>
-                  </CardContent>
-                </Card>
+            <div className="space-y-4">
+              <h2 className="uppercase text-sm tracking-wider font-bold text-center">
+                Selected contributors
+              </h2>
+              <div className="flex justify-center gap-3 flex-wrap">
+                {selectedContributors.map((initials) => (
+                  <Avatar key={initials} className="w-20 h-20">
+                    <AvatarFallback>{initials}</AvatarFallback>
+                  </Avatar>
+                ))}
               </div>
+              <Card className="bg-blue-50">
+                <CardContent className="p-4 text-sm text-muted-foreground">
+                  <div className="flex items-start gap-2">
+                    <Info className="w-4 h-4 mt-0.5" />
+                    <span>
+                      You’ve selected these contributors to be involved in the
+                      content creation.
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
 
-              <Separator />
+            <Separator />
 
-              <div className="space-y-4">
-                <h2 className="uppercase text-sm tracking-wider font-bold text-center">Selected contributors</h2>
-                <div className="flex justify-center gap-3 flex-wrap">
-                  {selectedContributors.map((initials) => (
-                    <Avatar key={initials} className="w-20 h-20">
-                      <AvatarFallback>{initials}</AvatarFallback>
-                    </Avatar>
-                  ))}
-                </div>
-                <Card className="bg-blue-50">
-                  <CardContent className="p-4 text-sm text-muted-foreground">
-                    <div className="flex items-start gap-2">
-                      <Info className="w-4 h-4 mt-0.5" />
-                      <span>
-                        You’ve selected these contributors to be involved in the content creation.
-                      </span>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              <Separator />
-
-              <div className="flex flex-col justify-center items-center min-h-[180px] space-y-6">
-                <h2 className="uppercase text-sm tracking-wider font-bold text-center">Resources you may check</h2>
-                <div className="space-y-3 text-sm">
-                  {resources.map((title, index) => (
-                    <div key={index} className="flex items-center gap-2 cursor-pointer">
-                      <ExternalLink href={title} className="h-4 w-4" aria-hidden="true" />
-                      <span tabIndex={0} aria-label={title}>{title}</span>
-                    </div>
-                  ))}
-                </div>
+            <div className="flex flex-col justify-center items-center min-h-[180px] space-y-6">
+              <h2 className="uppercase text-sm tracking-wider font-bold text-center">
+                Resources you may check
+              </h2>
+              <div className="space-y-3 text-sm">
+                {resources.map((title, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center gap-2 cursor-pointer"
+                  >
+                    <ExternalLink
+                      href={title}
+                      className="h-4 w-4"
+                      aria-hidden="true"
+                    />
+                    <span tabIndex={0} aria-label={title}>
+                      {title}
+                    </span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
         </div>
+      </div>
     </>
-  )
+  );
 }
