@@ -12,6 +12,7 @@ export class ProposalService {
 
 	async findAllForACommunityBySlug(
 		communitySlug: string,
+		orderBy: string = 'endedAt',
 	): Promise<Proposal[]> {
 		const proposals = await this.proposalRepository.find({
 			where: { community: { slug: communitySlug } },
@@ -22,7 +23,7 @@ export class ProposalService {
 				'votes',
 			],
 			order: {
-				endedAt: 'DESC',
+				[orderBy]: 'DESC',
 			},
 		});
 		const now = new Date();

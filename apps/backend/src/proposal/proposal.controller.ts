@@ -15,6 +15,16 @@ export class ProposalController {
 		return this.proposalProvider.findAllForACommunityBySlug(communitySlug);
 	}
 
+	// GET /in-progress-proposals
+	@Get('in-progress')
+	findAllInProgress(
+		@Param('communitySlug') communitySlug: string,
+	): Promise<Proposal[]> {
+		return this.proposalProvider.findAllInProgressForACommunityBySlug(
+			communitySlug,
+		);
+	}
+
 	// POST /proposals
 	@Post()
 	create(

@@ -23,6 +23,15 @@ export class ProposalProvider {
 		return this.proposalService.findAllForACommunityBySlug(communitySlug);
 	}
 
+	async findAllInProgressForACommunityBySlug(
+		communitySlug: string,
+	): Promise<Proposal[]> {
+		return this.proposalService.findAllForACommunityBySlug(
+			communitySlug,
+			'createdAt',
+		);
+	}
+
 	async create(
 		createProposalDto: CreateProposalDto,
 		communitySlug: string,

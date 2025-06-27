@@ -9,7 +9,7 @@ export function useInProgressProposals(communitySlug: string) {
     queryKey: ["proposals", "in-progress", communitySlug],
     queryFn: async () => {
       const res = await fetcher(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000/api"}/communities/${communitySlug}/proposals`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000/api"}/communities/${communitySlug}/proposals/in-progress`,
         { credentials: "include" }
       );
       return res;
