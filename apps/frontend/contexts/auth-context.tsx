@@ -32,6 +32,31 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState(null);
   const [accessToken, setAccessToken] = useState<string | null>(null);
 
+  // Vérifie l'état de l'authentification au chargement
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/check`,
+          {
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setAccessToken(data.access_token);
+        }
+      } catch (error) {
+        console.error("Error checking auth status:", error);
+      }
+    };
+
+    checkAuth();
+  }, []);
+
   const isJwtValid = (token: string) => {
     try {
       const payload = JSON.parse(atob(token.split(".")[1]));
