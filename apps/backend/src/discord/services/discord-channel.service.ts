@@ -14,7 +14,7 @@ export class DiscordChannelService {
         return this.channelModel.find().lean().exec();
     }
 
-    findOne(id: string ): Promise<DiscordChannel> {
+    findOne(id: string): Promise<DiscordChannel> {
         return this.channelModel
             .findOne({_id: Long.fromString(id)})
             .setOptions({ sanitizeFilter: false })

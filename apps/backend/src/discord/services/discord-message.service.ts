@@ -20,7 +20,7 @@ export class DiscordMessageService {
     }
     async countMessageForDate(channelId: string | Long, date: Date): Promise<number> {
         const idChannel = typeof channelId === 'string' ? Long.fromString(channelId) : channelId
-            const result = await this.messageModel.aggregate([
+        const result = await this.messageModel.aggregate([
             {
             $match: {
                     channel_id: idChannel
