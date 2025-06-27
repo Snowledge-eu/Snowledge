@@ -124,7 +124,7 @@ export default function Page() {
     },
     {
       key: "instagram",
-      name: "instragrm",
+      name: "Instagram",
       url: "https://instagram.com",
       urlAuth: "",
       color: "#000000",
