@@ -16,12 +16,13 @@ from fastapi import FastAPI, HTTPException, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import List, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 from storage.mongo_storage import MongoStorage
 from collectors.discord_collector import DiscordCollector
 from bson import ObjectId
 from dateutil.relativedelta import relativedelta
 from llm.analyse import analyse
+from llm.content import trend_to_content
 from dateutil.parser import parse as parse_date
 
 origins = ["*"]
@@ -236,6 +237,75 @@ async def discord_analyze(request: DiscordAnalyzeRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"LLM error: {e}")
 
+@router.get("/discord/trend-to-content/{analyse_id}")
+def get_trend_to_content(analyse_id: str, trend_index: int = 0):
+    """
+    =========
+    Endpoint: /discord/trend-to-content/{analyse_id} [GET]
+    ------------
+    DESCRIPTION: 
+    PARAMS: analyse_id (path)
+    RETURNS: 
+    =========
+    """
+    storage = MongoStorage()
+    try:
+        analysis  = storage.db.analysis_results.find_one({"_id": ObjectId(analyse_id)})
+        print(analysis)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid analyse_id format")
+    if not analysis:
+        raise HTTPException(status_code=404, detail="Analyse not found")
+    try:
+        raw_response = analysis["result"]["choices"][0]["message"]["content"]
+        parsed_result = json.loads(raw_response)
+    except (KeyError, json.JSONDecodeError):
+        raise HTTPException(status_code=500, detail="Failed to parse LLM analysis content")
+
+    trends = parsed_result.get("trends", [])
+    if not trends:
+        raise HTTPException(status_code=400, detail="No trends found in the analysis result")
+    if trend_index >= len(trends):
+        raise HTTPException(status_code=400, detail=f"Trend index {trend_index} out of range. Only {len(trends)} trend(s) available.")
+
+    selected_trend = trends[trend_index]
+    trend_input = {
+        "trend_title": selected_trend.get("title"),
+        "summary": selected_trend.get("summary"),
+        "representative_messages": selected_trend.get("representative_messages", []),
+        "activity_level": selected_trend.get("activity_level"),
+        "timeframe": analysis.get("result", {}).get("timeframe")  # important pour la suite
+    }
+
+    try:
+        model_name = analysis.get("llm_model")
+        response = trend_to_content(
+            model_name=model_name,
+            prompt_name="trend_to_content",
+            trend=trend_input
+        )
+
+        # stockage du contenu généré
+        summary_res ={
+            "creator_id": analysis.get("creator_id", -1),
+            "platform": "discord",
+            "source_analysis_id": analysis["_id"],
+            "prompt_key": "trend_to_content",
+            "llm_model": model_name,
+            "scope": {
+                "trend_id": trend_index,
+                "trend_title": selected_trend.get("title"),
+                "timeframe": trend_input["timeframe"]
+            },
+            "input_trend": trend_input,
+            "result": response,
+            "created_at": datetime.now(timezone.utc)
+        }
+        storage.db.summary_results.insert_one(summary_res)
+        return response
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"LLM error: {e}")
+    
 app.include_router(router)
 # Prepare here other analysis endpoints to come
 if __name__ == "__main__":

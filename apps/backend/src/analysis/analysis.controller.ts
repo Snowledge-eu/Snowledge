@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors } from '@nestjs/common';
 import { AnalysisService } from './analysis.service';
 import { CreateAnalysisDto } from './dto/create-analysis.dto';
 import { UpdateAnalysisDto } from './dto/update-analysis.dto';
 import { FindAnalysisDto } from './dto/find-analysis.dto';
+import { TransformLongToStringInterceptor } from 'src/shared/interceptors/transform-long-to-string.pipe';
 
 @Controller('analysis')
 export class AnalysisController {
@@ -13,6 +14,7 @@ export class AnalysisController {
   //   return this.analysisService.create(createAnalysisDto);
   // }
   @Post()
+  @UseInterceptors(TransformLongToStringInterceptor)
   async findByScope(@Body() findAnalysis: FindAnalysisDto) {
 
     if(findAnalysis.platform == 'discord') {

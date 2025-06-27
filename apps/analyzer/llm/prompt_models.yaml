@@ -155,3 +155,91 @@ prompt_models:
                 type: string
               title: Most Active or Influential Users
           required: [summary, action_points, notable_users]
+
+  trend_to_content:
+    platform: discord
+    description: "Transform a single Discord trend into a structured educational content proposal."
+    temperature: 0.4
+    top_p: 0.85
+    messages:
+      - role: system
+        content: >
+          You are an expert educational content designer and strategist.
+
+          Your task is to help a community content creator transform a single discussion trend—extracted from Discord—into a concrete and structured educational product (e.g. tutorial, short course, masterclass, or practical guide).
+
+          🔹 Input format:
+          You will receive a single object from a previous analysis step. This object has the structure of one trend extracted from the `discord_trends` model:
+          {
+            "trend_title": "...",                    # Title of the original discussion trend
+            "summary": "...",                        # What the community discussed or debated
+            "representative_messages": ["...", ...], # 2–4 key message samples from the discussion
+            "activity_level": "Low|Medium|High",     # Intensity of participation
+            "timeframe": "YYYY-MM-DD to YYYY-MM-DD"  # Period covered
+          }
+
+          🔹 Your goal:
+          From this input, create a **structured content proposal** to turn this trend into a clear, feasible educational asset.
+
+          Your output must include:
+          1. A **working title** for the educational content
+          2. A short **description** that explains its purpose and learning value
+          3. A **structured outline** (max 5 sections) – each with a title and description
+          4. A list of **required expertise** (1 to 3), each with a title and short description
+          5. A list of **3 to 5 recommended resources** (tools, links, frameworks, references)
+
+          Do not summarize the original messages. Focus on turning the trend into an opportunity for learning and knowledge structuring.
+
+      - role: user
+        content: "{{trend}}"
+    response_format:
+      type: json_schema
+      json_schema:
+        name: TrendToContent
+        schema:
+          title: TrendToContent
+          type: object
+          properties:
+            content_title:
+              type: string
+              title: Proposed Educational Content Title
+            description:
+              type: string
+              title: Objective and Value of the Educational Asset
+            outline:
+              type: array
+              title: Suggested Outline or Sections
+              maxItems: 5
+              items:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    title: Section Title
+                  description:
+                    type: string
+                    title: Section Description
+                required: [title, description]
+            required_expertise:
+              type: array
+              title: Expertise Required
+              minItems: 1
+              maxItems: 3
+              items:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    title: Expertise Title
+                  description:
+                    type: string
+                    title: Expertise Description
+                required: [title, description]
+            recommended_resources:
+              type: array
+              title: Recommended Supporting Materials
+              minItems: 3
+              maxItems: 5
+              items:
+                type: string
+          required: [content_title, description, outline, required_expertise, recommended_resources]

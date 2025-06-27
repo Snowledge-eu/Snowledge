@@ -24,6 +24,7 @@ import { YoutubeModule } from './youtube/youtube.module';
 import { AnalysisModule } from './analysis/analysis.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { XrplModule } from './xrpl/xrpl.module';
+import { SummaryModule } from './course-material/summary/summary.module';
 @Module({
 	imports: [
 		EventEmitterModule.forRoot(),
@@ -74,6 +75,7 @@ import { XrplModule } from './xrpl/xrpl.module';
 		YoutubeModule,
 		AnalysisModule,
 		XrplModule,
+		SummaryModule,
 	],
 	controllers: [AppController],
 	providers: [AppService],

@@ -223,7 +223,34 @@ definitions = {
             IndexModel([("creator_id", ASCENDING), ("created_at", DESCENDING)], name="idx_creator_date"),
             IndexModel([("scope.channels", ASCENDING)], name="idx_scope_channels", sparse=True)
         ]
-    }
+    },
+    "summary_results": {
+        "validator": {
+            "$jsonSchema": {
+                "bsonType": "object",
+                "required": ["creator_id", "platform", "prompt_key", "result", "created_at"],
+                "properties": {
+                    "creator_id": make_long_schema("Internal user ID (SQL)"),
+                    "platform": make_string_schema("Platform name"),
+                    "prompt_key": make_string_schema("Prompt template key"),
+                    "llm_model": make_string_schema("LLM model name"),
+                    "source_analysis_id": {
+                        "bsonType": "objectId",
+                        "description": "ID of the original analysis this result derives from"
+                    },
+                    "scope": {"bsonType": "object"},
+                    "period": {"bsonType": "object"},
+                    "result": {"bsonType": "object"},
+                    "created_at": {"bsonType": "date"}
+                }
+            }
+        },
+        "indexes": [
+            IndexModel([("creator_id", ASCENDING), ("created_at", DESCENDING)], name="idx_creator_date"),
+            IndexModel([("scope.channels", ASCENDING)], name="idx_scope_channels", sparse=True),
+            IndexModel([("source_analysis_id", ASCENDING)], name="idx_source_analysis", sparse=True)
+        ]
+    },
 }
 
 # ------------------------------------------------------------
