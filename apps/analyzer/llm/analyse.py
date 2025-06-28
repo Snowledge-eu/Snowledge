@@ -108,6 +108,8 @@ def build_payload(model_config: dict, prompt_config: dict, user_content: Union[s
 # RETURNS: dict (if not streaming) or generator (if streaming)
 # ============
 def call_ovh_api(payload: dict, stream: bool = False) -> Union[dict, Generator[str, None, None]]:
+    print(f"OVH_API_BASE_URL: {get_env_var('OVH_API_BASE_URL')}")
+    print(f"OVH_AI_ENDPOINTS_ACCESS_TOKEN: {get_env_var('OVH_AI_ENDPOINTS_ACCESS_TOKEN')}")
     url = get_env_var('OVH_API_BASE_URL', 'https://oai.endpoints.kepler.ai.cloud.ovh.net/v1/chat/completions')
     token = get_env_var('OVH_AI_ENDPOINTS_ACCESS_TOKEN')
     headers = {

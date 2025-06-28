@@ -36,8 +36,11 @@ def load_env():
 # RETURNS: str or default
 # ============
 def get_env_var(key: str, default=None):
+    print(f"os.environ: {os.environ}")
     if key not in os.environ:
+        print(f"key not in os.environ: {key}")
         load_env()
+    print(f"os.getenv(key, default): {os.getenv(key, default)}")
     return os.getenv(key, default)
 
 # ============
