@@ -261,7 +261,7 @@ export default function Page() {
                 account: {
                   id: info.server_id,
                   name: info.server_name,
-                  connected: user.discordId != '',
+                  connected: user.discordId != "",
                 },
                 lastFetched: harvest?.lastFetched || {
                   date: null,
@@ -308,7 +308,7 @@ export default function Page() {
           collected.
         </div>
       </div>
-      <div className="flex flex-wrap gap-6 p-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-6">
         {platforms.map((platform) => {
           const isDisabled = !enabled[platform.key as keyof typeof enabled];
           return (
