@@ -11,6 +11,7 @@ import {
 	Body,
 	UsePipes,
 	UseInterceptors,
+	Delete,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { DiscordProvider } from './discord.provider';
@@ -140,5 +141,10 @@ export class DiscordController {
 			count += tmpcount;
 		}
 		return count;
+	}
+
+	@Delete('disconnect')
+	async disconnect(@User() user: UserEntity){
+		return await this.discordProvider.disconnectDiscord(user);
 	}
 }

@@ -26,6 +26,7 @@ import {
 } from "@repo/ui/components/dialog";
 import { useRouter } from "next/navigation";
 import { useChannelSections } from "@/components/manage-integrations/hooks/useChannelSections";
+import { useAuth } from "@/contexts/auth-context";
 // ============
 // Type definitions
 // ============
@@ -118,6 +119,7 @@ function PlatformSettingsDialog({
   manageIntegrationsOpen: boolean;
   setManageIntegrationsOpen: (open: boolean) => void;
 }) {
+  const { fetchDataUser, fetcher } = useAuth();
   const router = useRouter();
   const [account, setAccount] = useState<AccountPlatform>(
     platform.accountPlatform
@@ -140,9 +142,11 @@ function PlatformSettingsDialog({
   const handleConnect = () => {
     router.push(platform.urlAuth);
   };
-  const handleDisconnect = () =>
+  const handleDisconnect = async () => {
     setAccount((a) => ({ ...a, connected: false }));
-
+    await fetcher(`${process.env.NEXT_PUBLIC_BACKEND_URL}/discord/disconnect`, { method: 'DELETE' });
+    await fetchDataUser();
+  }
   // ============
   // Function: handleRecurrenceChange
   // ------------
@@ -273,7 +277,7 @@ function PlatformSettingsDialog({
                 )                
               )}
             </div>
-            <div className="flex flex-col gap-2">
+            {/* <div className="flex flex-col gap-2">
               <label
                 htmlFor={`${platform.key}-recurrence`}
                 className="font-medium"
@@ -295,8 +299,8 @@ function PlatformSettingsDialog({
                   ))}
                 </SelectContent>
               </Select>
-            </div>
-            <div className="flex flex-col gap-2">
+            </div> */}
+            {/* <div className="flex flex-col gap-2">
               <div className="font-medium mb-1">
                 {platform.type.charAt(0).toUpperCase() + platform.type.slice(1)}{" "}
                 to collect
@@ -323,7 +327,7 @@ function PlatformSettingsDialog({
                   </label>
                 ))}
               </div>
-            </div>
+            </div> */}
           </div>
           <DialogFooter>
             <Button

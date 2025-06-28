@@ -9,7 +9,7 @@ import {
 @Entity()
 export class DiscordAccess {
 	@PrimaryGeneratedColumn()
-	id: string;
+	id: number;
 
 	@Column()
 	accessToken: string;
