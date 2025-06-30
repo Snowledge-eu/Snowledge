@@ -60,26 +60,26 @@ export class DiscordClientService implements OnModuleInit {
 
 			// TODO: Supprimer plus tard si y'a pas de problème
 			// Enregistrer automatiquement les commandes pour le nouveau serveur
-			// try {
-			// 	this.logger.log(
-			// 		`Registering commands for guild: ${guild.name} (${guild.id})`,
-			// 	);
-			// 	await this.rest.put(
-			// 		Routes.applicationGuildCommands(
-			// 			process.env.DISCORD_CLIENT_ID,
-			// 			guild.id,
-			// 		),
-			// 		{ body: this.discordCommandService.getCommandsData() },
-			// 	);
-			// 	this.logger.log(
-			// 		`Commandes enregistrées pour le serveur: ${guild.name}`,
-			// 	);
-			// } catch (error) {
-			// 	this.logger.error(
-			// 		`Erreur lors de l'enregistrement des commandes pour ${guild.name}`,
-			// 		error,
-			// 	);
-			// }
+			try {
+				this.logger.log(
+					`Registering commands for guild: ${guild.name} (${guild.id})`,
+				);
+				await this.rest.put(
+					Routes.applicationGuildCommands(
+						process.env.DISCORD_CLIENT_ID,
+						guild.id,
+					),
+					{ body: this.discordCommandService.getCommandsData() },
+				);
+				this.logger.log(
+					`Commandes enregistrées pour le serveur: ${guild.name}`,
+				);
+			} catch (error) {
+				this.logger.error(
+					`Erreur lors de l'enregistrement des commandes pour ${guild.name}`,
+					error,
+				);
+			}
 		});
 	}
 
