@@ -1,6 +1,8 @@
 "use client";
 
 import { useAuth } from "@/contexts/auth-context";
+import { useCurrentCommunity } from "@/hooks/useCurrentCommunity";
+import { User } from "@/types/user";
 import {
   Avatar,
   AvatarFallback,
@@ -32,12 +34,14 @@ const contributorsData = [
 
 export default function Page() {
   const { fetcher } = useAuth();
+  const { activeCommunity } = useCurrentCommunity();
   const searchParams = useSearchParams();
   const analysisId = searchParams.get("analysisId");
   const trendId = searchParams.get("trendId");
-  const [selectedContributors, setSelectedContributors] = useState<string[]>(
+  const [selectedContributors, setSelectedContributors] = useState<User[]>(
     []
   );
+  const [contributorsData, setcontributorsData] = useState<Array<{ contributors: Array<User>, expertise: string }>>([])
   const [activeExpertise, setActiveExpertise] = useState<string>("all");
   const [outline, setOutline] = useState<
     Array<{ title: string; description: string }>
@@ -73,7 +77,23 @@ export default function Page() {
       const data = await res.json();
       content = JSON.parse(data.choices[0].message.content);
     }
-
+    const requiredExpertise = content.required_expertise
+    const uniqueTitles = [...new Set(requiredExpertise.map((e: {title: string, description: string}) => e.title))];
+    const body = {
+      communityId: activeCommunity?.id, 
+      expertises: uniqueTitles,
+    }
+    const groupedContributor = await fetcher(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/find-contributor`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body)
+      }
+    );
+    setcontributorsData(groupedContributor);
     setOutline(content.outline);
     setLoader(false);
     setResources(content.recommended_resources);
@@ -84,7 +104,7 @@ export default function Page() {
       fetchSummaryResult();
     }
   }, []);
-  const handleSelectContributor = (initials: string) => {
+  const handleSelectContributor = (initials: User) => {
     setSelectedContributors((prev) =>
       prev.includes(initials)
         ? prev.filter((i) => i !== initials)
@@ -95,7 +115,7 @@ export default function Page() {
   const filteredContributors =
     activeExpertise === "all"
       ? contributorsData
-      : contributorsData.filter((c) => c.expertises.includes(activeExpertise));
+      : contributorsData.filter((c) => c.expertise === activeExpertise);
 
   return (
     <>
@@ -224,25 +244,27 @@ export default function Page() {
                 Suggested contributors
               </h2>
               <div className="flex justify-center gap-3 flex-wrap">
-                {filteredContributors.map((contributor) => (
-                  <TooltipProvider key={contributor.id}>
+                {filteredContributors.map((contributors) => 
+                  contributors.contributors.map((contributor, id)=>(
+                  <TooltipProvider key={id}>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Avatar
-                          className={`cursor-pointer w-20 h-20 border ${selectedContributors.includes(contributor.id) ? "border-blue-500" : "border-muted"}`}
+                          className={`cursor-pointer w-20 h-20 border ${selectedContributors.includes(contributor) ? "border-blue-500" : "border-muted"}`}
                           onClick={() =>
-                            handleSelectContributor(contributor.id)
+                            handleSelectContributor(contributor)
                           }
                         >
-                          <AvatarFallback>{contributor.id}</AvatarFallback>
+                          <AvatarFallback>{contributor.pseudo.slice(0,3)}</AvatarFallback>
                         </Avatar>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>{contributor.id} Name</p>
+                        <p>{contributor.firstname} {contributor.lastname}</p>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
-                ))}
+                  ))
+                )}
               </div>
               <Card className="bg-blue-50">
                 <CardContent className="p-4 text-sm text-muted-foreground">
@@ -265,8 +287,8 @@ export default function Page() {
               </h2>
               <div className="flex justify-center gap-3 flex-wrap">
                 {selectedContributors.map((initials) => (
-                  <Avatar key={initials} className="w-20 h-20">
-                    <AvatarFallback>{initials}</AvatarFallback>
+                  <Avatar key={initials.pseudo.slice(0,3)} className="w-20 h-20">
+                    <AvatarFallback>{initials.pseudo.slice(0,3)}</AvatarFallback>
                   </Avatar>
                 ))}
               </div>

@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 // This should be a real class/interface representing a user entity
-import { Repository, EntityManager } from 'typeorm';
+import { Repository, EntityManager, In } from 'typeorm';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UpdateUserDto } from './dto';
@@ -14,8 +14,6 @@ export class UserService {
 	constructor(
 		@InjectRepository(User)
 		private userRepository: Repository<User>,
-		@InjectRepository(Learner)
-		private learnerRepository: Repository<Learner>,
 	) {}
 	async create(signUpDto: SignUpDto): Promise<User> {
 		const user = await this.userRepository.create(signUpDto);
@@ -86,10 +84,7 @@ export class UserService {
 			});
 		}
 	}
-	deleteByEmail(email: string) {
-		return this.userRepository.delete({ email });
-	}
-
+	
 	async getInvitationsForUser(userId: number) {
 		const user = await this.userRepository.findOne({
 			where: { id: userId, learners: { status: LearnerStatus.INVITED } },
@@ -99,5 +94,9 @@ export class UserService {
 			return [];
 		}
 		return user.learners.map((learner) => learner.community);
+	}
+
+	deleteByEmail(email: string) {
+		return this.userRepository.delete({ email });
 	}
 }

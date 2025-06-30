@@ -83,7 +83,7 @@ def build_payload(model_config: dict, prompt_config: dict, user_content: Union[s
     temperature = prompt_config.get('temperature', model_config.get('temperature', 0.3))
     top_p = prompt_config.get('top_p', model_config.get('top_p', 0.8))
     payload = {
-        'max_tokens': model_config.get('context_window', 512),
+        'max_tokens': 512,
         'messages': messages,
         'model': model_config.get('name'),
         'temperature': temperature,

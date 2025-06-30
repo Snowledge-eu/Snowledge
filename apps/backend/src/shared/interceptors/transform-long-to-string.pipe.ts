@@ -21,7 +21,7 @@ export class TransformLongToStringInterceptor implements NestInterceptor {
 		if (obj instanceof Date) {
 			return obj.toISOString();
 		}
-		if(mongoose.isValidObjectId(obj)){
+		if(typeof obj === 'string' && mongoose.isValidObjectId(obj)){
 			return new mongoose.Types.ObjectId(obj).toString()
 		}
 		if (Array.isArray(obj)) {

@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Learner, LearnerStatus } from './entities/learner/learner';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Community } from '../community/entities/community.entity';
 import { User } from '../user/entities/user.entity';
 
@@ -203,5 +203,23 @@ export class LearnerService {
 		return this.learnerRepository.findOne({
 			where: { user: { id: userId }, community: { id: communityId } },
 		});
+	}
+
+	async findContributorsByExpertiseInUserCommunity(commuId: number, expertise: string[]){
+		const learners = await this.learnerRepository.find({
+			relations: {
+				community: true,
+				user: true,
+			},
+			where: {
+				community: {
+					id: commuId,
+				},
+				user: {
+					expertise: In(expertise)
+				}
+			}
+		});
+		return learners.map((l) => l.user);
 	}
 }

@@ -196,15 +196,17 @@ export default function Page() {
       const info: {
         server_id: string;
         server_name: string;
-        channels: [{ id: string; name: string }];
+        channels: [{ id: string; name: string, harvested: boolean }];
       } = await data.json();
 
       const options = info.channels.map((channel) => ({
         label: `#${channel.name}`,
         value: channel.id,
+        disabled: !channel.harvested,
       }));
+      const optionSelected = options.filter(op => !op.disabled);
       setDiscordChannels(options);
-      setSelectedChannels(options);
+      setSelectedChannels(optionSelected);
     } catch (error) {
       console.error(error);
     }

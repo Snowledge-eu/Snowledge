@@ -100,7 +100,7 @@ export default function Page() {
           // dataCount: 1200,
           score: getRandomByLevel(JSON.parse(analysis?.result?.choices[0].message.content).confidence),
           summary: JSON.parse(analysis?.result?.choices[0].message.content)
-            .reasoning,
+            .summary
         });
       }
       setLoading(false);
@@ -176,7 +176,7 @@ export default function Page() {
         date: new Date(item?.created_at).toLocaleDateString(),
         // dataCount: 1200,
         score: getRandomByLevel(JSON.parse(item?.result?.choices[0].message.content).confidence),
-        summary: JSON.parse(item?.result?.choices[0].message.content).reasoning,
+        summary: JSON.parse(item?.result?.choices[0].message.content).summary,
       });
     }
     setSummaryHistory(tempArr);
@@ -194,16 +194,18 @@ export default function Page() {
       const info: {
         server_id: string;
         server_name: string;
-        channels: [{ id: string; name: string }];
+        channels: [{ id: string; name: string, harvested: boolean }];
       } = await data.json();
       console.log(info);
 
       const options = info.channels.map(channel => ({
         label: `#${channel.name}`,
-        value: channel.id
+        value: channel.id,
+        disabled: channel.harvested,
       }));
+      const optionSelected = options.filter(op => op.disabled);
       setDiscordChannels(options);
-      setSelectedChannels(options);
+      setSelectedChannels(optionSelected);
     } catch (error) {
       console.error(error);
     }
