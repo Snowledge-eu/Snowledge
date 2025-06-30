@@ -1,6 +1,8 @@
 "use client";
 
 import { useAuth } from "@/contexts/auth-context";
+import { useCurrentCommunity } from "@/hooks/useCurrentCommunity";
+
 import {
   Avatar,
   AvatarFallback,
@@ -21,7 +23,7 @@ import {
 } from "@repo/ui";
 import { set } from "date-fns";
 import { Info, ExternalLink } from "lucide-react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const contributorsData = [
@@ -32,6 +34,9 @@ const contributorsData = [
 
 export default function Page() {
   const { fetcher } = useAuth();
+  const { activeCommunity } = useCurrentCommunity();
+
+  const router = useRouter();
   const searchParams = useSearchParams();
   const analysisId = searchParams.get("analysisId");
   const trendId = searchParams.get("trendId");
@@ -104,7 +109,14 @@ export default function Page() {
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button size="sm">Launch</Button>
+              <Button
+                onClick={() =>
+                  router.push(`/${activeCommunity?.slug}/parameters`)
+                }
+                size="sm"
+              >
+                Continue to parameters
+              </Button>
             </TooltipTrigger>
             <TooltipContent>
               <p>Generate content based on the trend</p>

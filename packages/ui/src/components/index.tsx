@@ -138,5 +138,5 @@ export {
   CommandItem,
   CommandList,
 } from "./command";
-
+export { Slider } from "./slider";
 export { Alert, AlertTitle, AlertDescription } from "./alert";
