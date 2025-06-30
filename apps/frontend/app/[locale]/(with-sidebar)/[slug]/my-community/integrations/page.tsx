@@ -460,12 +460,7 @@ export default function Page() {
                         <span className="font-semibold text-foreground">
                           {new Date(
                             platform.lastFetched.date
-                          ).toLocaleDateString() !=
-                          new Date().toLocaleDateString()
-                            ? new Date(
-                                platform.lastFetched.date
-                              ).toLocaleDateString()
-                            : "-"}
+                          ).toLocaleDateString()}
                         </span>
                         <br />
                         {platform.lastFetched.channels.map((channel, id) => (
