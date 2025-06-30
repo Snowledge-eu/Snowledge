@@ -83,7 +83,7 @@ export default function Page() {
           }
         ).catch((err) => console.error(err));
         setSelectedResult({
-          id: shortenString(analysis?.result?.id),
+          id: analysis?.result?.id ? shortenString(analysis?.result?.id) : "temp", 
           timeframe: `${new Date(analysis?.period.from).toLocaleDateString()} to ${new Date(analysis?.period.to).toLocaleDateString()}`,
           platform: analysis?.platform,
           scope: "Custom", //TODO définir regle All | Custom
@@ -160,7 +160,7 @@ export default function Page() {
     const tempArr = [];
     for (const item of analysis) {
       tempArr.push({
-        id: shortenString(item?.result?.id),
+        id: item?.result?.id ? shortenString(item?.result?.id) : "temp", 
         timeframe: `${new Date(item?.period.from).toLocaleDateString()} to ${new Date(item?.period.to).toLocaleDateString()}`,
         platform: item?.platform,
         scope: "Custom", //TODO définir regle All | Custom

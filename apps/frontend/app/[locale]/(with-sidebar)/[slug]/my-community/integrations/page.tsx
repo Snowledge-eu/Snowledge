@@ -193,10 +193,12 @@ export default function Page() {
   // ============
   const handleCollect = async () => {
     setIsCollecting(true);
+    const afterDate = getStartDateFromRange(timeRange.discord);
     const body = {
       discordId: user.discordId,
       serverId: activeCommunity?.discordServerId,
       channels: selected.discord.map((ch) => ch.value),
+      after: afterDate,
     };
     await fetch(`${process.env.NEXT_PUBLIC_ANALYSER_URL}/discord/harvest`, {
       method: "POST",
@@ -207,7 +209,23 @@ export default function Page() {
     });
     setTimeout(() => setIsCollecting(false), 1200);
   };
-
+  const getStartDateFromRange = (range: string): string => {
+    const date = new Date();
+    switch (range) {
+      case "last-day":
+        date.setDate(date.getDate() - 1);
+        break;
+      case "last-week":
+        date.setDate(date.getDate() - 7);
+        break;
+      case "last-month":
+        date.setMonth(date.getMonth() - 1);
+        break;
+      default:
+        break;
+    }
+    return date.toISOString();
+  };
   // ============
   // Function: handleToggle
   // ------------

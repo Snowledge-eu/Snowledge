@@ -16,16 +16,25 @@ export class AnalysisController {
   @Post()
   @UseInterceptors(TransformLongToStringInterceptor)
   async findByScope(@Body() findAnalysis: FindAnalysisDto) {
-
-    if(findAnalysis.platform == 'discord') {
-      if(!findAnalysis.scope.channelId){
-        const analys = await this.analysisService.findByDiscordServer(findAnalysis.scope.serverId, findAnalysis.promptKey);
-
-        return analys;
+    console.log(findAnalysis)
+    try {      
+      const all = await this.analysisService.findAll();
+      console.log(all)
+      if(findAnalysis.platform == 'discord') {
+        console.log(findAnalysis.platform)
+        if(!findAnalysis.scope.channelId){
+          console.log(findAnalysis.scope.serverId)
+          const analys = await this.analysisService.findByDiscordServer(findAnalysis.scope.serverId, findAnalysis.promptKey);
+          console.log(analys)
+          return analys;
+        }
+        const analysByScope = await this.analysisService.findByDiscordScope(findAnalysis.scope.serverId, findAnalysis.scope.channelId, findAnalysis.promptKey);
+          console.log(analysByScope)
+  
+        return analysByScope;
       }
-      const analysByScope = await this.analysisService.findByDiscordScope(findAnalysis.scope.serverId, findAnalysis.scope.channelId, findAnalysis.promptKey);
-
-      return analysByScope;
+    } catch (error) {
+      console.error(error);
     }
   }
   @Get()

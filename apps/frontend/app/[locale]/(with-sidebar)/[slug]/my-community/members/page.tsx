@@ -24,6 +24,8 @@ import { features } from "@/config/features";
 import { notFound } from "next/navigation";
 import { useAuth } from "@/contexts/auth-context";
 import { useQueryClient } from "@tanstack/react-query";
+import { Expertise } from "@/shared/enums/Expertise";
+import { capitalize } from "@/components/manage-integrations/utils/capitalize";
 
 export default function Page() {
   const { fetcher } = useAuth();
@@ -34,11 +36,12 @@ export default function Page() {
   }
   const [search, setSearch] = useState("");
   const t = useTranslations("members");
-  const expertiseOptions = [
-    { label: "Tech", value: "technology" },
-    { label: "Business", value: "business" },
-    { label: "Finance", value: "finance" },
-  ];
+  const expertiseOptions = Object.values(Expertise)
+    .filter((value) => typeof value === "string")
+    .map((key) => ({
+      label: capitalize(key), // Pour avoir "Ai", "Development", etc.
+      value: key,
+  }));
   // Fetch des membres
   const {
     data: members = [],

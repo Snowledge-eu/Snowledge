@@ -155,7 +155,7 @@ export default function Page() {
 
         setSelectedResult({
           _id: analysis?._id.toString(),
-          id: shortenString(analysis?.result?.id),
+          id: analysis?.result?.id ? shortenString(analysis?.result?.id) : "temp", 
           timeframe: `${new Date(analysis?.period.from).toLocaleDateString()} to ${new Date(analysis?.period.to).toLocaleDateString()}`,
           platform: analysis?.platform,
           scope: "Custom", //TODO définir regle All | Custom
@@ -228,7 +228,7 @@ export default function Page() {
     for (const item of analysis) {
       tempArr.push({
         _id: item?._id.toString(),
-        id: shortenString(item?.result?.id),
+        id: item?.result?.id ? shortenString(item?.result?.id) : "temp", 
         timeframe: `${new Date(item?.period.from).toLocaleDateString()} to ${new Date(item?.period.to).toLocaleDateString()}`,
         platform: item?.platform,
         scope: "Custom", //TODO définir regle All | Custom
