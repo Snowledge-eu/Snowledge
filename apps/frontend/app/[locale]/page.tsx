@@ -15,27 +15,31 @@ import { useCurrentCommunity } from "@/hooks/useCurrentCommunity";
 import { fi } from "date-fns/locale";
 
 export default function Home() {
-  const { accessToken, user, fetchDataUser } = useAuth();
+  const { accessToken, user, fetchDataUserInProgress, fetchDataUser } = useAuth();
   const noRedirect = useSearchParams().get("no-redirect");
   const router = useRouter();
   // Appelle le hook directement dans le composant
   const { data: communities, isLoading } = useUserCommunities(user?.id || 0);
   const { activeCommunity } = useCurrentCommunity();
   useEffect(() => {
-    if (accessToken && !user) {
-      fetchDataUser().then((res)=>{
-        if(res){
-          if (!isLoading && communities && !noRedirect && user) {
-            if (communities.length > 0) {
-              router.push(`/${activeCommunity?.slug || communities[0].slug}`);
+    if (accessToken && !noRedirect){ 
+      if(!user && !fetchDataUserInProgress) {
+        fetchDataUser();
+      } else {
+        if (!isLoading){
+          if(communities){
+            if(communities.length > 0){ 
+              if(activeCommunity){
+                router.push(`/${activeCommunity?.slug}`);
+              } else {
+                router.push(`/${communities[0].slug}`);
+              }
             } else {
               router.push("/post-sign-up");
             }
           }
         }
-      });
-    } else if (user && communities && communities.length > 0){
-      router.push(`/${activeCommunity?.slug || communities[0].slug}`);
+      }
     }
   }, [
     isLoading,

@@ -15,6 +15,7 @@ import { toast } from "sonner";
 type AuthContextType = {
   accessToken: string | null;
   user: any | null;
+  fetchDataUserInProgress: boolean;
   setAccessToken: (token: string | null) => void;
   fetcher: (input: RequestInfo, init?: RequestInit) => Promise<any>;
   refreshAccessToken: () => Promise<string | null>;
@@ -28,34 +29,34 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
   const router = useRouter();
-
+  const [fetchDataUserInProgress, setFetchDataUserInProgress] = useState(false);
   const [user, setUser] = useState(null);
   const [accessToken, setAccessToken] = useState<string | null>(null);
 
   // Vérifie l'état de l'authentification au chargement
-  const checkAuth = async () => {
-    try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/check`,
-        {
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      if (response.ok) {
-        const data = await response.json();
-        setAccessToken(data.access_token);
-      }
-    } catch (error) {
-      console.error("Error checking auth status:", error);
-    }
-  };
-  useEffect(() => {
+  // const checkAuth = async () => {
+  //   try {
+  //     const response = await fetch(
+  //       `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/check`,
+  //       {
+  //         credentials: "include",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //       }
+  //     );
+  //     if (response.ok) {
+  //       const data = await response.json();
+  //       setAccessToken(data.access_token);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error checking auth status:", error);
+  //   }
+  // };
+  // useEffect(() => {
 
-    checkAuth();
-  }, []);
+  //   checkAuth();
+  // }, []);
 
   const isJwtValid = (token: string) => {
     try {
@@ -154,6 +155,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const fetchDataUser = async () => {
     try {
+      setFetchDataUserInProgress(true);
       const data = await fetcher(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/user`,
         {
@@ -164,11 +166,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (data.user) {
         setUser(data.user);
+        setFetchDataUserInProgress(false);
+        return true;
       } else {
         return false;
       }
-      setUser(data.user);
-      return true;
     } catch (err: any) {
       throw new Error(err.message || "An unexpected error occurred.");
     }
@@ -235,7 +237,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } else {
       console.log("pathname", pathname);
       if (
-        pathname.split("/").length > 2 &&
         !accessiblePath.some((val) => pathname.split("/").includes(val))
       ) {
         refreshAccessToken();
@@ -248,6 +249,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       value={{
         accessToken,
         user,
+        fetchDataUserInProgress,
         setAccessToken,
         fetcher,
         fetchDataUser,
