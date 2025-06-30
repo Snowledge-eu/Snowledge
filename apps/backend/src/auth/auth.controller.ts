@@ -95,7 +95,7 @@ export class AuthController {
 			secure: process.env.NODE_ENV === 'production',
 			sameSite: 'lax',
 			path: '/',
-			maxAge: 15 * 60 * 1000, // 15 minutes
+			maxAge: 30 * 60 * 1000, // 15 minutes
 			domain: process.env.COOKIE_DOMAIN || undefined,
 		});
 

@@ -72,7 +72,7 @@ export async function middleware(request: NextRequest) {
             path: "/",
             sameSite: "lax",
             secure: process.env.NODE_ENV === "production",
-            maxAge: 15 * 60,
+            maxAge: 30 * 60 * 1000,
           });
 
           return res;

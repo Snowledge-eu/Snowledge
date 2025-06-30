@@ -7,7 +7,7 @@ export class AuthService {
 	constructor(private readonly jwtService: JwtService) {}
 
 	createAccessToken(payload: IAuthPayload) {
-		return this.jwtService.sign(payload, { secret: process.env.JWT_ACCESS_SECRET, expiresIn: '15m' });
+		return this.jwtService.sign(payload, { secret: process.env.JWT_ACCESS_SECRET, expiresIn: '30m' });
 	}
 	async createRefreshToken(payload: IAuthPayload) {
 		return this.jwtService.sign(payload, { secret: process.env.JWT_REFRESH_SECRET, expiresIn: '7d' });

@@ -2,6 +2,8 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestj
 import { SummaryService } from './summary.service';
 import { CreateSummaryDto } from './dto/create-summary.dto';
 import { UpdateSummaryDto } from './dto/update-summary.dto';
+import { User } from 'src/user/decorator';
+import { User as UserEntity } from 'src/user/entities/user.entity';
 
 @Controller('summary')
 export class SummaryController {
@@ -18,12 +20,12 @@ export class SummaryController {
   }
 
   @Get(':analyseId')
-  async findOne(@Param('analyseId') analyseId: string, @Query('trendId') trendId: number) {
+  async findOne(@Param('analyseId') analyseId: string, @Query('trendId') trendId: number, @User() user: UserEntity) {
+    console.log(user);
     const all = await this.summaryService.findAll()
     console.log(all);
     console.log("--->", analyseId, trendId)
     const summaryData = await this.summaryService.findOneByAnalysisIdAndTrendId(analyseId, trendId);
-    console.log(summaryData);
     return summaryData;
   }
 
