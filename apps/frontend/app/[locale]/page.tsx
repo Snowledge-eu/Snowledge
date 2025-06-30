@@ -12,6 +12,7 @@ import { useUserCommunities } from "@/hooks/useUserCommunities";
 import { useAuth } from "@/contexts/auth-context";
 import { useEffect } from "react";
 import { useCurrentCommunity } from "@/hooks/useCurrentCommunity";
+import { fi } from "date-fns/locale";
 
 export default function Home() {
   const { accessToken, user, fetchDataUser } = useAuth();
@@ -21,24 +22,29 @@ export default function Home() {
   const { data: communities, isLoading } = useUserCommunities(user?.id || 0);
   const { activeCommunity } = useCurrentCommunity();
   useEffect(() => {
-    if (accessToken) {
-      fetchDataUser();
-    }
-    if (!isLoading && communities && !noRedirect && user) {
-      if (communities.length > 0) {
-        router.push(`/${activeCommunity?.slug || communities[0].slug}`);
-      } else {
-        router.push("/post-sign-up");
-      }
+    if (accessToken && !user) {
+      fetchDataUser().then((res)=>{
+        if(res){
+          if (!isLoading && communities && !noRedirect && user) {
+            if (communities.length > 0) {
+              router.push(`/${activeCommunity?.slug || communities[0].slug}`);
+            } else {
+              router.push("/post-sign-up");
+            }
+          }
+        }
+      });
+    } else if (user && communities && communities.length > 0){
+      router.push(`/${activeCommunity?.slug || communities[0].slug}`);
     }
   }, [
     isLoading,
     communities,
     noRedirect,
     router,
-    activeCommunity,
+    // activeCommunity,
     accessToken,
-    user,
+    // user,
   ]);
 
   // Si pas connecté : affiche la landing page
