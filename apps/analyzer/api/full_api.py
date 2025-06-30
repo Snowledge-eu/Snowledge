@@ -96,13 +96,19 @@ async def list_discord_channels(server_id: int):
     =========
     """
     collector = DiscordCollector()
+    storage = MongoStorage()
     try:
         await collector.connect()
         guild = collector.client.get_guild(server_id)
+
         if not guild:
             raise HTTPException(status_code=404, detail=f"Guild {server_id} not found or bot not a member.")
+        
+        channel_ids = [ch.id for ch in guild.text_channels if ch.permissions_for(guild.me).read_messages]
+        harvested_ids = set(storage.db.discord_messages.distinct("channel_id", {"channel_id": {"$in": channel_ids}}))
+
         channels = [
-            {"id": str(ch.id), "name": ch.name}
+            {"id": str(ch.id), "name": ch.name, "harvested": ch.id in harvested_ids}
             for ch in guild.text_channels
             if ch.permissions_for(guild.me).read_messages
         ]
