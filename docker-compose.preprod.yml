@@ -1,0 +1,65 @@
+version: "3"
+
+services:
+  # Service pour le frontend
+  frontend:
+    # volumes:
+    #   - ./.env:/app/apps/frontend/.env # <-- Ajoute cette ligne
+    build:
+      dockerfile: ./apps/frontend/Dockerfile.prod
+    env_file:
+      - .env
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - NEXT_TELEMETRY_DISABLED=1
+      - PORT=3000
+      - NODE_ENV=production
+  # Service pour le backend
+  backend:
+    volumes:
+      - ./pg-ca.crt:/etc/ssl/certs/pg-ca.crt
+    build:
+      dockerfile: ./apps/backend/Dockerfile.prod
+    env_file:
+      - .env
+    environment:
+      - APP_PORT=4000
+      - NODE_ENV=production
+      - SWAGGER=
+      - COOKIE_DOMAIN=snowledge.eu
+      - JWT_ACCESS_SECRET=
+      - JWT_REFRESH_SECRET=
+      - JWT_EMAIL_SECRET=
+      - DISCORD_CLIENT_ID=1386722785069367356
+      - MG_NAME=social_data #INutile je crois
+      - MG_HOST=mongo
+      - MG_PORT=27017
+      - MG_DB=snowledge
+      - ORIGIN_CORS= ["https://test.snowledge.eu"]
+      - NODE_EXTRA_CA_CERTS=/etc/ssl/certs/pg-ca.crt
+      - PGSQL_HOST=postgresql-02aff275-o9835f167.database.cloud.ovh.net
+      - PGSQL_PORT=20184
+      - PGSQL_DB=defaultdb
+      - PGSQL_SSL=true
+      - BACK_URL=https://test.snowledge.eu/api
+      - FRONT_URL=https://test.snowledge.eu
+      - ORIGIN_CORS= ["https://test.snowledge.eu"]
+
+  analyzer:
+    build:
+      context: .
+      dockerfile: ./apps/analyzer/Dockerfile.prod #TODO:Améliorer le dockerfile
+    env_file:
+      - .env
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONIOENCODING=UTF-8
+      - DISCORD_CLIENT_ID=1377545849126518784
+      - DISCORD_PUBLIC_KEY=2ce97ece6c4e55ba8fe44f1300e463ee0f3385260eb13ba1fa9deb9d05912c8f
+      - OVH_API_BASE_URL=https://oai.endpoints.kepler.ai.cloud.ovh.net/v1/chat/completions
+      - MG_NAME=social_data
+      - MG_HOST=mongo
+      - MG_PORT=27017
+networks:
+  snowledge_network:
+    external: true

@@ -23,8 +23,6 @@ services:
       context: .
     ports:
       - 3000:3000
-    depends_on:
-      - postgres
     restart: unless-stopped
     networks:
       - snowledge_network
@@ -35,32 +33,47 @@ services:
     ports:
       - 4000:4000
     depends_on:
-      - postgres
+      - mongo
     restart: unless-stopped
     networks:
       - snowledge_network
-  # Service PostgreSQL
-  postgres:
-    image: postgres:16
+  analyzer:
+    build:
+      context: .
+      dockerfile: ./apps/analyzer/Dockerfile
+    # volumes:
+    #   - ./apps/analyzer:/app
+    #   - ./llm_models.yaml:/app/standalone_version/llm/llm_models.yaml
+    #   - ./prompt_models.yaml:/app/standalone_version/llm/prompt_models.yaml
     ports:
-      - 5432:5432
+      - 8000:8000
     environment:
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
-      - POSTGRES_USER=${POSTGRES_USER:-postgres}
-      - POSTGRES_DB=${POSTGRES_DB:-snowledge}
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      - mongo
+    networks:
+      - snowledge_network
+  mongo:
+    image: mongo
+    container_name: snowlege-collector
+    ports:
+      - "27017:27017"
     volumes:
-      - postgres-data:/var/lib/postgresql/data
-      - ./database/init:/docker-entrypoint-initdb.d
-      - ./database/backup:/backup
-    restart: unless-stopped
+      - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: adminpass
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
+      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
       timeout: 5s
       retries: 5
-
+    networks:
+      - snowledge_network
 volumes:
-  postgres-data:
+  mongodb_data:
+  mongodb_config:
 networks:
   snowledge_network:
     external: true

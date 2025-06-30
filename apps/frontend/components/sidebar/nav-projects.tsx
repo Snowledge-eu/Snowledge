@@ -3,13 +3,10 @@
 import {
   Folder,
   Forward,
-  Home,
   MoreHorizontal,
   Trash2,
   type LucideIcon,
 } from "lucide-react";
-
-import Link from "next/link";
 
 import {
   DropdownMenu,
@@ -27,48 +24,31 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@repo/ui/components/sidebar";
-import { Separator } from "@repo/ui/components/separator";
+import Link from "next/link";
 
 export function NavProjects({
   projects,
-  label,
 }: {
   projects: {
     name: string;
     url: string;
     icon: LucideIcon;
-    items?: { title: string; url: string }[];
   }[];
-  label: string;
 }) {
   const { isMobile } = useSidebar();
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-      <SidebarGroupLabel>{label}</SidebarGroupLabel>
+      <SidebarGroupLabel>Projects</SidebarGroupLabel>
       <SidebarMenu>
         {projects.map((item) => (
           <SidebarMenuItem key={item.name}>
             <SidebarMenuButton asChild>
-              <a href={item.url}>
+              <Link href={item.url}>
                 <item.icon />
                 <span>{item.name}</span>
-              </a>
+              </Link>
             </SidebarMenuButton>
-            {/* Sous-items (admin) */}
-            {item.items && item.items.length > 0 && (
-              <ul className="ml-6 mt-1 space-y-1">
-                {item.items.map((sub) => (
-                  <li key={sub.title}>
-                    <SidebarMenuButton asChild size="sm">
-                      <a href={sub.url} className="pl-2">
-                        <span>{sub.title}</span>
-                      </a>
-                    </SidebarMenuButton>
-                  </li>
-                ))}
-              </ul>
-            )}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuAction showOnHover>
@@ -98,14 +78,11 @@ export function NavProjects({
             </DropdownMenu>
           </SidebarMenuItem>
         ))}
-        <Separator />
         <SidebarMenuItem>
-          <Link href="/">
-            <SidebarMenuButton className="text-sidebar-foreground/70">
-              <Home className="text-sidebar-foreground/70" />
-              <span>Landing</span>
-            </SidebarMenuButton>
-          </Link>
+          <SidebarMenuButton className="text-sidebar-foreground/70">
+            <MoreHorizontal className="text-sidebar-foreground/70" />
+            <span>More</span>
+          </SidebarMenuButton>
         </SidebarMenuItem>
       </SidebarMenu>
     </SidebarGroup>

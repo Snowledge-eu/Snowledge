@@ -29,8 +29,9 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@repo/ui/components/sidebar";
+import Link from "next/link";
 
-export function NavUser({
+export default function NavUser({
   user,
 }: {
   user: {
@@ -40,7 +41,22 @@ export function NavUser({
   };
 }) {
   const { isMobile } = useSidebar();
-
+  const signOut = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/session`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (response.status === 204) {
+        localStorage.removeItem('activeCommunityId');
+        window.location.href = "/";
+      } else {
+        console.error("Failed to sign out");
+      }
+    } catch (err: any) {
+      console.error(err.message || "An unexpected error occurred.");
+    }
+  };
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -80,29 +96,33 @@ export function NavUser({
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuGroup>
+            {/* <DropdownMenuGroup>
               <DropdownMenuItem>
                 <Sparkles />
                 Upgrade to Pro
               </DropdownMenuItem>
             </DropdownMenuGroup>
-            <DropdownMenuSeparator />
+            <DropdownMenuSeparator /> */}
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <BadgeCheck />
-                Account
-              </DropdownMenuItem>
-              <DropdownMenuItem>
+              <Link href="/profile">
+                <DropdownMenuItem>
+                  <BadgeCheck />
+                  Account
+                </DropdownMenuItem>
+              </Link>
+              {/* <DropdownMenuItem>
                 <CreditCard />
                 Billing
-              </DropdownMenuItem>
+              </DropdownMenuItem> */}
+              <Link href="/notifications">
               <DropdownMenuItem>
                 <Bell />
                 Notifications
               </DropdownMenuItem>
+              </Link>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={signOut}>
               <LogOut />
               Log out
             </DropdownMenuItem>

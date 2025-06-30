@@ -25,6 +25,7 @@ yarn-error.log*
 
 # local env files
 .env
+.env.dev
 .env.local
 .env.development.local
 .env.test.local
@@ -32,6 +33,7 @@ yarn-error.log*
 apps/*/.env
 apps/*/.env.local
 apps/*/.env.development.local
+apps/*/.env.dev
 apps/*/.env.test.local
 apps/*/.env.production.local
 
@@ -49,3 +51,11 @@ dist/
 
 # vscode
 .vscode
+apps/backend/tsconfig.build.tsbuildinfo
+
+# Ignore tous les fichiers .env, sauf le fichier d'exemple
+.env
+.env.*
+!/.env.example
+
+.cursor

@@ -3,7 +3,7 @@
 # Variables
 env ?= dev
 COMPOSE = docker-compose -f docker-compose.yml -f docker-compose.$(env).yml
-
+#docker compose -f docker-compose.yml -f docker-compose.dev.yml
 help:
 	@echo "Commandes disponibles :"
 	@echo "  make up        - Démarrer tous les conteneurs"
@@ -22,7 +22,7 @@ up:
 	$(COMPOSE) up -d
 	@echo "✅ Tous les services sont démarrés"
 	@echo "📊 Frontend: http://localhost:3000"
-	@echo "🔌 Backend: http://localhost:4000"
+	@echo "🔌 Backend: http://localhost:4000/api"
 	@echo "🚀 Snowledge-v1: http://localhost:3001"
 
 # Arrêter les conteneurs
@@ -73,10 +73,32 @@ reset:
 	@echo "✅ Environnement réinitialisé"
 
 # Rebuild from scratch
+build:
+	@echo "🔄 Construire complètement du projet..."
+	@echo $(COMPOSE) build --no-cache
+	@$(COMPOSE) build --no-cache
+	@echo "✅ Construction terminée" 
+
+# Rebuild from scratch
 rebuild:
 	@echo "🔄 Reconstruire complètement le projet..."
 	@echo $(COMPOSE)
-	@docker-compose down
+	@$(COMPOSE) down
 	@$(COMPOSE) build --no-cache
-	@docker-compose up -d
+	@$(COMPOSE) up -d
+	@echo "✅ Reconstruction terminée" 
+
+
+rebuild-backend:
+	@echo "🔄 Reconstruction du backend"
+	@$(COMPOSE) down
+	@$(COMPOSE) build backend --no-cache
+	@$(COMPOSE) up -d
+	@echo "✅ Reconstruction terminée" 
+
+rebuild-frontend:
+	@echo "🔄 Reconstruction du frontend"
+	@$(COMPOSE) down
+	@$(COMPOSE) build frontend --no-cache
+	@$(COMPOSE) up -d
 	@echo "✅ Reconstruction terminée" 
