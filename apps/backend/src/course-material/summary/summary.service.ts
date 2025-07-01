@@ -7,33 +7,42 @@ import { InjectModel } from '@nestjs/mongoose';
 
 @Injectable()
 export class SummaryService {
-  constructor(@InjectModel(SummaryResult.name) private summaryModel: Model<SummaryResult>) {}
-  create(createSummaryDto: CreateSummaryDto) {
-    return 'This action adds a new summary';
-  }
+	constructor(
+		@InjectModel(SummaryResult.name)
+		private summaryModel: Model<SummaryResult>,
+	) {}
+	create(createSummaryDto: CreateSummaryDto) {
+		return 'This action adds a new summary';
+	}
 
-  findAll(): Promise<Array<SummaryResult>> {
-    return this.summaryModel.find().lean();
-  }
+	findAll(): Promise<Array<SummaryResult>> {
+		return this.summaryModel.find().lean();
+	}
 
-  findOneByAnalysisIdAndTrendId(analyseId: string, trendId: number): Promise<SummaryResult | null> {
-    return this.summaryModel.findOne({          
-        platform: "discord",
-        source_analysis_id: analyseId,
-        "scope.trend_id": { $exists: true, $eq: Number(trendId) },
-        prompt_key: 'trend_to_content',      
-      })
-      .sort({createdAt: -1})
-      .lean()
-      .exec();
+	findOneByAnalysisIdAndTrendId(
+		analyseId: string,
+		trendId: number,
+	): Promise<SummaryResult | null> {
+		if (!mongoose.Types.ObjectId.isValid(analyseId)) {
+			throw new Error(`Invalid analyseId: ${JSON.stringify(analyseId)}`);
+		}
+		return this.summaryModel
+			.findOne({
+				platform: 'discord',
+				source_analysis_id: new mongoose.Types.ObjectId(analyseId),
+				'scope.trend_id': { $exists: true, $eq: Number(trendId) },
+				prompt_key: 'trend_to_content',
+			})
+			.sort({ createdAt: -1 })
+			.lean()
+			.exec();
+	}
 
-  }
+	update(id: number, updateSummaryDto: UpdateSummaryDto) {
+		return `This action updates a #${id} summary`;
+	}
 
-  update(id: number, updateSummaryDto: UpdateSummaryDto) {
-    return `This action updates a #${id} summary`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} summary`;
-  }
+	remove(id: number) {
+		return `This action removes a #${id} summary`;
+	}
 }
