@@ -48,7 +48,7 @@ export default function Home() {
     router,
     // activeCommunity,
     accessToken,
-    // user,
+    user,
   ]);
 
   // Si pas connecté : affiche la landing page

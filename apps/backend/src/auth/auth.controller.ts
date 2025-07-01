@@ -30,8 +30,9 @@ export class AuthController {
 	) {}
 
 	@Public()
+	@HttpCode(HttpStatus.OK)
 	@Get('check')
-	async check(@Req() req: Request) {
+	check(@Req() req: Request) {
 		const accessToken = req.cookies?.['access-token'];
 		if (!accessToken) {
 			throw new UnauthorizedException('No access token');
