@@ -34,30 +34,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [accessToken, setAccessToken] = useState<string | null>(null);
 
   // Vérifie l'état de l'authentification au chargement
-  // const checkAuth = async () => {
-  //   try {
-  //     const response = await fetch(
-  //       `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/check`,
-  //       {
-  //         credentials: "include",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //         },
-  //       }
-  //     );
-  //     if (response.ok) {
-  //       const data = await response.json();
-  //       setAccessToken(data.access_token);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error checking auth status:", error);
-  //   }
-  // };
-  // useEffect(() => {
-
-  //   checkAuth();
-  // }, []);
-
+  const checkAuth = async () => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/check`,
+        {
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setAccessToken(data.access_token);
+      }
+    } catch (error) {
+      console.error("Error checking auth status:", error);
+    }
+  };
   const isJwtValid = (token: string) => {
     try {
       const payload = JSON.parse(atob(token.split(".")[1]));
@@ -149,10 +144,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     [accessToken, refreshAccessToken]
   );
 
-  // useEffect(() => {
-  //   refreshAccessToken(); // Récupère le token au premier chargement
-  // }, [refreshAccessToken]);
-
   const fetchDataUser = async () => {
     try {
       setFetchDataUserInProgress(true);
@@ -232,14 +223,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const cookie = document.cookie.match(/(?:^| )access-token=([^;]*)/);
     const token = cookie ? decodeURIComponent(cookie[1]) : null;
 
-    if (token) {
-      setAccessToken(token);
-    } else {
-      console.log("pathname", pathname);
-      if (
-        !accessiblePath.some((val) => pathname.split("/").includes(val))
-      ) {
-        refreshAccessToken();
+    if(!accessiblePath.some((val) => pathname.split("/").includes(val))){
+      if(!(pathname.split("/").length > 2)){
+        if(!accessToken) {
+          checkAuth();
+        }
       }
     }
   }, []);

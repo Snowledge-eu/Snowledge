@@ -1,1 +1,1 @@
-export const accessiblePath = ['cgu'];
+export const accessiblePath = ['cgu', 'sign-in'];

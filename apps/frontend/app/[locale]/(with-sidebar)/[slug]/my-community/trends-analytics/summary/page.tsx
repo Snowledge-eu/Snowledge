@@ -201,9 +201,9 @@ export default function Page() {
       const options = info.channels.map(channel => ({
         label: `#${channel.name}`,
         value: channel.id,
-        disabled: channel.harvested,
+        disabled: !channel.harvested,
       }));
-      const optionSelected = options.filter(op => op.disabled);
+      const optionSelected = options.filter(op => !op.disabled);
       setDiscordChannels(options);
       setSelectedChannels(optionSelected);
     } catch (error) {
