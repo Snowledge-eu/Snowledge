@@ -93,7 +93,12 @@ export default function Page() {
           sentiment: JSON.parse(analysis?.result?.choices[0].message.content)
             .sentiment,
           messages: JSON.parse(analysis?.result?.choices[0].message.content)
-            .representative_messages,
+            .representative_messages.map((msg: string) => {
+              return {
+                user: msg.split(": ")[0].split("]")[1],
+                text: msg.split(": ")[1].trim(),
+              };
+            }),
           date: new Date(analysis?.created_at).toLocaleDateString(),
           score: getRandomByLevel(
             JSON.parse(analysis?.result?.choices[0].message.content).confidence
