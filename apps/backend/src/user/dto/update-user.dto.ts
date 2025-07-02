@@ -101,4 +101,9 @@ export class UpdateUserDto {
 		additionalProperties: { $ref: getSchemaPath(DiscordAccess) },
 	})
 	discordAccess?: DiscordAccess;
+
+	@ApiProperty({ type: String })
+	@IsString()
+	@IsOptional()
+	seed?: string;
 }

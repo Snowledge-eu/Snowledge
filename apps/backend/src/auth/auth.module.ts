@@ -8,11 +8,13 @@ import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth.guard';
 import { EmailModule } from '../email/email.module';
 import { AuthService } from './auth.service';
+import { XrplModule } from 'src/xrpl/xrpl.module';
 
 @Module({
 	imports: [
 		EmailModule,
 		UserModule,
+		XrplModule,
 		JwtModule.register({
 			global: true,
 			secret: jwtConstants.secret,

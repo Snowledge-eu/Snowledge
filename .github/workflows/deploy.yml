@@ -85,6 +85,7 @@ jobs:
             echo "MG_PASSWORD=${{ secrets.MG_PASSWORD }}" >> .env
             echo "PGSQL_NAME=${{ secrets.PGSQL_NAME_PREPROD }}" >> .env
             echo "PGSQL_PWD=${{ secrets.PGSQL_PWD_PREPROD }}" >> .env
+            echo "XRPL_SEED_KEY=${{ secrets.XRPL_SEED_KEY }}" >> .env
             echo "NEXT_PUBLIC_BACKEND_URL=https://test.snowledge.eu/api" >> .env
             echo "NEXT_PUBLIC_FRONTEND_URL=https://test.snowledge.eu" >> .env
             echo "NEXT_PUBLIC_ANALYSER_URL=https://test.snowledge.eu/analyzer" >> .env
@@ -116,6 +117,7 @@ jobs:
             echo "PGSQL_NAME=${{ secrets.PGSQL_NAME_PROD }}" >> .env
             echo "PGSQL_PWD=${{ secrets.PGSQL_PWD_PROD }}" >> .env
             echo "PASS_BREVO=${{ secrets.PASS_BREVO }}" >> .env
+            echo "XRPL_SEED_KEY=${{ secrets.XRPL_SEED_KEY }}" >> .env
             echo "NEXT_PUBLIC_BACKEND_URL=https://hi.snowledge.eu/api" >> .env
             echo "NEXT_PUBLIC_FRONTEND_URL=https://hi.snowledge.eu" >> .env
             echo "NEXT_PUBLIC_ANALYSER_URL=https://hi.snowledge.eu/analyzer" >> .env

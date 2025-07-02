@@ -111,6 +111,9 @@ export class User {
 	@OneToMany(() => Proposal, (proposal) => proposal.submitter)
 	proposals: Proposal[];
 
+	@Column({ nullable: true })
+	seed: string;
+
 	@BeforeInsert()
 	lowercase() {
 		this.isActive = Boolean(false);

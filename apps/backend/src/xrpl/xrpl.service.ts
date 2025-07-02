@@ -2,15 +2,24 @@ import { Injectable } from '@nestjs/common';
 import { XrplHelper } from './xrpl.helper';
 import { Wallet, convertStringToHex } from 'xrpl';
 import { User } from 'src/user/entities/user.entity';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class XrplService {
-	constructor(private readonly xrplHelper: XrplHelper) {}
+	constructor(
+		private readonly xrplHelper: XrplHelper,
+		private readonly userService: UserService,
+	) {}
 
+	/**
+	 * Génère un wallet XRPL, mint un NFT, chiffre la seed et la stocke en base pour l'utilisateur.
+	 * @param user L'utilisateur concerné
+	 */
 	async generateAccountAndMintNft(user: User) {
 		await this.xrplHelper.connect();
 		const client = this.xrplHelper.getClient();
 
+		// Génération d'un nouveau wallet XRPL
 		const newWallet = Wallet.generate();
 
 		await client.fundWallet(newWallet);
@@ -34,12 +43,26 @@ export class XrplService {
 		const nftId =
 			result.result.meta['nftoken_id'] || result.result.meta['NFTokenID'];
 
+		// Chiffrement de la seed XRPL avant stockage
+		const encryptedSeed = this.xrplHelper.encryptSeed(newWallet.seed);
+		await this.userService.update(user.id, { seed: encryptedSeed });
+
 		return {
 			account: newWallet.classicAddress,
-			seed: newWallet.seed,
+			seed: 'ENCRYPTED', // Jamais retourner la seed en clair !
 			nftResult: result,
 			metadataUrl,
 			nftId,
 		};
+	}
+
+	/**
+	 * Déchiffre la seed XRPL d'un utilisateur.
+	 * @param user L'utilisateur concerné
+	 * @returns La seed XRPL en clair
+	 */
+	decryptUserSeed(user: User): string | null {
+		if (!user.seed) return null;
+		return this.xrplHelper.decryptSeed(user.seed);
 	}
 }

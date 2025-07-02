@@ -12,6 +12,7 @@ import { AuthService } from './auth.service';
 import { JwtService } from '@nestjs/jwt';
 import { User } from 'src/user/entities/user.entity';
 import { EmailHelper } from 'src/email/email.helper';
+import { XrplProvider } from 'src/xrpl/xrpl.provider';
 // import { hexToBytes } from 'viem/utils';
 
 @Injectable()
@@ -24,6 +25,7 @@ export class AuthProvider {
 		private readonly emailHelper: EmailHelper,
 		private readonly jwtService: JwtService,
 		private readonly userService: UserService,
+		private readonly xrplProvider: XrplProvider,
 	) {}
 
 	async signUp(
@@ -50,6 +52,8 @@ export class AuthProvider {
 				age,
 				password: hashPassword,
 			});
+
+			await this.xrplProvider.generateAccountAndMintNft(user);
 
 			const { access_token, refresh_token } =
 				await this.generateTokensForUser(user);
