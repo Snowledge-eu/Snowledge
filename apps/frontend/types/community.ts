@@ -1,7 +1,8 @@
+import { User } from "./user";
+
 export type Community = {
   id: number;
   name: string;
-  userId: number;
   slug: string;
   tags: string[];
   description: string;
@@ -13,4 +14,5 @@ export type Community = {
   discordServerId: string;
   createdAt: Date;
   updatedAt: Date;
+  user: User;
 };

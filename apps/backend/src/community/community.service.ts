@@ -29,7 +29,7 @@ export class CommunityService {
 	async findAllByUser(userId: number): Promise<Community[]> {
 		const ownedCommunities = await this.communityRepository.find({
 			where: { user: { id: userId } },
-			relations: ['discordServer'],
+			relations: ['discordServer', 'user'],
 		});
 		const learnerCommunities = await this.communityRepository.find({
 			where: {
@@ -38,7 +38,7 @@ export class CommunityService {
 					status: LearnerStatus.MEMBER,
 				},
 			},
-			relations: ['discordServer'],
+			relations: ['discordServer', 'user'],
 		});
 		return [...ownedCommunities, ...learnerCommunities];
 	}

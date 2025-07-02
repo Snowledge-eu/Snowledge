@@ -21,9 +21,11 @@ import { useTranslations } from "next-intl";
 import NavUser from "./nav-user";
 import { useNavGlobal } from "./hooks/useNavGlobal";
 import { useAuth } from "@/contexts/auth-context";
+import { useEffect, useState } from "react";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { user, fetcher } = useAuth();
+  const { user } = useAuth();
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -50,6 +52,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
 function SidebarNavs() {
   const { activeCommunity } = useCurrentCommunity();
+  const { user } = useAuth();
+
+  const [isCreator, setIsCreator] = useState(false);
+
+  useEffect(() => {
+    console.log("activeCommunity", activeCommunity);
+    console.log("user", user);
+    setIsCreator(activeCommunity?.user?.id === user?.id);
+  }, [activeCommunity, user]);
+
   // const slug = toSlug(activeCommunity?.name || "");
   const tNavbar = useTranslations("navbar");
   // const home = {
@@ -74,7 +86,12 @@ function SidebarNavs() {
       <SidebarNavMain items={navLearner} label={tNavbar("learner")} />
       <SidebarNavMain items={navContributeur} label={tNavbar("contributor")} /> */}
       <SidebarNavMain items={navGlobal} label={tNavbar("global")} />
-      <SidebarNavMain items={navMyCommunity} label={tNavbar("my-community")} />
+      {isCreator && (
+        <SidebarNavMain
+          items={navMyCommunity}
+          label={tNavbar("my-community")}
+        />
+      )}
       <SidebarNavMain items={[landing]} label="" />
       {/* <NavProjects projects={data.projects} /> */}
     </>
