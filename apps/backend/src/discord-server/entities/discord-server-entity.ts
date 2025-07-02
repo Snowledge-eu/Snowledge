@@ -6,7 +6,7 @@ export class DiscordServer {
 	@PrimaryColumn({ type: 'varchar', length: 32 })
 	guildId: string; // Identifiant du serveur Discord (guild) -- PRIMARY KEY
 
-	@Column({ type: 'varchar', length: 32, nullable: true })
+	@Column({ type: 'varchar', length: 100, nullable: true })
 	guildName?: string; // Nom du serveur Discord (guild)
 
 	@Column({ type: 'varchar', length: 32, nullable: true })
