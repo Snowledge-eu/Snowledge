@@ -92,16 +92,16 @@ async def poll_jobs():
                         "author_name": getattr(msg.author, 'display_name', msg.author.name),
                         "author_user_id": int(msg.author.id),
                         "content": text,
-                        "created_at": msg.created_at,
+                        "created_at_by_discord": msg.created_at,
                         "fetched_at": datetime.utcnow(),
                     })
                 # Filtrage after/before par date si besoin
                 if job.get("after") and not str(job["after"]).isdigit():
                     after_dt = datetime.fromisoformat(job["after"])
-                    messages = [m for m in messages if m['created_at'] >= after_dt]
+                    messages = [m for m in messages if m['created_at_by_discord'] >= after_dt]
                 if job.get("before"):
                     before_dt = datetime.fromisoformat(job["before"])
-                    messages = [m for m in messages if m['created_at'] <= before_dt]
+                    messages = [m for m in messages if m['created_at_by_discord'] <= before_dt]
                 all_messages.extend(messages)
             # 4. Filtrer et insérer uniquement les nouveaux messages
             new_messages = filter_new_messages(storage.db, all_messages)

@@ -131,8 +131,8 @@ export class DiscordController {
 			default:
 				throw new Error(`Invalid interval: ${info.interval}`);
 		}
-
 		for (const id of info.channelId) {
+			console.log(await this.discordMessageService.findAllById(id))
 			const tmpcount =
 				await this.discordMessageService.countMessageForPeriod(
 					id,
