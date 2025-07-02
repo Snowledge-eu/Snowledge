@@ -8,6 +8,6 @@ export default registerAs('mailingConfig', (): MailingConfig => {
 		secure: false,
 		user: '8d2dfc001@smtp-brevo.com', //
 		pass: process.env.PASS_BREVO,
-		from: '"Swnoledge" tech@snowledge.eu',
+		from: '"Snowledge" tech@snowledge.eu',
 	};
 });
