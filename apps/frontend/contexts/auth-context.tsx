@@ -154,21 +154,29 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const fetchDataUser = async () => {
     try {
-      const data = await fetcher(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/user`,
-        {
-          method: "GET",
-          credentials: "include",
-        }
-      );
-
-      if (data.user) {
-        setUser(data.user);
+      if (user) {
+        // TODO: Régler le problème de boucle plus proprement
+        console.log("user already fetched");
+        return true;
       } else {
-        return false;
+        console.log("fetching user");
+
+        const data = await fetcher(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/user`,
+          {
+            method: "GET",
+            credentials: "include",
+          }
+        );
+
+        if (data.user) {
+          setUser(data.user);
+        } else {
+          return false;
+        }
+        setUser(data.user);
+        return true;
       }
-      setUser(data.user);
-      return true;
     } catch (err: any) {
       throw new Error(err.message || "An unexpected error occurred.");
     }
