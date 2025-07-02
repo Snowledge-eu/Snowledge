@@ -12,8 +12,16 @@ export type Resource = {
   price: number;
   creatorSharePct: number;
   contributorSharePct: number;
+  creator: {
+    id: string;
+    userId: string;
+    initials: string;
+    title: string;
+    description: string;
+  };
   contributors: {
     id: string;
+    userId: string;
     initials: string;
     title: string;
     description: string;
@@ -39,6 +47,13 @@ const MOCK_RESOURCES: Resource[] = [
     format: "Masterclass",
     duration: "60min",
     date: "2025-07-10",
+    creator: {
+      id: "16",
+      userId: "4	",
+      initials: "CN",
+      title: "CEO",
+      description: "Specialist in AI and data analysis.",
+    },
     outlines: [
       {
         title: "Introduction to AI",
@@ -53,12 +68,13 @@ const MOCK_RESOURCES: Resource[] = [
         description: "Apply your knowledge on real datasets.",
       },
     ],
-    price: 100,
+    price: 50,
     creatorSharePct: 70,
     contributorSharePct: 30,
     contributors: [
       {
         id: "User 1",
+        userId: "16",
         initials: "CN",
         title: "CEO",
         description: "Specialist in AI and data analysis.",
@@ -68,6 +84,7 @@ const MOCK_RESOURCES: Resource[] = [
       },
       {
         id: "User 2",
+        userId: "17",
         initials: "SB",
         title: "CTO",
         description: "Senior dev and ML engineer.",
@@ -90,7 +107,6 @@ const MOCK_RESOURCES: Resource[] = [
     pdfUrl:
       "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
   },
-  // ... Ajoute 2 autres ressources différentes ici ...
   {
     id: "927415836",
     title: "Workshop: Data Science Bootcamp",
@@ -99,6 +115,13 @@ const MOCK_RESOURCES: Resource[] = [
     format: "Workshop",
     duration: "90min",
     date: "2025-08-15",
+    creator: {
+      id: "16",
+      userId: "4",
+      initials: "CN",
+      title: "CEO",
+      description: "Specialist in AI and data analysis.",
+    },
     outlines: [
       {
         title: "Data Cleaning",
@@ -116,12 +139,13 @@ const MOCK_RESOURCES: Resource[] = [
           "Deploying and monitoring models in production environments.",
       },
     ],
-    price: 150,
+    price: 65,
     creatorSharePct: 60,
     contributorSharePct: 40,
     contributors: [
       {
         id: "User 3",
+        userId: "16",
         initials: "ML",
         title: "Lead Data Scientist",
         description: "Expert in data pipelines.",
@@ -146,6 +170,13 @@ const MOCK_RESOURCES: Resource[] = [
     format: "Whitepaper",
     duration: "30 pages",
     date: "2025-09-01",
+    creator: {
+      id: "16",
+      userId: "4",
+      initials: "CN",
+      title: "CEO",
+      description: "Specialist in AI and data analysis.",
+    },
     outlines: [
       {
         title: "Introduction",
@@ -162,12 +193,13 @@ const MOCK_RESOURCES: Resource[] = [
           "Analyse des enjeux éthiques, techniques et économiques à venir.",
       },
     ],
-    price: 80,
+    price: 35,
     creatorSharePct: 80,
     contributorSharePct: 20,
     contributors: [
       {
         id: "User 4",
+        userId: "16",
         initials: "EP",
         title: "Chercheur IA",
         description: "Spécialiste des modèles génératifs.",

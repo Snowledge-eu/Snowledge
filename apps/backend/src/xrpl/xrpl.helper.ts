@@ -96,4 +96,48 @@ export class XrplHelper {
 		decrypted = Buffer.concat([decrypted, decipher.final()]);
 		return decrypted.toString();
 	}
+
+	/**
+	 * Récupère la balance XRP d'un compte XRPL (classicAddress).
+	 * @param address Adresse XRPL (classicAddress)
+	 * @returns balance en XRP (string)
+	 */
+	async getBalance(address: string): Promise<string> {
+		await this.connect();
+		const client = this.getClient();
+		const accountInfo = await client.request({
+			command: 'account_info',
+			account: address,
+		});
+		await this.disconnect();
+		return (
+			Number(accountInfo.result.account_data.Balance) / 1_000_000
+		).toFixed(6); // XRP
+	}
+	/**
+	 * Envoie un paiement XRP d'un wallet à un autre.
+	 * @param fromSeed Seed XRPL du wallet source
+	 * @param toAddress Adresse XRPL (classicAddress) du destinataire
+	 * @param amount Montant en XRP (string ou number)
+	 * @returns Résultat de la transaction
+	 */
+	async sendPayment(
+		fromSeed: string,
+		toAddress: string,
+		amount: string | number,
+	): Promise<any> {
+		await this.connect();
+		const client = this.getClient();
+		const wallet = require('xrpl').Wallet.fromSeed(fromSeed);
+		const payment = await client.autofill({
+			TransactionType: 'Payment',
+			Account: wallet.classicAddress,
+			Amount: (Number(amount) * 1_000_000).toFixed(0), // XRP -> drops
+			Destination: toAddress,
+		});
+		const signed = wallet.sign(payment);
+		const result = await client.submitAndWait(signed.tx_blob);
+		await this.disconnect();
+		return result;
+	}
 }

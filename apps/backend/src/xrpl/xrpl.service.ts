@@ -77,4 +77,63 @@ export class XrplService {
 		if (!user.seed) return null;
 		return this.xrplHelper.decryptSeed(user.seed);
 	}
+
+	/**
+	 * Récupère la balance XRPL d'un utilisateur (en XRP).
+	 * @param user L'utilisateur concerné
+	 * @returns balance en XRP (string)
+	 */
+	async getUserBalance(user: User): Promise<string | null> {
+		if (!user.seed) return null;
+		const seed = this.xrplHelper.decryptSeed(user.seed);
+		const wallet = Wallet.fromSeed(seed);
+		console.log('[XRPL] classicAddress', wallet.classicAddress);
+		return await this.xrplHelper.getBalance(wallet.classicAddress);
+	}
+
+	/**
+	 * Envoie un paiement XRP d'un utilisateur à un autre.
+	 * @param fromUser L'utilisateur qui paie
+	 * @param toAddress Adresse XRPL du destinataire
+	 * @param amount Montant en XRP
+	 * @returns Résultat de la transaction
+	 */
+	async sendPaymentFromUser(
+		fromUser: User,
+		toAddress: string,
+		amount: string | number,
+	): Promise<any> {
+		if (!fromUser.seed) throw new Error('Utilisateur sans seed XRPL');
+		if (!toAddress) {
+			console.error('[XRPL] Adresse de destination manquante');
+			throw new Error('Adresse de destination XRPL manquante');
+		}
+		const fromAddress = this.getAddressFromUser(fromUser);
+		if (fromAddress === toAddress) {
+			console.error('[XRPL] Paiement à soi-même interdit', {
+				fromAddress,
+				toAddress,
+			});
+			throw new Error('Impossible de payer sa propre adresse XRPL');
+		}
+		const seed = this.xrplHelper.decryptSeed(fromUser.seed);
+		console.log('[XRPL] Paiement', {
+			from: fromAddress,
+			to: toAddress,
+			amount,
+		});
+		return await this.xrplHelper.sendPayment(seed, toAddress, amount);
+	}
+
+	/**
+	 * Retourne l'adresse XRPL (classicAddress) d'un utilisateur à partir de sa seed.
+	 * @param user L'utilisateur concerné
+	 * @returns Adresse XRPL (classicAddress) ou null
+	 */
+	getAddressFromUser(user: User): string | null {
+		if (!user.seed) return null;
+		const seed = this.xrplHelper.decryptSeed(user.seed);
+		const wallet = Wallet.fromSeed(seed);
+		return wallet.classicAddress;
+	}
 }
