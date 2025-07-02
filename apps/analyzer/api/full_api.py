@@ -10,9 +10,10 @@ Do not add sys.path manipulations here; handle PYTHONPATH in entry scripts only 
 import sys
 import os
 import json
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 
-from fastapi import FastAPI, HTTPException, APIRouter
+from fastapi import FastAPI, HTTPException, APIRouter, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import List, Optional
@@ -37,6 +38,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["x-reason"],
 )
 
 class DiscordHarvestRequest(BaseModel):
@@ -198,7 +200,7 @@ async def discord_analyze(request: DiscordAnalyzeRequest):
     }
     messages = storage.get_discord_messages(filters)
     if not messages:
-        return {"result": None, "message": "No messages found for this period."}
+        return Response(headers={"X-Reason": "No messages found for this period."}, status_code=204)
 
     # Trie du plus ancien au plus récent
     for m in messages:

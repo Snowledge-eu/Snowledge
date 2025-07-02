@@ -10,6 +10,7 @@ import { useAuth } from "@/contexts/auth-context";
 import { useCurrentCommunity } from "@/hooks/useCurrentCommunity";
 import { Card } from "@repo/ui";
 import React, { useEffect, useState } from "react";
+import { toast } from "sonner";
 export default function Page() {
   const { user, fetcher } = useAuth();
   const { activeCommunity } = useCurrentCommunity();
@@ -64,7 +65,8 @@ export default function Page() {
           body: JSON.stringify(body),
         }
       );
-      if (res.ok) {
+
+      if (res.status === 200) {
         const analysis = await fetcher(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/analysis`,
           {
@@ -102,6 +104,12 @@ export default function Page() {
           summary: JSON.parse(analysis?.result?.choices[0].message.content)
             .summary
         });
+      }else if(res.status === 204){
+          const reason = res.headers.get("x-reason");
+          console.log(reason);
+          toast.info(reason, {
+            position: "top-center",
+          });
       }
       setLoading(false);
     }

@@ -12,6 +12,7 @@ import { PlatformIconButton } from "@/components/my-community/trendes-analytics/
 import { useAuth } from "@/contexts/auth-context";
 import { useCurrentCommunity } from "@/hooks/useCurrentCommunity";
 import { interval } from "date-fns";
+import { toast } from "sonner";
 
 export default function Page() {
   const { user, fetcher } = useAuth();
@@ -67,7 +68,8 @@ export default function Page() {
           body: JSON.stringify(body),
         }
       );
-      if (res.ok) {
+
+      if (res.status === 200) {
         const analysis = await fetcher(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/analysis`,
           {
@@ -106,8 +108,14 @@ export default function Page() {
           summary: JSON.parse(analysis?.result?.choices[0].message.content)
             .reasoning,
         });
-        setLoading(false);
+      }else if(res.status === 204){
+          const reason = res.headers.get("x-reason");
+          console.log(reason);
+          toast.info(reason, {
+            position: "top-center",
+          });
       }
+      setLoading(false);
     }
   };
   const shortenString = (str: string, maxLength: number = 10): string => {
