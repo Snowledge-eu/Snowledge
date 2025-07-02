@@ -25,6 +25,7 @@ import { CalendarIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
+import DiscordAuthButton from "@/components/shared/DiscordAuthButton";
 
 export default function SignUpForm() {
   const router = useRouter();
@@ -249,6 +250,8 @@ export default function SignUpForm() {
             <Button className="w-full" onClick={submitRegistration}>
               Sign up
             </Button>
+            {/* Bouton Discord */}
+            <DiscordAuthButton mode="sign-up" />
             <p className="text-sm text-center text-muted-foreground">
               Already have an account?{" "}
               <Link href="/sign-in" className="text-primary underline">

@@ -6,6 +6,7 @@ import { Logo, Button, Checkbox, Input, Label } from "@repo/ui";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import DiscordAuthButton from "@/components/shared/DiscordAuthButton";
 
 export default function SignInForm() {
   const router = useRouter();
@@ -117,6 +118,8 @@ export default function SignInForm() {
             <Button className="w-full" onClick={submitSignIn}>
               Sign in
             </Button>
+            {/* Bouton Discord */}
+            <DiscordAuthButton mode="sign-in" />
             <p className="text-sm text-center text-muted-foreground">
               Don&apos;t have an account?{" "}
               <Link className="underline text-foreground" href="/sign-up">

@@ -20,8 +20,13 @@ export class DiscordLinkProvider {
 		private readonly learnerService: LearnerService,
 		private readonly xrplProvider: XrplProvider,
 	) {}
-	async handleDiscordLink(code: string, guildId: string) {
+
+	private async getOrCreateUserFromDiscordOAuth(
+		code: string,
+		redirectUri: string,
+	) {
 		console.log('code', code);
+		console.log('redirectUri', redirectUri);
 		const response = await fetch('https://discord.com/api/oauth2/token', {
 			method: 'POST',
 			body: new URLSearchParams({
@@ -29,14 +34,21 @@ export class DiscordLinkProvider {
 				client_secret: process.env.DISCORD_CLIENT_SECRET,
 				code,
 				grant_type: 'authorization_code',
-				redirect_uri: `${process.env.BACK_URL}/discord-bot/link`,
+				redirect_uri: redirectUri,
 				scope: 'identify email',
 			}).toString(),
 			headers: {
 				'Content-Type': 'application/x-www-form-urlencoded',
 			},
 		});
+		console.log('redirectUri', redirectUri);
 		const data = await response.json();
+		if (!data.access_token) {
+			throw new Error(
+				'OAuth Discord: access_token manquant. Réponse: ' +
+					JSON.stringify(data),
+			);
+		}
 		const discordAccess = await this.discordService.createDiscordAccess({
 			accessToken: data.access_token,
 			tokenType: data.token_type,
@@ -70,6 +82,21 @@ export class DiscordLinkProvider {
 			});
 		}
 
+		await this.userService.update(user.id, {
+			discordAccess: discordAccess,
+			discordId: discordUser.id,
+			discordAvatar: discordUser.avatar,
+		});
+
+		return { user, discordUser };
+	}
+
+	// Flow depuis Discord/guild (avec ajout à la communauté)
+	async handleDiscordLink(code: string, guildId: string) {
+		const redirectUri = `${process.env.BACK_URL}/discord-bot/link`;
+		const { user, discordUser } =
+			await this.getOrCreateUserFromDiscordOAuth(code, redirectUri);
+
 		//Check s'il est déjà dans la community
 		const community =
 			await this.communityService.findOneByDiscordServerId(guildId);
@@ -94,12 +121,6 @@ export class DiscordLinkProvider {
 			await this.learnerService.create(user.id, community.id);
 		}
 
-		await this.userService.update(user.id, {
-			discordAccess: discordAccess,
-			discordId: discordUser.id,
-			discordAvatar: discordUser.avatar,
-		});
-
 		// Attribution du rôle Discord
 		const client = this.discordClientService?.getClient?.();
 		if (!client) throw new Error('Client Discord non initialisé');
@@ -117,6 +138,16 @@ export class DiscordLinkProvider {
 		await member.roles.add(role.id);
 
 		return await this.userService.findOneById(user.id);
+	}
+
+	// Nouveau flow pour login/signup via Discord (pas de notion de guild/community)
+	async handleDiscordAuth(code: string) {
+		const redirectUri = `${process.env.BACK_URL}/auth/discord/callback`;
+		const { user } = await this.getOrCreateUserFromDiscordOAuth(
+			code,
+			redirectUri,
+		);
+		return user;
 	}
 
 	async handleMintNFT(user: User) {

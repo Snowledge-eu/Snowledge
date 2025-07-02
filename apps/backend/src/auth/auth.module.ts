@@ -9,12 +9,14 @@ import { AuthGuard } from './auth.guard';
 import { EmailModule } from '../email/email.module';
 import { AuthService } from './auth.service';
 import { XrplModule } from 'src/xrpl/xrpl.module';
+import { DiscordBotModule } from 'src/discord-bot/discord-bot.module';
 
 @Module({
 	imports: [
 		EmailModule,
 		UserModule,
 		XrplModule,
+		DiscordBotModule,
 		JwtModule.register({
 			global: true,
 			secret: jwtConstants.secret,

@@ -11,6 +11,7 @@ import {
 	UnauthorizedException,
 	Res,
 	Delete,
+	Query,
 } from '@nestjs/common';
 import { AuthProvider } from './auth.provider';
 import { Public } from './auth.decorator';
@@ -167,5 +168,44 @@ export class AuthController {
 	@Post('verify-token')
 	postVerifyToken(@Body() verifyTokenDto: VerifyTokenDto) {
 		return this.authProvider.verifyTokenEmail(verifyTokenDto.token);
+	}
+
+	@Public()
+	@Get('discord/callback')
+	async discordCallback(
+		@Query('code') code: string,
+		@Res() res: Response,
+		@Query('state') state?: string,
+	) {
+		if (!code) {
+			return res.redirect(
+				`${process.env.FRONT_URL}/sign-in?error=missing_code`,
+			);
+		}
+		// Utilise la logique du DiscordLinkProvider pour créer ou connecter l'utilisateur
+		const { user, access_token, refresh_token } =
+			await this.authProvider.signInWithDiscord(code, state);
+		if (!user) {
+			return res.redirect(
+				`${process.env.FRONT_URL}/sign-in?error=discord_auth_failed`,
+			);
+		}
+		res.cookie('refresh-token', refresh_token, {
+			httpOnly: true,
+			secure: process.env.NODE_ENV === 'production',
+			sameSite: 'lax',
+			path: '/',
+			maxAge: 7 * 24 * 60 * 60 * 1000,
+			domain: process.env.COOKIE_DOMAIN || undefined,
+		});
+		res.cookie('access-token', access_token, {
+			httpOnly: true,
+			secure: process.env.NODE_ENV === 'production',
+			sameSite: 'lax',
+			path: '/',
+			maxAge: 15 * 60 * 1000,
+			domain: process.env.COOKIE_DOMAIN || undefined,
+		});
+		return res.redirect(`${process.env.FRONT_URL}/`);
 	}
 }

@@ -35,6 +35,6 @@ import { DiscordSharedModule } from './discord-shared.module';
 		DiscordProposalService,
 		DiscordProposalFormService,
 	],
-	exports: [DiscordInteractionService],
+	exports: [DiscordInteractionService, DiscordLinkProvider],
 })
 export class DiscordBotModule {}

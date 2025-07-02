@@ -13,6 +13,7 @@ import { JwtService } from '@nestjs/jwt';
 import { User } from 'src/user/entities/user.entity';
 import { EmailHelper } from 'src/email/email.helper';
 import { XrplProvider } from 'src/xrpl/xrpl.provider';
+import { DiscordLinkProvider } from 'src/discord-bot/providers/discord-link.provider';
 // import { hexToBytes } from 'viem/utils';
 
 @Injectable()
@@ -26,6 +27,7 @@ export class AuthProvider {
 		private readonly jwtService: JwtService,
 		private readonly userService: UserService,
 		private readonly xrplProvider: XrplProvider,
+		private readonly discordLinkProvider: DiscordLinkProvider,
 	) {}
 
 	async signUp(
@@ -192,5 +194,34 @@ export class AuthProvider {
 		});
 
 		return { access_token: accessToken, refresh_token: refreshToken };
+	}
+
+	async signInWithDiscord(
+		code: string,
+		state?: string,
+	): Promise<{ user: any; access_token: string; refresh_token: string }> {
+		// Utilise le flow générique Discord sans notion de guild/community
+		let user = await this.discordLinkProvider.handleDiscordAuth(code);
+		if (!user)
+			throw new UnauthorizedException('Discord authentication failed');
+		// Mint NFT si nouvel utilisateur (pas de nftId)
+		if (!user.nftId) {
+			await this.xrplProvider.generateAccountAndMintNft(user);
+			// On recharge l'utilisateur pour avoir le nftId à jour
+			user = await this.userService.findOneById(user.id);
+		}
+		// Génère les tokens comme pour un login classique
+		const payload = {
+			userId: user.id,
+			firstname: user.firstname,
+			lastname: user.lastname,
+		};
+		const access_token = await this.authService.createAccessToken(payload);
+		const refresh_token =
+			await this.authService.createRefreshToken(payload);
+		await this.userService.update(user.id, {
+			refreshToken: await bcrypt.hash(refresh_token, 10),
+		});
+		return { user, access_token, refresh_token };
 	}
 }
