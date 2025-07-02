@@ -18,6 +18,7 @@ export const features = {
       rewards: false,
       invitations: false,
       members: true,
+      resources: true,
     },
     // Groupe pour les apprenants (learner)
     learner: {

@@ -1,12 +1,20 @@
-import { SquareTerminal, PlusCircle, Loader2, Check } from "lucide-react";
+import {
+  SquareTerminal,
+  PlusCircle,
+  Loader2,
+  Check,
+  FileText,
+} from "lucide-react";
 import { toSlug } from "@/utils/slug";
 import { useTranslations } from "next-intl";
 import { LucideIcon } from "lucide-react";
+import { features } from "@/config/features";
+import { useResources } from "@/hooks/useResources";
 
 export function useNavGlobal(activeCommunity: { name: string }) {
   const slug = toSlug(activeCommunity.name);
   const tNavbar = useTranslations("navbar");
-
+  const { data: resources } = useResources();
   return [
     // features.community.myCommunity.generalInformations &&
     {
@@ -29,6 +37,16 @@ export function useNavGlobal(activeCommunity: { name: string }) {
           icon: Check,
         },
       ],
+    },
+    features.community.myCommunity.resources && {
+      title: tNavbar("resources"),
+      url: `/${slug}/global/resources`,
+      icon: FileText,
+      items:
+        resources?.map((resource) => ({
+          title: resource.title,
+          url: `/${slug}/global/resources/${resource.id}`,
+        })) || [],
     },
   ].filter(Boolean) as {
     title: string;
