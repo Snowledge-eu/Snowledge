@@ -31,7 +31,7 @@ export type Resource = {
 
 const MOCK_RESOURCES: Resource[] = [
   {
-    id: "1",
+    id: "384726159",
     title: "Masterclass: Learn AI in 10 Days",
     description:
       "A practical masterclass to become operational in AI tools, designed for beginners and advanced users alike.",
@@ -92,7 +92,7 @@ const MOCK_RESOURCES: Resource[] = [
   },
   // ... Ajoute 2 autres ressources différentes ici ...
   {
-    id: "2",
+    id: "927415836",
     title: "Workshop: Data Science Bootcamp",
     description: "An intensive workshop to master data science fundamentals.",
     tags: ["Workshop", "Data Science", "Intermediate"],
@@ -138,7 +138,7 @@ const MOCK_RESOURCES: Resource[] = [
       "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
   },
   {
-    id: "3",
+    id: "561903247",
     title: "Whitepaper: L'IA Générative en 2025",
     description:
       "Un whitepaper détaillé sur les avancées, usages et enjeux de l'IA générative en 2025.",

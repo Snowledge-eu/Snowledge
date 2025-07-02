@@ -38,7 +38,7 @@ export default function ResourcePage() {
   const [copied, setCopied] = useState(false);
   const resourceUrl =
     typeof window !== "undefined"
-      ? window.location.origin + `/${slug}/global/resources/${resourcesId}/buy`
+      ? window.location.origin + `/buy/${resourcesId}`
       : "";
   const handleCopy = () => {
     navigator.clipboard.writeText(resourceUrl);
