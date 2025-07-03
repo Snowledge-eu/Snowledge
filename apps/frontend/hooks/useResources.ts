@@ -212,8 +212,7 @@ const MOCK_RESOURCES: Resource[] = [
       { id: "u12", initials: "MG", name: "Marc G." },
       { id: "u13", initials: "LS", name: "Laura S." },
     ],
-    pdfUrl:
-      "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+    pdfUrl: `${process.env.NEXT_PUBLIC_FRONTEND_URL}/assets/Livre-blanc-IA-generative-2025.pdf`,
   },
 ];
 
