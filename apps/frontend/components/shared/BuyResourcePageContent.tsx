@@ -48,6 +48,13 @@ import {
 } from "@repo/ui/components/dialog";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
+// Fonction utilitaire pour tronquer les hash/adresses
+function truncateMiddle(str: string, front = 5, back = 5) {
+  if (!str) return "";
+  if (str.length <= front + back + 3) return str;
+  return `${str.slice(0, front)}...${str.slice(-back)}`;
+}
+
 export default function BuyResourcePageContent() {
   const { resourcesId } = useParams();
   const {
@@ -405,7 +412,7 @@ export default function BuyResourcePageContent() {
                 <DialogTrigger asChild>
                   <Button className="w-full">Purchase now</Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-xl">
+                <DialogContent className="!max-w-5xl !w-fit">
                   <DialogHeader>
                     <DialogTitle className="text-2xl font-bold text-primary">
                       Confirmer l'achat
@@ -457,19 +464,44 @@ export default function BuyResourcePageContent() {
                       </div>
                       <div className="mt-2">Balances des bénéficiaires :</div>
                       <ul className="mt-1 space-y-1">
-                        {distribution.map((d, i) => (
-                          <li key={i} className="flex items-center gap-2">
-                            <span className="font-semibold text-sm">
-                              {d.label}
-                            </span>
-                            <span className="text-muted-foreground">
-                              ({d.title})
-                            </span>
-                            <span className="font-bold text-blue-700">
-                              {balances?.[d.userId] ?? "?"} XRP
-                            </span>
-                          </li>
-                        ))}
+                        {distribution.map((d, i) => {
+                          const userKey = Number(d.userId);
+                          // DEBUG
+                          console.log("[Balances DEBUG]", {
+                            userKey,
+                            userKeyType: typeof userKey,
+                            d_userId: d.userId,
+                            d_userIdType: typeof d.userId,
+                            balances,
+                            balancesKeys: balances
+                              ? Object.keys(balances)
+                              : null,
+                            value: balances?.[userKey],
+                          });
+                          return (
+                            <li key={i} className="flex items-center gap-2">
+                              <span className="font-semibold text-sm">
+                                {d.label}
+                              </span>
+                              <span className="text-muted-foreground">
+                                ({d.title})
+                              </span>
+                              <span className="font-bold text-blue-700">
+                                {loadingBalances ? (
+                                  <Loader2 className="inline animate-spin w-4 h-4 text-blue-700" />
+                                ) : balances?.[userKey] === undefined ? (
+                                  <span className="text-red-500">Erreur</span>
+                                ) : balances[userKey] === null ? (
+                                  <span className="text-muted-foreground">
+                                    Non disponible
+                                  </span>
+                                ) : (
+                                  `${balances[userKey]} XRP`
+                                )}
+                              </span>
+                            </li>
+                          );
+                        })}
                       </ul>
                     </div>
                     <div className="mt-4">
@@ -491,17 +523,65 @@ export default function BuyResourcePageContent() {
                         </div>
                       )}
                       {txStatus === "success" && (
-                        <div className="flex flex-col items-center gap-2 py-4">
-                          <CheckCircle2 className="w-8 h-8 text-green-600" />
-                          <span className="text-green-700 font-semibold">
-                            Achat réussi !
-                          </span>
-                          <div className="text-xs text-muted-foreground">
-                            Transaction XRPL confirmée.
-                          </div>
-                          {/* Affichage du mint NFT d'accès */}
+                        <div className="flex flex-col md:flex-row flex-wrap gap-4 py-4 w-full">
+                          {/* Bloc Transactions XRPL (paiements) */}
+                          {txResult?.txResults?.length > 0 && (
+                            <div className="flex-1 bg-muted/40 border rounded p-4 text-xs min-w-0 max-w-full w-full overflow-x-auto">
+                              <div className="mb-2 font-semibold text-muted-foreground">
+                                Transactions XRPL (distribution)
+                              </div>
+                              {txResult.txResults.map((tx: any, i: number) => (
+                                <div
+                                  key={i}
+                                  className="mb-4 p-2 rounded bg-muted/20 border last:mb-0"
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-mono text-xs">
+                                      Hash :
+                                    </span>
+                                    <span
+                                      className="font-mono break-all text-xs"
+                                      title={tx.tx?.result?.hash}
+                                    >
+                                      {truncateMiddle(tx.tx?.result?.hash)}
+                                    </span>
+                                  </div>
+                                  {tx.tx?.result?.hash && (
+                                    <a
+                                      href={`https://testnet.xrpl.org/transactions/${tx.tx.result.hash}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-blue-600 underline text-xs"
+                                    >
+                                      Voir sur XRPL Explorer
+                                    </a>
+                                  )}
+                                  <div className="flex items-center gap-2 mt-1">
+                                    <span className="font-mono text-xs">
+                                      Montant :
+                                    </span>
+                                    <span className="font-bold text-green-700">
+                                      {tx.amount} XRP
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-2 mt-1">
+                                    <span className="font-mono text-xs">
+                                      Destinataire :
+                                    </span>
+                                    <span
+                                      className="font-mono break-all text-xs"
+                                      title={tx.to}
+                                    >
+                                      {truncateMiddle(tx.to)}
+                                    </span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          {/* Bloc NFT d'accès (mint + transfert) */}
                           {txResult?.nftMintResult && (
-                            <div className="mt-2 w-full bg-green-50 border border-green-200 rounded p-3 text-xs">
+                            <div className="flex-1 bg-green-50 border border-green-200 rounded p-4 text-xs min-w-0">
                               <div className="font-semibold text-green-700 mb-1">
                                 Votre NFT d'accès à la ressource a bien été créé
                                 et transféré sur votre wallet XRPL.
@@ -514,10 +594,11 @@ export default function BuyResourcePageContent() {
                                 <div className="flex items-center gap-2 mt-1">
                                   <span className="font-mono">Hash mint :</span>
                                   <span className="font-mono break-all">
-                                    {txResult.nftMintResult?.mintResult?.result
-                                      ?.hash ||
-                                      txResult.nftMintResult?.result?.hash ||
-                                      "-"}
+                                    {truncateMiddle(
+                                      txResult.nftMintResult?.mintResult?.result
+                                        ?.hash ||
+                                        txResult.nftMintResult?.result?.hash
+                                    )}
                                   </span>
                                 </div>
                                 {txResult.nftMintResult?.mintResult?.result
@@ -543,11 +624,12 @@ export default function BuyResourcePageContent() {
                                       Hash transfert :
                                     </span>
                                     <span className="font-mono break-all">
-                                      {txResult.nftMintResult.transferResult
-                                        ?.acceptResult?.result?.hash ||
+                                      {truncateMiddle(
                                         txResult.nftMintResult.transferResult
-                                          ?.offerResult?.result?.hash ||
-                                        "-"}
+                                          ?.acceptResult?.result?.hash ||
+                                          txResult.nftMintResult.transferResult
+                                            ?.offerResult?.result?.hash
+                                      )}
                                     </span>
                                   </div>
                                   {txResult.nftMintResult.transferResult
@@ -630,59 +712,6 @@ export default function BuyResourcePageContent() {
                               </div>
                             </div>
                           )}
-                          {txResult?.txResults?.length > 0 && (
-                            <div className="mt-2 text-xs text-muted-foreground w-full">
-                              <div className="mb-1 font-semibold">
-                                Détails de la transaction :
-                              </div>
-                              {txResult.txResults.map((tx: any, i: number) => (
-                                <div
-                                  key={i}
-                                  className="mb-2 p-2 rounded bg-muted/40 border"
-                                >
-                                  <div className="flex items-center gap-2">
-                                    <span className="font-mono text-xs">
-                                      Hash :
-                                    </span>
-                                    <span className="font-mono break-all text-xs">
-                                      {tx.tx?.result?.hash || "-"}
-                                    </span>
-                                  </div>
-                                  {tx.tx?.result?.hash && (
-                                    <a
-                                      href={`https://testnet.xrpl.org/transactions/${tx.tx.result.hash}`}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="text-blue-600 underline text-xs"
-                                    >
-                                      Voir sur XRPL Explorer
-                                    </a>
-                                  )}
-                                  <div className="flex items-center gap-2 mt-1">
-                                    <span className="font-mono text-xs">
-                                      Montant :
-                                    </span>
-                                    <span className="font-bold text-green-700">
-                                      {tx.amount} XRP
-                                    </span>
-                                  </div>
-                                  <div className="flex items-center gap-2 mt-1">
-                                    <span className="font-mono text-xs">
-                                      Destinataire :
-                                    </span>
-                                    <span className="font-mono text-xs">
-                                      {tx.to}
-                                    </span>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                          <DialogClose asChild>
-                            <Button variant="outline" className="mt-2">
-                              Fermer
-                            </Button>
-                          </DialogClose>
                         </div>
                       )}
                       {txStatus === "error" && (

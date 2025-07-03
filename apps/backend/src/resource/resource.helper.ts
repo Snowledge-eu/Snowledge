@@ -53,15 +53,35 @@ export class ResourceHelper {
 		return distribution;
 	}
 
+	/**
+	 * Récupère la balance XRPL de chaque utilisateur (acheteur et bénéficiaires).
+	 *
+	 * Pour chaque utilisateur, tente jusqu'à 3 fois (avec 1s d'attente entre chaque essai)
+	 * si la balance est null ou undefined, afin de laisser le temps au réseau XRPL
+	 * de valider la transaction et d'actualiser la balance après un paiement ou un mint.
+	 *
+	 * Cela garantit que les nouvelles balances sont bien récupérées pour tous les utilisateurs,
+	 * même juste après une transaction XRPL.
+	 *
+	 * @param users Tableau d'utilisateurs (User)
+	 * @returns Un objet { [userId]: balanceXRP }
+	 */
 	async getAllBalances(users: any[]) {
 		const balances = {};
 		for (const u of users) {
 			if (!u || !u.id) continue;
-			try {
-				balances[u.id] = await this.xrplService.getUserBalance(u);
-			} catch {
-				balances[u.id] = null;
+			let tries = 0;
+			let balance = null;
+			while (tries < 3) {
+				try {
+					balance = await this.xrplService.getUserBalance(u);
+					if (balance !== null && balance !== undefined) break;
+				} catch {}
+				tries++;
+				if (tries < 3)
+					await new Promise((res) => setTimeout(res, 1000));
 			}
+			balances[u.id] = balance;
 		}
 		return balances;
 	}
