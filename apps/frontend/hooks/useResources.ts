@@ -6,8 +6,8 @@ export type Resource = {
   description: string;
   tags: string[];
   format: string;
-  duration: string;
-  date: string;
+  duration?: string;
+  date?: string;
   outlines: { title: string; description: string }[];
   price: number;
   creatorSharePct: number;
@@ -26,8 +26,14 @@ export type Resource = {
     title: string;
     description: string;
     sharePct: number;
-    cut: number;
+    // cut: number;
     expertises: string[];
+    mission: {
+      missionDescription: string;
+      duration?: string;
+      length?: string;
+      chapters?: string;
+    };
   }[];
   attendees: {
     id: string;
@@ -79,8 +85,14 @@ const MOCK_RESOURCES: Resource[] = [
         title: "CEO",
         description: "Specialist in AI and data analysis.",
         sharePct: 10,
-        cut: 10,
         expertises: ["Expertise 1", "Expertise 2"],
+        mission: {
+          missionDescription:
+            "You need to produce a full Masterclass on the selected topic, including research and documentation.",
+          duration: "60min",
+          length: "10-20",
+          chapters: "8-12",
+        },
       },
       {
         id: "User 2",
@@ -89,8 +101,14 @@ const MOCK_RESOURCES: Resource[] = [
         title: "CTO",
         description: "Senior dev and ML engineer.",
         sharePct: 20,
-        cut: 20,
         expertises: ["Expertise 2", "Expertise 3"],
+        mission: {
+          missionDescription:
+            "You need to produce a full Masterclass on the selected topic, including research and documentation.",
+          duration: "60min",
+          length: "10-20",
+          chapters: "8-12",
+        },
       },
     ],
     attendees: [
@@ -150,8 +168,14 @@ const MOCK_RESOURCES: Resource[] = [
         title: "Lead Data Scientist",
         description: "Expert in data pipelines.",
         sharePct: 25,
-        cut: 37.5,
         expertises: ["Pipelines", "Deployment"],
+        mission: {
+          missionDescription:
+            "You need to produce a full Workshop on the selected topic, including research and documentation.",
+          duration: "90min",
+          length: "10-20",
+          chapters: "8-12",
+        },
       },
     ],
     attendees: [
@@ -168,7 +192,6 @@ const MOCK_RESOURCES: Resource[] = [
       "Un whitepaper détaillé sur les avancées, usages et enjeux de l'IA générative en 2025.",
     tags: ["Whitepaper", "IA", "Tendances"],
     format: "Whitepaper",
-    duration: "30 pages",
     date: "2025-09-01",
     creator: {
       id: "16",
@@ -194,18 +217,50 @@ const MOCK_RESOURCES: Resource[] = [
       },
     ],
     price: 15,
-    creatorSharePct: 80,
-    contributorSharePct: 20,
+    creatorSharePct: 50,
+    contributorSharePct: 50,
     contributors: [
       {
         id: "User 4",
-        userId: "16",
+        userId: "100",
         initials: "EP",
         title: "Chercheur IA",
         description: "Spécialiste des modèles génératifs.",
-        sharePct: 20,
-        cut: 16,
+        sharePct: 15,
         expertises: ["Recherche", "Générative"],
+        mission: {
+          missionDescription:
+            "Rédiger l'introduction, la synthèse des avancées technologiques et la conclusion du whitepaper, en assurant la cohérence scientifique et la vision globale.",
+          length: "10-20",
+        },
+      },
+      {
+        id: "101",
+        userId: "101",
+        initials: "JD",
+        title: "Data Scientist",
+        description: "Expert en IA appliquée et analyse de données.",
+        sharePct: 15,
+        expertises: ["Data Science", "Machine Learning"],
+        mission: {
+          missionDescription:
+            "Analyser les cas d'usage innovants de l'IA générative dans l'industrie et la santé, et rédiger les chapitres correspondants.",
+          length: "10-20",
+        },
+      },
+      {
+        id: "102",
+        userId: "102",
+        initials: "AM",
+        title: "Ingénieur Logiciel",
+        description: "Développeur fullstack spécialisé IA et cloud.",
+        sharePct: 20,
+        expertises: ["Développement", "Cloud", "DevOps"],
+        mission: {
+          missionDescription:
+            "Documenter les défis techniques, la scalabilité, la sécurité et la gouvernance des modèles génératifs, et rédiger les chapitres techniques.",
+          length: "10-20",
+        },
       },
     ],
     attendees: [

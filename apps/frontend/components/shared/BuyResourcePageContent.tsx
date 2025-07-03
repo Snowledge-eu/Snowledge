@@ -397,11 +397,9 @@ export default function BuyResourcePageContent() {
                               <span className="text-muted-foreground">→</span>{" "}
                               <span className="font-medium text-green-600">
                                 $
-                                {(
-                                  (parseFloat(priceXRP) *
-                                    contributor.sharePct) /
-                                  100
-                                ).toFixed(2)}
+                                {((price * contributor.sharePct) / 100).toFixed(
+                                  2
+                                )}
                               </span>
                             </div>
                             <div className="text-xs text-muted-foreground mt-1 text-right">

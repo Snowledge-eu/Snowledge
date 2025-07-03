@@ -44,6 +44,8 @@ import {
   Users,
   AlertCircle,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 
 const contributors = [
   {
@@ -70,6 +72,8 @@ const contributors = [
 ];
 
 export default function Page() {
+  const router = useRouter();
+  const { slug } = useParams();
   const [selectedFormat, setSelectedFormat] = useState("");
   const [price, setPrice] = useState(100);
   const [sharePercentage, setSharePercentage] = useState(30);
@@ -161,7 +165,7 @@ export default function Page() {
     const isValid = !!(
       selectedFormat &&
       (selectedFormat === "Video Course" ? chapters : true) &&
-      (selectedFormat === "Guide" || selectedFormat === "White Paper"
+      (selectedFormat === "Guide" || selectedFormat === "Whitepaper"
         ? length
         : true) &&
       (selectedFormat === "Masterclass" || selectedFormat === "Workshop"
@@ -177,18 +181,22 @@ export default function Page() {
         <h1 className="text-2xl font-bold">Trend to content</h1>
         <div className="flex items-center gap-2">
           <Button variant="outline">Apply</Button>
-          <TooltipProvider>
+          {/* <TooltipProvider>
             <Tooltip>
-              <TooltipTrigger asChild>
-                <Button size="sm" disabled={!isFormValid}>
-                  Launch
-                </Button>
-              </TooltipTrigger>
+              <TooltipTrigger asChild> */}
+          <Button
+            size="sm"
+            disabled={!isFormValid}
+            onClick={() => router.push(`/${slug}/simulate`)}
+          >
+            Launch
+          </Button>
+          {/* </TooltipTrigger>
               <TooltipContent>
                 <p>Generate content based on the trend</p>
               </TooltipContent>
             </Tooltip>
-          </TooltipProvider>
+          </TooltipProvider> */}
         </div>
       </div>
 
@@ -239,8 +247,8 @@ export default function Page() {
                         Template instructions
                       </SelectItem>
                       <SelectItem value="Guide">Guide</SelectItem>
-                      <SelectItem value="White Paper">
-                        White Paper – Research driven
+                      <SelectItem value="Whitepaper">
+                        Whitepaper – Research driven
                       </SelectItem>
                     </SelectContent>
                   </Select>
@@ -281,7 +289,7 @@ export default function Page() {
                 )}
 
                 {(selectedFormat === "Guide" ||
-                  selectedFormat === "White Paper") && (
+                  selectedFormat === "Whitepaper") && (
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-foreground mb-2">
                       Estimated Length
@@ -429,7 +437,7 @@ export default function Page() {
                   )}
 
                   {(selectedFormat === "Guide" ||
-                    selectedFormat === "White Paper") && (
+                    selectedFormat === "Whitepaper") && (
                     <div className="flex items-center gap-2">
                       <FileText className="w-4 h-4 text-muted-foreground" />
                       <span className="text-muted-foreground">Length:</span>

@@ -24,12 +24,14 @@ import { Button } from "@repo/ui/components/button";
 import { Badge } from "@repo/ui/components/badge";
 import { Input } from "@repo/ui/components/input";
 import { Textarea } from "@repo/ui/components/textarea";
+import { useParams, useRouter } from "next/navigation";
+import { useResource } from "@/hooks/useResources";
 
 type FormatType =
   | "Masterclass"
   | "Workshop"
   | "Guide"
-  | "White Paper"
+  | "Whitepaper"
   | "Video Course";
 
 type DurationType = "30min" | "60min" | "90min" | "120min";
@@ -49,28 +51,52 @@ const displayDuration = (d: DurationType) => {
   }
 };
 
-const otherContributors = [
-  { id: "u1", name: "Alice", role: "Designer", cut: 5 },
-  { id: "u2", name: "Bob", role: "Editor", cut: 8 },
-  { id: "u3", name: "Eve", role: "Proofreader", cut: 7 },
-];
+// const otherContributors = [
+//   { id: "u1", name: "Alice", role: "Designer", cut: 5 },
+//   { id: "u2", name: "Bob", role: "Editor", cut: 8 },
+//   { id: "u3", name: "Eve", role: "Proofreader", cut: 7 },
+// ];
 
 export default function MissionReceptionPage() {
-  // ✅ Exemples de valeurs reçues de la mission
-  const selectedFormat: FormatType = "Masterclass";
-  const missionDescription =
-    "You need to produce a full Masterclass on the selected topic, including slides and materials.";
-  const date = "2025-07-10";
-  const duration: DurationType = "60min";
-  const length = "10-20";
-  const chapters = "8-12";
-  const price = 100;
-  const contributorShare = 10;
+  // Récupère l'id du contributor dans l'URL
+  const { id } = useParams();
+  // On suppose que la ressource whitepaper a l'id "561903247"
+  const { data: resource } = useResource("561903247");
+  const router = useRouter();
+  const { slug } = useParams();
 
+  // Cherche le contributor correspondant à l'id dans l'URL
+  const contributor = resource?.contributors.find((c) => c.userId === id);
+  const mission = contributor?.mission;
+  const otherContributors = resource?.contributors.filter(
+    (c) => c.userId !== id
+  );
+
+  // Fallback si pas trouvé
+  if (!contributor || !mission || !resource) {
+    return (
+      <div className="p-10 text-center text-red-600">
+        Contributor introuvable ou mission non définie.
+      </div>
+    );
+  }
+
+  // On utilise les données de mission du contributor
+  const selectedFormat = resource.format;
+  const missionDescription = mission.missionDescription;
+  const date = resource.date;
+  const duration =
+    (["30min", "60min", "90min", "120min"].includes(mission.duration || "")
+      ? (mission.duration as DurationType)
+      : undefined) || "60min";
+  const length = mission.length;
+  const chapters = mission.chapters;
+  const price = resource.price;
+  const contributorShare = contributor.sharePct;
   const contributorCut = (price * contributorShare) / 100;
 
   const handleAccept = () => {
-    console.log("Mission accepted!");
+    router.push(`/${slug}/simulate`);
   };
 
   const handleDecline = () => {
@@ -232,7 +258,7 @@ export default function MissionReceptionPage() {
                 </>
               )}
 
-              {["Guide", "White Paper"].includes(selectedFormat) && (
+              {["Guide", "Whitepaper"].includes(selectedFormat) && (
                 <div className="flex items-center gap-2">
                   <FileText className="w-4 h-4 text-muted-foreground" />
                   <span className="text-muted-foreground">
@@ -311,22 +337,23 @@ export default function MissionReceptionPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {otherContributors.map((c) => (
-                <div
-                  key={c.id}
-                  className="flex justify-between items-center border-b border-border pb-2 last:border-none"
-                >
-                  <div>
-                    <span className="block font-medium">{c.name}</span>
-                    <span className="block text-xs text-muted-foreground">
-                      {c.role}
-                    </span>
+              {otherContributors &&
+                otherContributors.map((c) => (
+                  <div
+                    key={c.id}
+                    className="flex justify-between items-center border-b border-border pb-2 last:border-none"
+                  >
+                    <div>
+                      <span className="block font-medium">{c.title}</span>
+                      <span className="block text-xs text-muted-foreground">
+                        {c.description}
+                      </span>
+                    </div>
+                    <div className="text-sm font-semibold text-blue-600">
+                      {c.sharePct} %
+                    </div>
                   </div>
-                  <div className="text-sm font-semibold text-blue-600">
-                    {c.cut} %
-                  </div>
-                </div>
-              ))}
+                ))}
             </CardContent>
           </Card>
         </div>

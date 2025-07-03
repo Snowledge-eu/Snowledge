@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@repo/ui/components/tabs";
 import { Card, CardContent } from "@repo/ui/components/card";
 import { Button } from "@repo/ui/components/button";
@@ -13,7 +13,9 @@ import {
   DollarSign,
   CheckCircle,
   XCircle,
+  Upload,
 } from "lucide-react";
+import { toast } from "sonner";
 
 interface RevenueIncreaseRequest {
   currentShare: number;
@@ -67,9 +69,19 @@ const contributors = [
 
 export default function ReviewingPage() {
   const [activeExpertise, setActiveExpertise] = useState("All");
-
   const [feedbacks, setFeedbacks] = useState<Record<string, string>>({});
-  const MIN_FEEDBACK_LENGTH = 100;
+  const MIN_FEEDBACK_LENGTH = 50;
+
+  const [decisions, setDecisions] = useState<
+    Record<string, "accepted" | "declined" | null>
+  >({
+    "User 1": null,
+    "User 2": null,
+    "User 3": null,
+  });
+
+  const [editFile, setEditFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFeedbackChange = (id: string, text: string) => {
     setFeedbacks((prev) => ({
@@ -88,11 +100,11 @@ export default function ReviewingPage() {
       : contributors.filter((c) => c.expertises.includes(activeExpertise));
 
   const handleValidate = (id: string) => {
-    console.log(`Mission validated for ${id}`);
+    setDecisions((prev) => ({ ...prev, [id]: "accepted" }));
   };
 
   const handleDeny = (id: string) => {
-    console.log(`Mission denied for ${id}`);
+    setDecisions((prev) => ({ ...prev, [id]: "declined" }));
   };
 
   const handleAcceptRevenueIncrease = (id: string) => {
@@ -114,6 +126,10 @@ export default function ReviewingPage() {
     setDecision("rejected");
     handleRejectRevenueIncrease(id);
   };
+
+  const allAccepted =
+    Object.values(decisions).filter(Boolean).length === contributors.length &&
+    Object.values(decisions).every((d) => d === "accepted");
 
   return (
     <>
@@ -160,6 +176,20 @@ export default function ReviewingPage() {
                     <Badge key={exp}>{exp}</Badge>
                   ))}
                 </div>
+
+                {decisions[user.id] === "accepted" && (
+                  <Badge
+                    className="mt-4 bg-green-600 text-white"
+                    variant="default"
+                  >
+                    Accepté
+                  </Badge>
+                )}
+                {decisions[user.id] === "declined" && (
+                  <Badge className="mt-4" variant="destructive">
+                    Refusé
+                  </Badge>
+                )}
 
                 {user.revenueIncreaseRequest && (
                   <Card className="border w-full mt-6">
@@ -329,7 +359,9 @@ export default function ReviewingPage() {
                   <Button
                     variant="destructive"
                     onClick={() => handleDeny(user.id)}
-                    disabled={!isFeedbackValid(user.id)}
+                    disabled={
+                      !isFeedbackValid(user.id) || decisions[user.id] !== null
+                    }
                   >
                     Deny
                   </Button>
@@ -337,7 +369,9 @@ export default function ReviewingPage() {
                     variant="default"
                     className="bg-green-500 hover:bg-green-600 text-white"
                     onClick={() => handleValidate(user.id)}
-                    disabled={!isFeedbackValid(user.id)}
+                    disabled={
+                      !isFeedbackValid(user.id) || decisions[user.id] !== null
+                    }
                   >
                     Accept
                   </Button>
@@ -346,6 +380,41 @@ export default function ReviewingPage() {
             </Card>
           </div>
         ))}
+
+        {allAccepted && (
+          <div className="mt-12 p-8 border rounded-lg bg-muted/10 flex flex-col items-center gap-6">
+            <h2 className="text-xl font-bold mb-2">Mise en vente du produit</h2>
+            <p className="text-center mb-4">
+              Tous les contributeurs ont été validés. Le créateur peut
+              maintenant déposer le fichier PDF final du produit avant de le
+              mettre en vente.
+            </p>
+            <Button
+              variant="outline"
+              onClick={() => fileInputRef.current?.click()}
+              className="flex items-center gap-2"
+            >
+              <Upload className="w-4 h-4" />
+              {editFile ? editFile.name : "Déposer un PDF"}
+            </Button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="application/pdf"
+              className="hidden"
+              onChange={(e) => setEditFile(e.target.files?.[0] || null)}
+            />
+            <Button
+              className="w-64"
+              disabled={!editFile}
+              onClick={() =>
+                toast.success("Produit mis en vente avec succès !")
+              }
+            >
+              Mettre en vente le produit
+            </Button>
+          </div>
+        )}
       </div>
     </>
   );

@@ -22,9 +22,13 @@ import {
 } from "lucide-react";
 import { Slider } from "@repo/ui/components/slider";
 import { Switch } from "@repo/ui/components/switch";
+import { useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 
 export default function MissionValidationPage() {
-  const MIN_CHARACTERS = 500;
+  const router = useRouter();
+  const { slug } = useParams();
+  const MIN_CHARACTERS = 50;
   const [synthesis, setSynthesis] = useState("");
   const [externalLink, setExternalLink] = useState("");
   const [revenueRequest, setRevenueRequest] = useState("");
@@ -34,6 +38,7 @@ export default function MissionValidationPage() {
 
   const handleSubmit = () => {
     // TODO: implement submission logic
+    router.push(`/${slug}/simulate?step=submit`);
     console.log({
       synthesis,
       externalLink,
