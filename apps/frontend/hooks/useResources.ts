@@ -193,7 +193,7 @@ const MOCK_RESOURCES: Resource[] = [
           "Analyse des enjeux éthiques, techniques et économiques à venir.",
       },
     ],
-    price: 35,
+    price: 15,
     creatorSharePct: 80,
     contributorSharePct: 20,
     contributors: [

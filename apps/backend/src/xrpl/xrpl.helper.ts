@@ -132,6 +132,7 @@ export class XrplHelper {
 		toAddress: string,
 		amount: string | number,
 	): Promise<any> {
+		await this.ensureConnected();
 		const client = this.getClient();
 		const wallet = require('xrpl').Wallet.fromSeed(fromSeed);
 		const payment = await client.autofill({
@@ -159,6 +160,7 @@ export class XrplHelper {
 		taxon = 0,
 		flags = 1,
 	): Promise<any> {
+		await this.ensureConnected();
 		const client = this.getClient();
 		const wallet = require('xrpl').Wallet.fromSeed(fromSeed);
 		const tx = await client.autofill({
@@ -179,6 +181,7 @@ export class XrplHelper {
 	 * @returns Liste des NFTs (array)
 	 */
 	async getAccountNfts(address: string): Promise<any[]> {
+		await this.ensureConnected();
 		const client = this.getClient();
 		const nfts = await client.request({
 			command: 'account_nfts',
@@ -197,6 +200,7 @@ export class XrplHelper {
 		nftId: string,
 		destination: string,
 	): Promise<any> {
+		await this.ensureConnected();
 		const offerTx = await client.autofill({
 			TransactionType: 'NFTokenCreateOffer',
 			Account: backendWallet.classicAddress,
@@ -229,6 +233,7 @@ export class XrplHelper {
 		userWallet: any,
 		offerId: string,
 	): Promise<any> {
+		await this.ensureConnected();
 		const acceptTx = await client.autofill({
 			TransactionType: 'NFTokenAcceptOffer',
 			Account: userWallet.classicAddress,
@@ -250,6 +255,7 @@ export class XrplHelper {
 		nftId: string,
 		toSeed: string,
 	): Promise<any> {
+		await this.ensureConnected();
 		const client = this.getClient();
 		const backendWallet = require('xrpl').Wallet.fromSeed(fromSeed);
 		const userWallet = require('xrpl').Wallet.fromSeed(toSeed);
