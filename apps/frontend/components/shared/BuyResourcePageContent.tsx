@@ -34,7 +34,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { Separator } from "@repo/ui/components/separator";
-import { useResource } from "@/hooks/useResources";
+import { useResource, useHasResourceNft } from "@/hooks/useResources";
 import { useParams } from "next/navigation";
 import {
   Dialog,
@@ -55,6 +55,10 @@ export default function BuyResourcePageContent() {
     isLoading,
     error,
   } = useResource(resourcesId as string);
+
+  const { data: nftStatus, refetch: refetchNftStatus } = useHasResourceNft(
+    resourcesId as string
+  );
 
   const [open, setOpen] = useState(false);
   const [txStatus, setTxStatus] = useState<
@@ -112,12 +116,13 @@ export default function BuyResourcePageContent() {
     },
   });
 
-  // Après un achat réussi, refetch les balances pour afficher les nouvelles valeurs
+  // Après un achat réussi, refetch les balances ET le statut NFT
   useEffect(() => {
     if (txStatus === "success") {
       refetchBalances();
+      refetchNftStatus();
     }
-  }, [txStatus, refetchBalances]);
+  }, [txStatus, refetchBalances, refetchNftStatus]);
 
   if (isLoading) return <div>Chargement...</div>;
   if (error || !resource)
@@ -494,6 +499,137 @@ export default function BuyResourcePageContent() {
                           <div className="text-xs text-muted-foreground">
                             Transaction XRPL confirmée.
                           </div>
+                          {/* Affichage du mint NFT d'accès */}
+                          {txResult?.nftMintResult && (
+                            <div className="mt-2 w-full bg-green-50 border border-green-200 rounded p-3 text-xs">
+                              <div className="font-semibold text-green-700 mb-1">
+                                Votre NFT d'accès à la ressource a bien été créé
+                                et transféré sur votre wallet XRPL.
+                              </div>
+                              {/* Étape 1 : Mint du NFT */}
+                              <div className="mb-2">
+                                <span className="font-semibold">
+                                  Étape 1 : Mint du NFT
+                                </span>
+                                <div className="flex items-center gap-2 mt-1">
+                                  <span className="font-mono">Hash mint :</span>
+                                  <span className="font-mono break-all">
+                                    {txResult.nftMintResult?.mintResult?.result
+                                      ?.hash ||
+                                      txResult.nftMintResult?.result?.hash ||
+                                      "-"}
+                                  </span>
+                                </div>
+                                {txResult.nftMintResult?.mintResult?.result
+                                  ?.hash && (
+                                  <a
+                                    href={`https://testnet.xrpl.org/transactions/${txResult.nftMintResult.mintResult.result.hash}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-blue-600 underline text-xs"
+                                  >
+                                    Voir le mint sur XRPL Explorer
+                                  </a>
+                                )}
+                              </div>
+                              {/* Étape 2 : Transfert du NFT */}
+                              {txResult.nftMintResult?.transferResult && (
+                                <div className="mb-2">
+                                  <span className="font-semibold">
+                                    Étape 2 : Transfert du NFT
+                                  </span>
+                                  <div className="flex items-center gap-2 mt-1">
+                                    <span className="font-mono">
+                                      Hash transfert :
+                                    </span>
+                                    <span className="font-mono break-all">
+                                      {txResult.nftMintResult.transferResult
+                                        ?.acceptResult?.result?.hash ||
+                                        txResult.nftMintResult.transferResult
+                                          ?.offerResult?.result?.hash ||
+                                        "-"}
+                                    </span>
+                                  </div>
+                                  {txResult.nftMintResult.transferResult
+                                    ?.acceptResult?.result?.hash && (
+                                    <a
+                                      href={`https://testnet.xrpl.org/transactions/${txResult.nftMintResult.transferResult.acceptResult.result.hash}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-blue-600 underline text-xs"
+                                    >
+                                      Voir le transfert sur XRPL Explorer
+                                    </a>
+                                  )}
+                                </div>
+                              )}
+                              {/* Lien pour visualiser le NFT sur xrplexplorer.com avec tooltip explicatif */}
+                              {txResult.nftMintResult?.nftId && (
+                                <div className="mt-2">
+                                  <TooltipProvider>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <a
+                                          href={`https://test.xrplexplorer.com/en/nft/${txResult.nftMintResult.nftId}`}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="text-blue-600 underline text-xs cursor-pointer"
+                                        >
+                                          Visualiser ce NFT sur XRPL Explorer
+                                        </a>
+                                      </TooltipTrigger>
+                                      <TooltipContent className="max-w-xs text-xs">
+                                        <div className="font-semibold mb-1">
+                                          Comment fonctionne l'accès XRPL&nbsp;?
+                                        </div>
+                                        <div>
+                                          1. Le backend <b>mint</b> un NFT
+                                          d'accès unique pour cette ressource.
+                                          <br />
+                                          2. Il crée une{" "}
+                                          <b>offre de transfert</b> XRPL à 0 XRP
+                                          à votre adresse.
+                                          <br />
+                                          3. Il <b>accepte l'offre</b>{" "}
+                                          automatiquement pour vous transférer
+                                          le NFT.
+                                          <br />
+                                          4. Ce NFT devient la{" "}
+                                          <b>preuve d'accès</b> à la ressource :{" "}
+                                          <b>
+                                            seuls les NFT mintés par l'issuer
+                                            officiel (le backend)
+                                          </b>{" "}
+                                          donnent accès au contenu.
+                                          <br />
+                                          5. Lors de l'accès, le backend vérifie
+                                          que{" "}
+                                          <b>
+                                            l'issuer du NFT est bien le backend
+                                          </b>{" "}
+                                          et que{" "}
+                                          <b>vous en êtes le propriétaire</b>{" "}
+                                          (owner).
+                                          <br />
+                                          <span className="text-muted-foreground">
+                                            Tout est automatisé, aucune action
+                                            blockchain n'est requise de votre
+                                            part. La sécurité de l'accès repose
+                                            sur l'issuer du NFT.
+                                          </span>
+                                        </div>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
+                                </div>
+                              )}
+                              <div className="mt-1 text-green-700">
+                                Ce NFT est la preuve d'accès à la ressource.
+                                Vous pouvez le retrouver à tout moment dans
+                                votre wallet.
+                              </div>
+                            </div>
+                          )}
                           {txResult?.txResults?.length > 0 && (
                             <div className="mt-2 text-xs text-muted-foreground w-full">
                               <div className="mb-1 font-semibold">

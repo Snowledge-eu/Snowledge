@@ -1,4 +1,11 @@
-import { Controller, Post, Body, NotFoundException } from '@nestjs/common';
+import {
+	Controller,
+	Post,
+	Body,
+	NotFoundException,
+	Get,
+	Param,
+} from '@nestjs/common';
 import { XrplProvider } from './xrpl.provider';
 import { Public } from 'src/auth/auth.decorator';
 import { GenerateAccountAndMintDto } from './dto/generate-account-and-mint.dto';
@@ -24,4 +31,11 @@ export class XrplController {
 		}
 		return this.xrplProvider.generateAccountAndMintNft(user);
 	}
+
+	// ROUTE UNIQUEMENT EN DEV
+	// @Public()
+	// @Get('wallet-info/:encryptedSeed')
+	// async getWalletInfo(@Param('encryptedSeed') encryptedSeed: string) {
+	// 	return this.xrplProvider.getWalletInfo(encryptedSeed);
+	// }
 }

@@ -36,7 +36,7 @@ export class ResourceProvider {
 				});
 				throw new NotFoundException('Resource not found');
 			}
-			console.log('[ResourceProvider] Ressource récupérée', { resource });
+			// console.log('[ResourceProvider] Ressource récupérée', { resource });
 
 			// 2. Vérifier la balance de l'utilisateur
 			const buyerBalance = await this.xrplService.getUserBalance(buyer);
@@ -96,6 +96,25 @@ export class ResourceProvider {
 				}
 			}
 
+			// 4bis. Mint NFT d'accès à la ressource pour l'acheteur
+			let nftMintResult = null;
+			try {
+				nftMintResult = await this.xrplService.mintNftForResource(
+					buyer,
+					resourceId,
+				);
+				console.log(
+					'[ResourceProvider] NFT minté et transféré pour accès ressource',
+					{ nftMintResult },
+				);
+			} catch (err) {
+				console.error(
+					'[ResourceProvider] Erreur mint/transfert NFT accès ressource',
+					{ error: err },
+				);
+				// On n'empêche pas l'achat, mais on logue l'erreur
+			}
+
 			// 5. Récupérer les nouvelles balances
 			let balances = {};
 			try {
@@ -117,11 +136,13 @@ export class ResourceProvider {
 				resourceId,
 				txResults,
 				balances,
+				nftMintResult,
 			});
 			return {
 				resourceId,
 				txResults,
 				balances,
+				nftMintResult,
 			};
 		} catch (error) {
 			console.error('[ResourceProvider] Erreur globale achat', { error });
@@ -151,5 +172,10 @@ export class ResourceProvider {
 			});
 			throw error;
 		}
+	}
+
+	// Méthode utilitaire publique pour le controller
+	async getResourceById(resourceId: string) {
+		return this.resourceService.getResourceById(resourceId);
 	}
 }

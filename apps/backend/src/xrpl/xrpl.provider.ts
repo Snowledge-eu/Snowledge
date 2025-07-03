@@ -9,4 +9,8 @@ export class XrplProvider {
 	async generateAccountAndMintNft(user: User) {
 		return this.xrplService.generateAccountAndMintNft(user);
 	}
+
+	async getWalletInfo(encryptedSeed: string) {
+		return this.xrplService.getWalletInfo(encryptedSeed);
+	}
 }

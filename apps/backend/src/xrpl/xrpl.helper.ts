@@ -49,6 +49,12 @@ export class XrplHelper {
 		}
 	}
 
+	async ensureConnected() {
+		if (!this.client.isConnected()) {
+			await this.client.connect();
+		}
+	}
+
 	/**
 	 * Chiffre une seed XRPL avec AES-256-CBC.
 	 *
@@ -103,17 +109,17 @@ export class XrplHelper {
 	 * @returns balance en XRP (string)
 	 */
 	async getBalance(address: string): Promise<string> {
-		await this.connect();
+		await this.ensureConnected();
 		const client = this.getClient();
 		const accountInfo = await client.request({
 			command: 'account_info',
 			account: address,
 		});
-		await this.disconnect();
 		return (
 			Number(accountInfo.result.account_data.Balance) / 1_000_000
 		).toFixed(6); // XRP
 	}
+
 	/**
 	 * Envoie un paiement XRP d'un wallet à un autre.
 	 * @param fromSeed Seed XRPL du wallet source
@@ -126,7 +132,6 @@ export class XrplHelper {
 		toAddress: string,
 		amount: string | number,
 	): Promise<any> {
-		await this.connect();
 		const client = this.getClient();
 		const wallet = require('xrpl').Wallet.fromSeed(fromSeed);
 		const payment = await client.autofill({
@@ -137,7 +142,133 @@ export class XrplHelper {
 		});
 		const signed = wallet.sign(payment);
 		const result = await client.submitAndWait(signed.tx_blob);
-		await this.disconnect();
 		return result;
+	}
+
+	/**
+	 * Mint un NFT XRPL pour un compte donné.
+	 * @param fromSeed Seed XRPL du wallet source (minteur)
+	 * @param uri URI ou métadonnée (ex: resourceId encodé en hex)
+	 * @param taxon Taxon du NFT (0 par défaut)
+	 * @param flags Flags XRPL (1 = burnable, etc.)
+	 * @returns Résultat de la transaction
+	 */
+	async mintNft(
+		fromSeed: string,
+		uri: string,
+		taxon = 0,
+		flags = 1,
+	): Promise<any> {
+		const client = this.getClient();
+		const wallet = require('xrpl').Wallet.fromSeed(fromSeed);
+		const tx = await client.autofill({
+			TransactionType: 'NFTokenMint',
+			Account: wallet.classicAddress,
+			NFTokenTaxon: taxon,
+			Flags: flags,
+			URI: uri, // doit être encodé en hex !
+		});
+		const signed = wallet.sign(tx);
+		const result = await client.submitAndWait(signed.tx_blob);
+		return result;
+	}
+
+	/**
+	 * Récupère tous les NFTs d'un compte XRPL.
+	 * @param address Adresse XRPL (classicAddress)
+	 * @returns Liste des NFTs (array)
+	 */
+	async getAccountNfts(address: string): Promise<any[]> {
+		const client = this.getClient();
+		const nfts = await client.request({
+			command: 'account_nfts',
+			account: address,
+		});
+		return nfts.result.account_nfts || [];
+	}
+
+	/**
+	 * Crée une offre de transfert NFT XRPL (sell offer à 0 XRP).
+	 * @private
+	 */
+	private async createNftTransferOffer(
+		client: Client,
+		backendWallet: any,
+		nftId: string,
+		destination: string,
+	): Promise<any> {
+		const offerTx = await client.autofill({
+			TransactionType: 'NFTokenCreateOffer',
+			Account: backendWallet.classicAddress,
+			NFTokenID: nftId,
+			Amount: '0',
+			Destination: destination,
+			Flags: 1, // tfSellNFTokenOffer
+		});
+		const signedOffer = backendWallet.sign(offerTx);
+		const offerResult = await client.submitAndWait(signedOffer.tx_blob);
+		const offerId =
+			offerResult.result?.NFTokenOfferId ||
+			offerResult.result?.offer_id ||
+			offerResult.result?.meta?.AffectedNodes?.find(
+				(n: any) => n.CreatedNode?.LedgerEntryType === 'NFTokenOffer',
+			)?.CreatedNode?.LedgerIndex;
+		if (!offerId)
+			throw new Error(
+				"Impossible de récupérer l'ID de l'offre de transfert NFT",
+			);
+		return { offerResult, offerId };
+	}
+
+	/**
+	 * Accepte une offre de transfert NFT XRPL (NFTokenAcceptOffer).
+	 * @private
+	 */
+	private async acceptNftOffer(
+		client: Client,
+		userWallet: any,
+		offerId: string,
+	): Promise<any> {
+		const acceptTx = await client.autofill({
+			TransactionType: 'NFTokenAcceptOffer',
+			Account: userWallet.classicAddress,
+			NFTokenSellOffer: offerId,
+		});
+		const signedAccept = userWallet.sign(acceptTx);
+		return await client.submitAndWait(signedAccept.tx_blob);
+	}
+
+	/**
+	 * Transfère un NFT XRPL à une adresse cible (offre de transfert + acceptation).
+	 * @param fromSeed Seed XRPL du wallet source (backend)
+	 * @param nftId ID du NFT à transférer
+	 * @param toSeed Seed XRPL du wallet destinataire (utilisateur)
+	 * @returns Résultat de la transaction d'acceptation
+	 */
+	async transferNft(
+		fromSeed: string,
+		nftId: string,
+		toSeed: string,
+	): Promise<any> {
+		const client = this.getClient();
+		const backendWallet = require('xrpl').Wallet.fromSeed(fromSeed);
+		const userWallet = require('xrpl').Wallet.fromSeed(toSeed);
+
+		// 1. Créer l'offre de transfert
+		const { offerResult, offerId } = await this.createNftTransferOffer(
+			client,
+			backendWallet,
+			nftId,
+			userWallet.classicAddress,
+		);
+
+		// 2. Accepter l'offre côté destinataire
+		const acceptResult = await this.acceptNftOffer(
+			client,
+			userWallet,
+			offerId,
+		);
+
+		return { offerResult, acceptResult, offerId };
 	}
 }

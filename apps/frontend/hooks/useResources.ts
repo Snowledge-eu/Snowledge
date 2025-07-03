@@ -238,3 +238,18 @@ export function useResources() {
     },
   });
 }
+
+export function useHasResourceNft(resourceId: string) {
+  return useQuery({
+    queryKey: ["has-resource-nft", resourceId],
+    queryFn: async () => {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000/api"}/resources/${resourceId}/has-nft`,
+        { credentials: "include" }
+      );
+      if (!res.ok) throw new Error(await res.text());
+      return res.json();
+    },
+    enabled: !!resourceId,
+  });
+}
