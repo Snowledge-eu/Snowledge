@@ -9,7 +9,7 @@ export type Resource = {
   duration?: string;
   date?: string;
   length?: string;
-  outlines: { title: string; description: string }[];
+  outlines: { title: string; summary: string; description: string }[];
   price: number;
   creatorSharePct: number;
   contributorSharePct: number;
@@ -42,6 +42,10 @@ export type Resource = {
     name: string;
   }[];
   pdfUrl?: string;
+  trend: {
+    title: string;
+    description: string;
+  };
 };
 
 const MOCK_RESOURCES: Resource[] = [
@@ -64,15 +68,22 @@ const MOCK_RESOURCES: Resource[] = [
     outlines: [
       {
         title: "Introduction to AI",
-        description: "Quick overview of AI concepts and history.",
+        summary:
+          "A quick overview of AI concepts and their historical context.",
+        description:
+          "This section introduces the fundamental concepts of Artificial Intelligence, tracing its evolution from early symbolic systems to modern deep learning. It covers the key milestones, the main paradigms (symbolic, statistical, connectionist), and explains why AI is now at the heart of digital transformation across industries. The reader will gain a solid understanding of what AI is, its main branches, and why it matters today.",
       },
       {
         title: "Machine Learning Basics",
-        description: "Learn the key ML algorithms and how to use them.",
+        summary: "Key ML algorithms and their practical applications.",
+        description:
+          "This chapter delves into the core principles of machine learning, including supervised, unsupervised, and reinforcement learning. It explains the most widely used algorithms such as linear regression, decision trees, neural networks, and clustering techniques. The section also discusses the importance of data quality, feature engineering, and model evaluation, providing practical examples and use cases to illustrate each concept.",
       },
       {
         title: "Practical Projects",
-        description: "Apply your knowledge on real datasets.",
+        summary: "Hands-on projects to apply AI knowledge on real datasets.",
+        description:
+          "Learners will engage in a series of practical projects designed to reinforce their understanding of AI and machine learning. These projects include building a simple image classifier, developing a recommendation system, and analyzing real-world datasets. Each project is accompanied by step-by-step instructions, code snippets, and best practices for deploying models in production environments.",
       },
     ],
     price: 50,
@@ -125,6 +136,11 @@ const MOCK_RESOURCES: Resource[] = [
     ],
     pdfUrl:
       "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+    trend: {
+      title: "The Rise of AI for All",
+      description:
+        "This trend highlights the rapid democratization of artificial intelligence, making advanced tools accessible to a broader audience. It explores how AI is transforming both education and business, enabling individuals and organizations to leverage machine learning and automation without deep technical expertise. The trend also discusses the challenges of adoption, the need for upskilling, and the societal implications of widespread AI usage.",
+    },
   },
   {
     id: "927415836",
@@ -144,18 +160,21 @@ const MOCK_RESOURCES: Resource[] = [
     outlines: [
       {
         title: "Data Cleaning",
+        summary: "Best practices for preparing data before analysis.",
         description:
-          "Best practices and common pitfalls for cleaning data before analysis.",
+          "This section covers the essential steps in cleaning and preprocessing data, which is a critical phase in any data science project. Topics include handling missing values, detecting and correcting outliers, normalizing and standardizing data, and encoding categorical variables. The reader will learn practical techniques and tools to ensure data quality and reliability, illustrated with real-world examples from various industries.",
       },
       {
         title: "Exploratory Analysis",
+        summary: "Techniques to explore, summarize, and visualize data.",
         description:
-          "How to explore, summarize and visualize data effectively.",
+          "This chapter introduces the main methods for exploring and understanding datasets, including descriptive statistics, correlation analysis, and data visualization. It demonstrates how to use tools like pandas, matplotlib, and seaborn to uncover patterns, trends, and anomalies in data. The section emphasizes the importance of exploratory data analysis (EDA) as a foundation for building robust predictive models.",
       },
       {
         title: "Model Deployment",
+        summary: "How to deploy and monitor models in production.",
         description:
-          "Deploying and monitoring models in production environments.",
+          "This part explains the end-to-end process of deploying machine learning models into production environments. It covers topics such as model serialization, API development, containerization with Docker, and continuous integration/continuous deployment (CI/CD) pipelines. The reader will also learn about monitoring model performance, detecting data drift, and maintaining models over time to ensure long-term value.",
       },
     ],
     price: 65,
@@ -185,6 +204,11 @@ const MOCK_RESOURCES: Resource[] = [
     ],
     pdfUrl:
       "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+    trend: {
+      title: "Data Science as a Core Skill",
+      description:
+        "This trend examines the growing importance of data science as a foundational skill in the modern workforce. It covers the increasing demand for data literacy, the integration of data-driven decision-making in business processes, and the proliferation of bootcamps and workshops aimed at upskilling professionals. The trend also addresses the evolving landscape of data tools and the challenges of keeping pace with technological advancements.",
+    },
   },
   {
     id: "561903247",
@@ -204,17 +228,23 @@ const MOCK_RESOURCES: Resource[] = [
     outlines: [
       {
         title: "Introduction",
-        description: "Contexte et objectifs du whitepaper.",
+        summary: "Context and objectives of the whitepaper.",
+        description:
+          "This opening section sets the stage for the whitepaper by outlining the rapid evolution of generative AI technologies in recent years. It discusses the motivations behind this research, the key questions addressed, and the intended audience. The introduction also provides a roadmap of the document, highlighting the main themes and the significance of generative AI in shaping the future of work, creativity, and society.",
       },
       {
-        title: "Cas d'usage innovants",
+        title: "Innovative Use Cases",
+        summary:
+          "Concrete examples of generative AI applications across sectors.",
         description:
-          "Exemples concrets d'applications de l'IA générative dans différents secteurs.",
+          "This chapter presents a comprehensive review of the most innovative and impactful use cases of generative AI in 2025. It covers applications in healthcare (such as drug discovery and personalized medicine), finance (fraud detection, algorithmic trading), creative industries (art, music, content generation), and education (personalized learning, automated assessment). Each use case is analyzed in terms of its technical approach, business value, and societal implications, with real-world case studies and expert insights.",
       },
       {
-        title: "Défis et perspectives",
+        title: "Challenges and Perspectives",
+        summary:
+          "Analysis of ethical, technical, and economic challenges ahead.",
         description:
-          "Analyse des enjeux éthiques, techniques et économiques à venir.",
+          "This section explores the major challenges facing the adoption and scaling of generative AI, including ethical concerns (bias, transparency, accountability), technical hurdles (scalability, robustness, data privacy), and economic impacts (job transformation, new business models). It also discusses future perspectives, such as the evolution of regulations, the emergence of new standards, and the potential for generative AI to drive innovation across industries. The chapter concludes with recommendations for stakeholders to navigate this rapidly changing landscape.",
       },
     ],
     length: "10-20",
@@ -270,6 +300,11 @@ const MOCK_RESOURCES: Resource[] = [
       { id: "u13", initials: "LS", name: "Laura S." },
     ],
     pdfUrl: `${process.env.NEXT_PUBLIC_FRONTEND_URL}/assets/Livre-blanc-IA-generative-2025.pdf`,
+    trend: {
+      title: "Generative AI Revolution",
+      description:
+        "This trend delves into the transformative impact of generative AI technologies in 2025. It explores how models like GPT, DALL-E, and others are revolutionizing content creation, product design, and problem-solving across sectors. The trend discusses the opportunities for innovation, the ethical and regulatory challenges, and the new business models emerging from generative AI. It also highlights the need for interdisciplinary collaboration to harness the full potential of these technologies.",
+    },
   },
 ];
 

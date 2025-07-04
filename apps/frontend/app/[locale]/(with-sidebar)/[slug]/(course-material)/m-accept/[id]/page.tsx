@@ -112,6 +112,8 @@ export default function MissionReceptionPage() {
     </Badge>
   );
 
+  const outlines = resource.outlines;
+
   return (
     <>
       <div className="px-6 pt-8 pb-10 space-y-10">
@@ -157,14 +159,11 @@ export default function MissionReceptionPage() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <label className="text-sm font-medium">Trend Title</label>
-              <Input value="Mastering Web3 UX" disabled />
+              <Input value={resource.trend.title} disabled />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Trend Description</label>
-              <Textarea
-                value="This mission comes from the trend analysis detecting a surge of interest in Web3 user experience and educational materials."
-                disabled
-              />
+              <Textarea value={resource.trend.description} disabled />
             </div>
             <Card className="bg-blue-50">
               <CardContent className="p-4 text-sm text-muted-foreground">
@@ -182,18 +181,15 @@ export default function MissionReceptionPage() {
 
         {/* Outlines from the trend */}
         <div className="grid md:grid-cols-3 gap-6">
-          {[1, 2, 3].map((i) => (
+          {outlines.map((outline, i) => (
             <Card key={i} className="bg-muted/10">
               <CardContent className="p-4 space-y-2">
-                <div className="text-sm font-medium">Outline {i} title</div>
-                <Input value={`Outline ${i} - Example Title`} disabled />
+                <div className="text-sm font-medium">{outline.title}</div>
+                <Input value={outline.title} disabled />
                 <span className="text-xs text-muted-foreground">
-                  Quick summary of outline {i}
+                  {outline.summary}
                 </span>
-                <Textarea
-                  value={`Detailed description of outline ${i}`}
-                  disabled
-                />
+                <Textarea value={outline.description} disabled />
               </CardContent>
             </Card>
           ))}
