@@ -237,7 +237,11 @@
     "loading": "Loading...",
     "no_invitations": "No invitations pending.",
     "invitation_accepted": "Invitation accepted!",
-    "invitation_declined": "Invitation declined."
+    "invitation_declined": "Invitation declined.",
+    "buy_resource_button": "Want to buy a resource?",
+    "buy_resource_placeholder": "Resource URL",
+    "buy_resource_error": "Please enter a resource URL.",
+    "buy_resource_access": "Access the resource"
   },
   "communityForm": {
     "manage": {
