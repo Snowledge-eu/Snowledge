@@ -93,7 +93,7 @@ const MOCK_RESOURCES_BASE: Resource[] = [
     contributors: [
       {
         id: "User 1",
-        userId: "16",
+        userId: "100",
         initials: "CN",
         title: "CEO",
         description: "Specialist in AI and data analysis.",
@@ -109,7 +109,7 @@ const MOCK_RESOURCES_BASE: Resource[] = [
       },
       {
         id: "User 2",
-        userId: "17",
+        userId: "101",
         initials: "SB",
         title: "CTO",
         description: "Senior dev and ML engineer.",
@@ -184,7 +184,7 @@ const MOCK_RESOURCES_BASE: Resource[] = [
     contributors: [
       {
         id: "User 3",
-        userId: "",
+        userId: "100",
         initials: "ML",
         title: "Lead Data Scientist",
         description: "Expert in data pipelines.",

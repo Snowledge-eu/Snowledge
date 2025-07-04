@@ -53,7 +53,7 @@ export class ResourceService {
 			contributors: [
 				{
 					id: 'User 1',
-					userId: '',
+					userId: '100',
 					initials: 'CN',
 					title: 'CEO',
 					description: 'Specialist in AI and data analysis.',
@@ -69,7 +69,7 @@ export class ResourceService {
 				},
 				{
 					id: 'User 2',
-					userId: '17',
+					userId: '101',
 					initials: 'SB',
 					title: 'CTO',
 					description: 'Senior dev and ML engineer.',
@@ -113,7 +113,7 @@ export class ResourceService {
 			date: '2025-08-15',
 			creator: {
 				id: '16',
-				userId: '',
+				userId: '100',
 				initials: 'CN',
 				title: 'CEO',
 				description: 'Specialist in AI and data analysis.',
