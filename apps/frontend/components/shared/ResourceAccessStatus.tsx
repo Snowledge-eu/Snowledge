@@ -17,6 +17,7 @@ export function ResourceAccessStatus({
   resourcesId,
   children,
 }: ResourceAccessStatusProps) {
+  //TODO: gérer le cas où c'est un contributeur ayant créé la ressource (peut etre mint un nft pour lui, et pas avoir un bouton acheter, mais mint un nft pour lui, ou alors peut etre mint un nft pour tous les contrib au moment de la mis en vente)
   const {
     data: nftStatus,
     isLoading: loadingNft,

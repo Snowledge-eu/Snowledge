@@ -113,13 +113,6 @@ export class XrplService {
 			throw new Error('Adresse de destination XRPL manquante');
 		}
 		const fromAddress = this.getAddressFromUser(fromUser);
-		if (fromAddress === toAddress) {
-			console.error('[XRPL] Paiement à soi-même interdit', {
-				fromAddress,
-				toAddress,
-			});
-			throw new Error('Impossible de payer sa propre adresse XRPL');
-		}
 		await this.xrplHelper.connect();
 		try {
 			const seed = this.xrplHelper.decryptSeed(fromUser.seed);

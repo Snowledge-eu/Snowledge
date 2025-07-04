@@ -66,6 +66,14 @@ export class ResourceProvider {
 				distribution,
 			});
 
+			// Vérification : aucune adresse de distribution ne doit être celle du buyer
+			const buyerAddress = this.xrplService.getAddressFromUser(buyer);
+			if (distribution.some((dist) => dist.address === buyerAddress)) {
+				throw new BadRequestException(
+					'Distribution error: buyer cannot be a beneficiary (self-payment forbidden)',
+				);
+			}
+
 			// 4. Effectuer les paiements XRPL (un paiement par bénéficiaire)
 			const txResults = [];
 			for (const dist of distribution) {
