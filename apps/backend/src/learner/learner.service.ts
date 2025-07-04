@@ -67,7 +67,7 @@ export class LearnerService {
 		const existing = await this.learnerRepository.findOne({
 			where: { community: { id: community.id }, user: { id: user.id } },
 		});
-		if (existing) throw new BadRequestException('User already a member');
+		if (existing) return existing;
 
 		const learner = this.learnerRepository.create({
 			community,
@@ -230,7 +230,10 @@ export class LearnerService {
 		});
 	}
 
-	async findContributorsByExpertiseInUserCommunity(commuId: number, expertise: string[]){
+	async findContributorsByExpertiseInUserCommunity(
+		commuId: number,
+		expertise: string[],
+	) {
 		const learners = await this.learnerRepository.find({
 			relations: {
 				community: true,
@@ -241,9 +244,9 @@ export class LearnerService {
 					id: commuId,
 				},
 				user: {
-					expertise: In(expertise)
-				}
-			}
+					expertise: In(expertise),
+				},
+			},
 		});
 		return learners.map((l) => l.user);
 	}
