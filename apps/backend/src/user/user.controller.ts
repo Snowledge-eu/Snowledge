@@ -17,12 +17,17 @@ import { User as UserEntity } from './entities/user.entity';
 import { UserService } from './user.service';
 import { Public } from '../auth/auth.decorator';
 import { User as UserDecorator } from './decorator';
+import { FindContributorDto } from './dto/find-contributor.dto';
+import { LearnerService } from 'src/learner/learner.service';
 @ApiTags('User')
 @Controller('user')
 export class UserController {
 	private readonly logger = new Logger(UserController.name);
 
-	constructor(private readonly userService: UserService) {}
+	constructor(
+		private readonly userService: UserService,
+		private readonly learnerService: LearnerService,
+	) {}
 
 	@Public()
 	@Get('all')
@@ -121,5 +126,17 @@ export class UserController {
 	@Get('my-invitations')
 	async getMyInvitations(@User() user: UserEntity) {
 		return this.userService.getInvitationsForUser(user.id);
+	}
+
+	@Public()
+	@Post('find-contributor')
+	async findContributor(@User() user: UserEntity, @Body() infoExpertise: FindContributorDto){
+		const contributors = await this.learnerService.findContributorsByExpertiseInUserCommunity(infoExpertise.communityId, infoExpertise.expertises);
+		console.log(contributors)
+
+		return infoExpertise.expertises.map((exp) => ({
+			expertise: exp,
+			contributors: contributors.filter((u) => u.expertise === exp),
+		}));
 	}
 }

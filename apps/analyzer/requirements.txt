@@ -7,3 +7,6 @@ python-dotenv
 PyYAML
 requests
 uvicorn
+transformers
+sentencepiece
+protobuf

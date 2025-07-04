@@ -16,7 +16,7 @@ export class DiscordMessageService {
     findAllById(id: string | Long) {
         const idChannel = typeof id === 'string' ? Long.fromString(id) : id
 
-        return this.messageModel.find({channel_id: idChannel}).lean().exec();
+        return this.messageModel.find({channel_id: idChannel}).lean();
     }
     async countMessageForDate(channelId: string | Long, date: Date): Promise<number> {
         const idChannel = typeof channelId === 'string' ? Long.fromString(channelId) : channelId
@@ -30,7 +30,7 @@ export class DiscordMessageService {
             $match: {
                     $expr: {
                     $eq: [
-                            { $dateTrunc: { date: "$fetched_at", unit: "day" } },
+                            { $dateTrunc: { date: "$created_at_by_discord", unit: "day" } },
                             { $dateTrunc: { date: date, unit: "day" } }
                         ]
                     }
@@ -51,7 +51,7 @@ export class DiscordMessageService {
         return this.messageModel
             .countDocuments({
                 channel_id: Long.fromString(channelId),
-                fetched_at: { $gte: startDate, $lte: now}
+                created_at_by_discord: { $gte: startDate, $lte: now}
             })
             .exec();
     }

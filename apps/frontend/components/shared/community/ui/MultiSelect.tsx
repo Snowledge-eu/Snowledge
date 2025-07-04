@@ -19,6 +19,7 @@ import { cn } from "@repo/ui/lib/utils";
 export type Option = {
   label: string;
   value: string;
+  disabled?: boolean;
 };
 
 interface MultiSelectProps {
@@ -38,11 +39,14 @@ export function MultiSelect({
 }: MultiSelectProps) {
   const [open, setOpen] = React.useState(false);
   const isControlled = value !== undefined;
-  const [selected, setSelected] = React.useState<Option[]>(defaultValue);
+  const [selected, setSelected] = React.useState<Option[]>(
+    defaultValue.filter((opt) => !opt.disabled)
+  );
   const selectedOptions = isControlled ? value! : selected;
 
   const handleSelect = React.useCallback(
     (option: Option) => {
+      if (option.disabled) return; 
       const isSelected = selectedOptions.some(
         (item) => item.value === option.value
       );
@@ -108,7 +112,11 @@ export function MultiSelect({
                     key={option.value}
                     value={option.value}
                     onSelect={() => handleSelect(option)}
-                    className="justify-start"
+                    className={cn(
+                      "justify-start",
+                      option.disabled && "opacity-50 pointer-events-none"
+                    )}
+                    aria-disabled={option.disabled}
                   >
                     <div
                       className={cn(

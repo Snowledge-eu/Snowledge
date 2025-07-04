@@ -10,9 +10,10 @@ Do not add sys.path manipulations here; handle PYTHONPATH in entry scripts only 
 import sys
 import os
 import json
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 
-from fastapi import FastAPI, HTTPException, APIRouter
+from fastapi import FastAPI, HTTPException, APIRouter, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import List, Optional
@@ -37,6 +38,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["x-reason"],
 )
 
 class DiscordHarvestRequest(BaseModel):
@@ -96,13 +98,19 @@ async def list_discord_channels(server_id: int):
     =========
     """
     collector = DiscordCollector()
+    storage = MongoStorage()
     try:
         await collector.connect()
         guild = collector.client.get_guild(server_id)
+
         if not guild:
             raise HTTPException(status_code=404, detail=f"Guild {server_id} not found or bot not a member.")
+        
+        channel_ids = [ch.id for ch in guild.text_channels if ch.permissions_for(guild.me).read_messages]
+        harvested_ids = set(storage.db.discord_messages.distinct("channel_id", {"channel_id": {"$in": channel_ids}}))
+
         channels = [
-            {"id": str(ch.id), "name": ch.name}
+            {"id": str(ch.id), "name": ch.name, "harvested": ch.id in harvested_ids}
             for ch in guild.text_channels
             if ch.permissions_for(guild.me).read_messages
         ]
@@ -192,7 +200,7 @@ async def discord_analyze(request: DiscordAnalyzeRequest):
     }
     messages = storage.get_discord_messages(filters)
     if not messages:
-        return {"result": None, "message": "No messages found for this period."}
+        return Response(headers={"X-Reason": "No messages found for this period."}, status_code=204)
 
     # Trie du plus ancien au plus récent
     for m in messages:

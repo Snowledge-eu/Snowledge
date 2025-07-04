@@ -21,8 +21,12 @@ export class TransformLongToStringInterceptor implements NestInterceptor {
 		if (obj instanceof Date) {
 			return obj.toISOString();
 		}
-		if(mongoose.isValidObjectId(obj)){
-			return new mongoose.Types.ObjectId(obj).toString()
+		if (obj instanceof mongoose.Types.ObjectId) {
+			return obj.toString();
+		}
+
+		if (typeof obj === 'string' && mongoose.isValidObjectId(obj)) {
+			return obj; 
 		}
 		if (Array.isArray(obj)) {
 			return obj.map((item) => this.recursivelyTransform(item));

@@ -22,25 +22,31 @@ export class AnalysisService {
 	}
 
 	findByDiscordScope(serverId: string, channelId: string, promptKey: string): Promise<AnalysisResult | null> {
+		if (typeof promptKey !== 'string') {
+            throw new Error('Invalid promptKey: must be a string');
+        }
 		return this.analysisModel.findOne({
-			where: {
+
 				platform: "discord",
 				"scope": {
 					"server_id": Long.fromString(serverId),
 					"channel_id": Long.fromString(channelId),
 				},
-				prompt_key: promptKey,
-			}
+				prompt_key: { $eq: promptKey },
+			
 			})
 			.sort({createdAt: -1})
 			.lean();
 		}
 	findByDiscordServer(serverId: string, promptKey: string): Promise<AnalysisResult[]> {
+		if (typeof promptKey !== 'string') {
+            throw new Error('Invalid promptKey: must be a string');
+        }
 		return this.analysisModel
 		.find({
 			platform: 'discord',
 			'scope.server_id': Long.fromString(serverId),
-			prompt_key: promptKey,
+			prompt_key: { $eq: promptKey },
 		})
 		.sort({ createdAt: -1 })
 		.limit(10)

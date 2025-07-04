@@ -17,8 +17,6 @@ export class SummaryService {
   }
 
   findOneByAnalysisIdAndTrendId(analyseId: string, trendId: number): Promise<SummaryResult | null> {
-    console.log(new mongoose.Types.ObjectId(analyseId))
-    console.log('---> AnalyseId:', analyseId, mongoose.isValidObjectId(analyseId))
     return this.summaryModel.findOne({          
         platform: "discord",
         source_analysis_id: analyseId,

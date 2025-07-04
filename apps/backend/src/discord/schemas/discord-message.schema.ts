@@ -14,8 +14,8 @@ export class DiscordMessage {
 	@Prop({ type: Object, required: true })
 	_id: Long;
 
-	@Prop({ type: Number, required: true })
-	user_id: number;
+	@Prop({ type: Object, required: true })
+	user_id: Long;
 
 	@Prop()
 	content?: string;
@@ -24,9 +24,12 @@ export class DiscordMessage {
 	@Prop({ type: Object, required: true })
 	channel_id: Long;
 
-	@Prop({ type: Number })
-	parent_message_id?: number;
+	@Prop({ type: Object })
+	parent_message_id?: Long;
 
+	@Prop()
+	created_at_by_discord?: Date;
+	
 	@Prop()
 	fetched_at?: Date;
 }

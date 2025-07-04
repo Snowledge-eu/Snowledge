@@ -13,6 +13,7 @@ import { PlatformIconButton } from "@/components/my-community/trendes-analytics/
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/auth-context";
 import { useCurrentCommunity } from "@/hooks/useCurrentCommunity";
+import { toast } from "sonner";
 const platforms = [
   {
     key: "discord",
@@ -134,7 +135,7 @@ export default function Page() {
           body: JSON.stringify(body),
         }
       );
-      if (res.ok) {
+      if (res.status === 200) {
         const analysis = await fetcher(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/analysis`,
           {
@@ -155,7 +156,7 @@ export default function Page() {
 
         setSelectedResult({
           _id: analysis?._id.toString(),
-          id: shortenString(analysis?.result?.id),
+          id: analysis?.result?.id ? shortenString(analysis?.result?.id) : "temp", 
           timeframe: `${new Date(analysis?.period.from).toLocaleDateString()} to ${new Date(analysis?.period.to).toLocaleDateString()}`,
           platform: analysis?.platform,
           scope: "Custom", //TODO définir regle All | Custom
@@ -168,8 +169,14 @@ export default function Page() {
           summary: JSON.parse(analysis?.result?.choices[0].message.content)
             .reasoning,
         });
-        setLoading(false);
+      }else if(res.status === 204){
+          const reason = res.headers.get("x-reason");
+          console.log(reason);
+          toast.info(reason, {
+            position: "top-center",
+          });
       }
+      setLoading(false);
     }
   };
   const shortenString = (str: string, maxLength: number = 10): string => {
@@ -228,7 +235,7 @@ export default function Page() {
     for (const item of analysis) {
       tempArr.push({
         _id: item?._id.toString(),
-        id: shortenString(item?.result?.id),
+        id: item?.result?.id ? shortenString(item?.result?.id) : "temp", 
         timeframe: `${new Date(item?.period.from).toLocaleDateString()} to ${new Date(item?.period.to).toLocaleDateString()}`,
         platform: item?.platform,
         scope: "Custom", //TODO définir regle All | Custom
@@ -256,16 +263,18 @@ export default function Page() {
       const info: {
         server_id: string;
         server_name: string;
-        channels: [{ id: string; name: string }];
+        channels: [{ id: string; name: string, harvested: boolean }];
       } = await data.json();
 
       
       const options = info.channels.map(channel => ({
         label: `#${channel.name}`,
-        value: channel.id
+        value: channel.id,
+        disabled: !channel.harvested,
       }));
+      const optionSelected = options.filter(op => !op.disabled);
       setDiscordChannels(options);
-      setSelectedChannels(options);
+      setSelectedChannels(optionSelected);
     } catch (error) {
       console.error(error);
     }

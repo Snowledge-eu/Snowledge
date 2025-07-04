@@ -16,6 +16,8 @@ prompt_models:
 
           Also select 2 to 4 messages that best represent the general sentiment and tone. Choose messages that are clear, expressive,
           and typical of what others have said. Avoid repetition or fringe opinions.
+
+          Your entire JSON response must stay under {{max_tokens}} tokens. Be concise in all fields and limit text length accordingly.
       - role: user
         content: "{{messages}}"
     response_format:
@@ -66,6 +68,8 @@ prompt_models:
           - A list of the most active or influential users during the conversation.
 
           Be concise, factual, and avoid speculation. Group messages that address similar ideas. Do not summarize everything—only extract the most relevant trends.
+
+          Your entire JSON response must stay under {{max_tokens}} tokens. Be concise in all fields and limit text length accordingly.
       - role: user
         content: "{{messages}}"
     response_format:
@@ -131,6 +135,8 @@ prompt_models:
           Also include a list of the most active or influential users during the timeframe.
 
           Keep it concise but actionable. Group related ideas and prioritize clarity over exhaustiveness.
+
+          Your entire JSON response must stay under {{max_tokens}} tokens. Be concise in all fields and limit text length accordingly.
       - role: user
         content: "{{messages}}"
     response_format:
@@ -185,13 +191,19 @@ prompt_models:
           1. A **working title** for the educational content
           2. A short **description** that explains its purpose and learning value
           3. A **structured outline** (max 5 sections) – each with a title and description
-          4. A list of **required expertise** (1 to 3), each with a title and short description
+          4. A list of **required expertise** (1 to 3), each with:
+              - a title chosen **only** from this predefined list:
+                [ai, development, security, data, ux, finance, product, communication, design, legal]
+              - a short description explaining the role of this expertise in creating the educational content
           5. A list of **3 to 5 recommended resources** (tools, links, frameworks, references)
 
           Do not summarize the original messages. Focus on turning the trend into an opportunity for learning and knowledge structuring.
 
+          Your entire JSON response must stay under {{max_tokens}} tokens. Be concise in all fields and limit text length accordingly.
+
       - role: user
         content: "{{trend}}"
+
     response_format:
       type: json_schema
       json_schema:
@@ -231,6 +243,7 @@ prompt_models:
                   title:
                     type: string
                     title: Expertise Title
+                    enum: [ai, development, security, data, ux, finance, product, communication, design, legal]
                   description:
                     type: string
                     title: Expertise Description

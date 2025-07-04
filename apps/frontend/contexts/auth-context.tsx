@@ -15,6 +15,7 @@ import { toast } from "sonner";
 type AuthContextType = {
   accessToken: string | null;
   user: any | null;
+  fetchDataUserInProgress: boolean;
   setAccessToken: (token: string | null) => void;
   fetcher: (input: RequestInfo, init?: RequestInit) => Promise<any>;
   refreshAccessToken: () => Promise<string | null>;
@@ -28,35 +29,30 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
   const router = useRouter();
-
+  const [fetchDataUserInProgress, setFetchDataUserInProgress] = useState(false);
   const [user, setUser] = useState(null);
   const [accessToken, setAccessToken] = useState<string | null>(null);
 
   // Vérifie l'état de l'authentification au chargement
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/check`,
-          {
-            credentials: "include",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        if (response.ok) {
-          const data = await response.json();
-          setAccessToken(data.access_token);
+  const checkAuth = async () => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/check`,
+        {
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
-      } catch (error) {
-        console.error("Error checking auth status:", error);
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setAccessToken(data.access_token);
       }
-    };
-
-    checkAuth();
-  }, []);
-
+    } catch (error) {
+      console.error("Error checking auth status:", error);
+    }
+  };
   const isJwtValid = (token: string) => {
     try {
       const payload = JSON.parse(atob(token.split(".")[1]));
@@ -148,34 +144,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     [accessToken, refreshAccessToken]
   );
 
-  // useEffect(() => {
-  //   refreshAccessToken(); // Récupère le token au premier chargement
-  // }, [refreshAccessToken]);
-
   const fetchDataUser = async () => {
     try {
-      if (user) {
-        // TODO: Régler le problème de boucle plus proprement
-        console.log("user already fetched");
+      setFetchDataUserInProgress(true);
+      const data = await fetcher(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/user`,
+        {
+          method: "GET",
+          credentials: "include",
+        }
+      );
+
+      if (data.user) {
+        setUser(data.user);
+        setFetchDataUserInProgress(false);
         return true;
       } else {
-        console.log("fetching user");
-
-        const data = await fetcher(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/user`,
-          {
-            method: "GET",
-            credentials: "include",
-          }
-        );
-
-        if (data.user) {
-          setUser(data.user);
-        } else {
-          return false;
-        }
-        setUser(data.user);
-        return true;
+        return false;
       }
     } catch (err: any) {
       throw new Error(err.message || "An unexpected error occurred.");
@@ -238,15 +223,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const cookie = document.cookie.match(/(?:^| )access-token=([^;]*)/);
     const token = cookie ? decodeURIComponent(cookie[1]) : null;
 
-    if (token) {
-      setAccessToken(token);
-    } else {
-      console.log("pathname", pathname);
-      if (
-        pathname.split("/").length > 2 &&
-        !accessiblePath.some((val) => pathname.split("/").includes(val))
-      ) {
-        refreshAccessToken();
+    if (!accessiblePath.some((val) => pathname.split("/").includes(val))) {
+      if (!(pathname.split("/").length > 2)) {
+        if (!accessToken) {
+          checkAuth();
+        }
       }
     }
   }, []);
@@ -256,6 +237,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       value={{
         accessToken,
         user,
+        fetchDataUserInProgress,
         setAccessToken,
         fetcher,
         fetchDataUser,

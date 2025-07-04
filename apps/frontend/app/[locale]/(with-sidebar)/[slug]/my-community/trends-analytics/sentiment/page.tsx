@@ -12,6 +12,7 @@ import { PlatformIconButton } from "@/components/my-community/trendes-analytics/
 import { useAuth } from "@/contexts/auth-context";
 import { useCurrentCommunity } from "@/hooks/useCurrentCommunity";
 import { interval } from "date-fns";
+import { toast } from "sonner";
 
 export default function Page() {
   const { user, fetcher } = useAuth();
@@ -67,7 +68,8 @@ export default function Page() {
           body: JSON.stringify(body),
         }
       );
-      if (res.ok) {
+
+      if (res.status === 200) {
         const analysis = await fetcher(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/analysis`,
           {
@@ -86,14 +88,19 @@ export default function Page() {
           }
         ).catch((err) => console.error(err));
         setSelectedResult({
-          id: shortenString(analysis?.result?.id),
+          id: analysis?.result?.id ? shortenString(analysis?.result?.id) : "temp", 
           timeframe: `${new Date(analysis?.period.from).toLocaleDateString()} to ${new Date(analysis?.period.to).toLocaleDateString()}`,
           platform: analysis?.platform,
           scope: "Custom", //TODO définir regle All | Custom
           sentiment: JSON.parse(analysis?.result?.choices[0].message.content)
             .sentiment,
           messages: JSON.parse(analysis?.result?.choices[0].message.content)
-            .representative_messages,
+            .representative_messages.map((msg: string) => {
+              return {
+                user: msg.split(": ")[0].split("]")[1],
+                text: msg.split(": ")[1].trim(),
+              };
+            }),
           date: new Date(analysis?.created_at).toLocaleDateString(),
           score: getRandomByLevel(
             JSON.parse(analysis?.result?.choices[0].message.content).confidence
@@ -101,8 +108,14 @@ export default function Page() {
           summary: JSON.parse(analysis?.result?.choices[0].message.content)
             .reasoning,
         });
-        setLoading(false);
+      }else if(res.status === 204){
+          const reason = res.headers.get("x-reason");
+          console.log(reason);
+          toast.info(reason, {
+            position: "top-center",
+          });
       }
+      setLoading(false);
     }
   };
   const shortenString = (str: string, maxLength: number = 10): string => {
@@ -159,7 +172,7 @@ export default function Page() {
     const tempArr = [];
     for (const item of analysis) {
       tempArr.push({
-        id: shortenString(item?.result?.id),
+        id: item?.result?.id ? shortenString(item?.result?.id) : "temp", 
         timeframe: `${new Date(item?.period.from).toLocaleDateString()} to ${new Date(item?.period.to).toLocaleDateString()}`,
         platform: item?.platform,
         scope: "Custom", //TODO définir regle All | Custom vient du back
@@ -196,15 +209,17 @@ export default function Page() {
       const info: {
         server_id: string;
         server_name: string;
-        channels: [{ id: string; name: string }];
+        channels: [{ id: string; name: string, harvested: boolean }];
       } = await data.json();
 
       const options = info.channels.map((channel) => ({
         label: `#${channel.name}`,
         value: channel.id,
+        disabled: !channel.harvested,
       }));
+      const optionSelected = options.filter(op => !op.disabled);
       setDiscordChannels(options);
-      setSelectedChannels(options);
+      setSelectedChannels(optionSelected);
     } catch (error) {
       console.error(error);
     }

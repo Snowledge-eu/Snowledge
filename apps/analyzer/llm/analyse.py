@@ -3,7 +3,7 @@ import yaml
 from pathlib import Path
 from typing import List, Union, Generator, Optional
 from config.config import get_env_var
-
+from llm.token_utils import estimate_token_count 
 # ============
 # Function: load_yaml
 # ------------
@@ -61,43 +61,71 @@ def get_prompt_config(prompt_name: str) -> dict:
 #   - extra: dict, additional parameters (optional)
 # RETURNS: dict, payload for the API
 # ============
-def build_payload(model_config: dict, prompt_config: dict, user_content: Union[str, List[str]], stream: bool = False, extra: Optional[dict] = None) -> dict:
-    messages = []
-    # Toujours convertir user_content en string si c'est une liste
+def build_payload(
+    model_config: dict,
+    prompt_config: dict,
+    user_content: Union[str, List[str]],
+    stream: bool = False,
+    extra: Optional[dict] = None
+) -> dict:
+    # Convertir user_content
     if isinstance(user_content, list):
         user_content_str = '\n'.join(user_content)
+    elif isinstance(user_content, dict):
+        import json
+        user_content_str = json.dumps(user_content, indent=2, ensure_ascii=False)
     else:
         user_content_str = user_content
-    # Add system/user messages
+
+    temperature = prompt_config.get('temperature', model_config.get('temperature', 0.3))
+    top_p = prompt_config.get('top_p', model_config.get('top_p', 0.8))
+
+    # On construit d'abord les messages
+    raw_messages = []
     for msg in prompt_config.get('messages', []):
         content = msg['content']
-        # Remplacement {{question}} ou {{messages}} si présent
-        if '{{question}}' in content or '{{messages}}' in content:
-            content = content.replace('{{question}}', user_content_str)
-            content = content.replace('{{messages}}', user_content_str)
+        content = content.replace('{{question}}', user_content_str)
+        content = content.replace('{{messages}}', user_content_str)
+        content = content.replace('{{trend}}', user_content_str)
+        raw_messages.append({
+            'role': msg['role'],
+            'content': content
+        })
+
+    # Estimation du nombre de tokens utilisés par les prompts
+    prompt_token_count = estimate_token_count(raw_messages, model_name=model_config.get('name'))
+    context_window = model_config.get("context_window", 4096)
+
+    # On réserve xxx tokens par défaut pour la réponse
+    reserve = 2048
+    available_for_completion = max(context_window - prompt_token_count, 0)
+    max_tokens = min(available_for_completion, reserve)
+
+    # Remplace {{max_tokens}} maintenant que c’est calculé
+    messages = []
+    for msg in raw_messages:
+        content = msg['content'].replace('{{max_tokens}}', str(max_tokens))
         messages.append({
             'role': msg['role'],
             'content': content
         })
-    # Prendre temperature/top_p du prompt_config si dispo, sinon du model_config, sinon défaut
-    temperature = prompt_config.get('temperature', model_config.get('temperature', 0.3))
-    top_p = prompt_config.get('top_p', model_config.get('top_p', 0.8))
+
     payload = {
-        'max_tokens': model_config.get('context_window', 512),
         'messages': messages,
         'model': model_config.get('name'),
         'temperature': temperature,
         'top_p': top_p,
-        'stream': stream
+        'stream': stream,
+        'max_tokens': max_tokens
     }
-    # Add response_format if present
+
     if 'response_format' in prompt_config:
         payload['response_format'] = prompt_config['response_format']
-    # Merge extra parameters if provided
+
     if extra:
         payload.update(extra)
-    return payload
 
+    return payload
 # ============
 # Function: call_ovh_api
 # ------------
