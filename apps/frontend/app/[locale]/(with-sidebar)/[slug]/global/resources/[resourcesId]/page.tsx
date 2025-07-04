@@ -47,7 +47,7 @@ export default function ResourcePage() {
 
   if (isLoading) return <div>Chargement...</div>;
   if (error || !resource)
-    return <div>Erreur : {error?.message || "Ressource introuvable"}</div>;
+    return <div>Erreur : {error || "Ressource introuvable"}</div>;
 
   // Créateur : édition
   if (user?.id === activeCommunity?.user?.id) {

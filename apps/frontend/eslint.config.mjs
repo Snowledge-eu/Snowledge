@@ -17,6 +17,7 @@ const eslintConfig = [
       "react-hooks/rules-of-hooks": "warn",
       "@typescript-eslint/no-unused-vars": "warn", //TODO: A remettre en error quand ça fonctionnera bien
       "@typescript-eslint/no-unused-expressions": "warn", //TODO: A remettre en error quand ça fonctionnera bien
+      "no-unescaped-entities": "warn",
     },
   },
 ];
