@@ -176,6 +176,7 @@ export class ResourceService {
 						'Analyse des enjeux éthiques, techniques et économiques à venir.',
 				},
 			],
+			length: '10-20',
 			price: 15,
 			creatorSharePct: 50,
 			contributorSharePct: 50,
