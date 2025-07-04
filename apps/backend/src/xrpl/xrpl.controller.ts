@@ -32,6 +32,15 @@ export class XrplController {
 		return this.xrplProvider.generateAccountAndMintNft(user);
 	}
 
+	@Get('balance/:userId')
+	async getUserBalance(@Param('userId') userId: number) {
+		const user = await this.userService.findOneById(userId);
+		if (!user) {
+			throw new NotFoundException('User not found');
+		}
+		return this.xrplProvider.getUserBalance(user);
+	}
+
 	// ROUTE UNIQUEMENT EN DEV
 	// @Public()
 	// @Get('wallet-info/:encryptedSeed')

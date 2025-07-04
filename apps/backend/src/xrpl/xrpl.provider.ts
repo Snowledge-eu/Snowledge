@@ -13,4 +13,8 @@ export class XrplProvider {
 	async getWalletInfo(encryptedSeed: string) {
 		return this.xrplService.getWalletInfo(encryptedSeed);
 	}
+
+	async getUserBalance(user: User) {
+		return this.xrplService.getUserBalance(user);
+	}
 }

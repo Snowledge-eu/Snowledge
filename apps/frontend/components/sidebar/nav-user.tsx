@@ -4,10 +4,11 @@ import {
   BadgeCheck,
   Bell,
   ChevronsUpDown,
-  CreditCard,
   LogOut,
-  Sparkles,
+  Loader2,
+  AlertCircle,
 } from "lucide-react";
+import Image from "next/image";
 
 import {
   Avatar,
@@ -30,6 +31,8 @@ import {
   useSidebar,
 } from "@repo/ui/components/sidebar";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { useAuth } from "@/contexts/auth-context";
 
 export default function NavUser({
   user,
@@ -41,14 +44,57 @@ export default function NavUser({
   };
 }) {
   const { isMobile } = useSidebar();
+  const { user: authUser } = useAuth();
+  const [balance, setBalance] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<boolean>(false);
+
+  useEffect(() => {
+    const fetchBalance = async () => {
+      if (!authUser?.id) return;
+      setLoading(true);
+      setError(false);
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/xrpl/balance/${authUser.id}`,
+          { credentials: "include" }
+        );
+        if (res.ok) {
+          const data = await res.json();
+          if (typeof data === "number" || typeof data === "string") {
+            const num = Number(data);
+            setBalance(!isNaN(num) ? num.toFixed(3) : "0.000");
+          } else if (data && typeof data.balance !== "undefined") {
+            const num = Number(data.balance);
+            setBalance(!isNaN(num) ? num.toFixed(3) : "0.000");
+          } else {
+            setBalance("0.000");
+          }
+        } else {
+          setError(true);
+          setBalance(null);
+        }
+      } catch {
+        setError(true);
+        setBalance(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchBalance();
+  }, [authUser?.id]);
+
   const signOut = async () => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/session`, {
-        method: "DELETE",
-        credentials: "include",
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/session`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        }
+      );
       if (response.status === 204) {
-        localStorage.removeItem('activeCommunityId');
+        localStorage.removeItem("activeCommunityId");
         window.location.href = "/";
       } else {
         console.error("Failed to sign out");
@@ -73,6 +119,33 @@ export default function NavUser({
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{user.name}</span>
                 <span className="truncate text-xs">{user.email}</span>
+                <span className="truncate text-xs flex items-center gap-1 mt-0.5">
+                  {loading ? (
+                    <Loader2 className="animate-spin w-4 h-4 text-blue-400" />
+                  ) : error ? (
+                    <span
+                      className="flex items-center text-red-500 gap-1"
+                      title="Error fetching XRPL balance"
+                    >
+                      <AlertCircle className="w-4 h-4" />
+                      <span>Error</span>
+                    </span>
+                  ) : (
+                    <span
+                      className={`flex items-center gap-1 py-0.5 rounded text-xs font-semibold transition-colors duration-200`}
+                      title="XRPL Wallet Balance"
+                    >
+                      <Image
+                        src="/xrp-logo.png"
+                        alt="XRP"
+                        width={12}
+                        height={12}
+                        className="inline-block align-middle mr-0.5"
+                      />
+                      {balance} <span className="ml-0.5">XRP</span>
+                    </span>
+                  )}
+                </span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
@@ -92,6 +165,33 @@ export default function NavUser({
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">{user.name}</span>
                   <span className="truncate text-xs">{user.email}</span>
+                  <span className="truncate text-xs flex items-center gap-1 mt-0.5">
+                    {loading ? (
+                      <Loader2 className="animate-spin w-4 h-4 text-blue-400" />
+                    ) : error ? (
+                      <span
+                        className="flex items-center text-red-500 gap-1"
+                        title="Error fetching XRPL balance"
+                      >
+                        <AlertCircle className="w-4 h-4" />
+                        <span>Error</span>
+                      </span>
+                    ) : (
+                      <span
+                        className={`flex items-center gap-1 py-0.5 rounded text-xs font-semibold transition-colors duration-200 "}`}
+                        title="XRPL Wallet Balance"
+                      >
+                        <Image
+                          src="/xrp-logo.png"
+                          alt="XRP"
+                          width={16}
+                          height={16}
+                          className="inline-block align-middle mr-0.5"
+                        />
+                        {balance} <span className="ml-0.5">XRP</span>
+                      </span>
+                    )}
+                  </span>
                 </div>
               </div>
             </DropdownMenuLabel>
@@ -115,10 +215,10 @@ export default function NavUser({
                 Billing
               </DropdownMenuItem> */}
               <Link href="/notifications">
-              <DropdownMenuItem>
-                <Bell />
-                Notifications
-              </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Bell />
+                  Notifications
+                </DropdownMenuItem>
               </Link>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
