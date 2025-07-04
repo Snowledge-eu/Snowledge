@@ -35,7 +35,7 @@ import {
 } from "lucide-react";
 import { Separator } from "@repo/ui/components/separator";
 import { useResource, useHasResourceNft } from "@/hooks/useResources";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import {
   Dialog,
   DialogTrigger,
@@ -43,8 +43,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogFooter,
-  DialogClose,
 } from "@repo/ui/components/dialog";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { ResourceAccessStatus } from "./ResourceAccessStatus";
@@ -63,6 +61,8 @@ export default function BuyResourcePageContent() {
     isLoading,
     error,
   } = useResource(resourcesId as string);
+  const params = useSearchParams();
+  const communityId = params.get("community");
 
   const { data: nftStatus, refetch: refetchNftStatus } = useHasResourceNft(
     resourcesId as string
@@ -97,7 +97,7 @@ export default function BuyResourcePageContent() {
   const buyMutation = useMutation({
     mutationFn: async () => {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000/api"}/resources/${resourcesId}/buy`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000/api"}/resources/${resourcesId}/buy?community=${communityId}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

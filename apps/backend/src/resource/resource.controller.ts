@@ -6,6 +6,7 @@ import {
 	Get,
 	Req,
 	UseGuards,
+	Query,
 } from '@nestjs/common';
 import { ResourceProvider } from './resource.provider';
 import { BuyResourceDto } from './dto/buy-resource.dto';
@@ -25,13 +26,16 @@ export class ResourceController {
 	@Post(':id/buy')
 	async buyResource(
 		@Param('id') resourceId: string,
+		@Query('community') communityId: string,
 		@Body() buyResourceDto: BuyResourceDto,
 		@User() user: UserEntity,
 	) {
+		console.log('communityId', communityId);
 		return this.resourceProvider.buyResource(
 			resourceId,
 			user,
 			buyResourceDto,
+			communityId,
 		);
 	}
 

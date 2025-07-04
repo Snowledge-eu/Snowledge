@@ -20,7 +20,7 @@ export class LearnerService {
 		private readonly userRepository: Repository<User>,
 	) {}
 
-	async addLearnerToCommunity(
+	async addLearnerToCommunityBySlug(
 		slug: string,
 		userId: number,
 		isContributor: boolean = false,
@@ -49,6 +49,31 @@ export class LearnerService {
 			community,
 			user,
 			isContributor,
+		});
+		return this.learnerRepository.save(learner);
+	}
+
+	async addLearnerToCommunityById(communityId: number, userId: number) {
+		const community = await this.communityRepository.findOne({
+			where: { id: communityId },
+		});
+		if (!community) throw new NotFoundException('Community not found');
+		const user = await this.userRepository.findOne({
+			where: { id: userId },
+		});
+		if (!user) throw new NotFoundException('User not found');
+
+		// Vérifie si déjà membre
+		const existing = await this.learnerRepository.findOne({
+			where: { community: { id: community.id }, user: { id: user.id } },
+		});
+		if (existing) throw new BadRequestException('User already a member');
+
+		const learner = this.learnerRepository.create({
+			community,
+			user,
+			status: LearnerStatus.MEMBER,
+			isContributor: false,
 		});
 		return this.learnerRepository.save(learner);
 	}

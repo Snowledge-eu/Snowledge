@@ -3,16 +3,18 @@ import { useAuth } from "@/contexts/auth-context";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
-type AddLearnerToCommunityParams = {
+type addLearnerToCommunityBySlugParams = {
   communitySlug: string;
 };
 
-export function useAddLearnerToCommunity() {
+export function useaddLearnerToCommunityBySlug() {
   const { user, fetcher } = useAuth();
   const t = useTranslations("postSignUp");
 
   return useMutation({
-    mutationFn: async ({ communitySlug }: AddLearnerToCommunityParams) => {
+    mutationFn: async ({
+      communitySlug,
+    }: addLearnerToCommunityBySlugParams) => {
       const id = user?.id;
       if (!id) throw new Error("Utilisateur non authentifié");
       const res = await fetcher(

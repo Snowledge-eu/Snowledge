@@ -8,6 +8,7 @@ import { ResourceHelper } from './resource.helper';
 import { XrplService } from '../xrpl/xrpl.service';
 import { User } from '../user/entities/user.entity';
 import { BuyResourceDto } from './dto/buy-resource.dto';
+import { LearnerService } from 'src/learner/learner.service';
 
 @Injectable()
 export class ResourceProvider {
@@ -15,17 +16,20 @@ export class ResourceProvider {
 		private readonly resourceService: ResourceService,
 		private readonly resourceHelper: ResourceHelper,
 		private readonly xrplService: XrplService,
+		private readonly learnerService: LearnerService,
 	) {}
 
 	async buyResource(
 		resourceId: string,
 		buyer: User,
 		buyResourceDto: BuyResourceDto,
+		communityId: string,
 	) {
 		try {
 			console.log('[ResourceProvider] Début achat ressource', {
 				resourceId,
 				buyerId: buyer.id,
+				communityId,
 			});
 			// 1. Récupérer la ressource (mock pour l'instant)
 			const resource =
@@ -131,6 +135,12 @@ export class ResourceProvider {
 					{ error: err },
 				);
 			}
+
+			// 6. Ajouter l'acheteur à la communauté
+			await this.learnerService.addLearnerToCommunityById(
+				Number(communityId),
+				buyer.id,
+			);
 
 			console.log('[ResourceProvider] Achat terminé', {
 				resourceId,

@@ -5,9 +5,10 @@ import { ResourceService } from './resource.service';
 import { ResourceHelper } from './resource.helper';
 import { XrplModule } from '../xrpl/xrpl.module';
 import { UserModule } from '../user/user.module';
+import { LearnerModule } from 'src/learner/learner.module';
 
 @Module({
-	imports: [XrplModule, UserModule],
+	imports: [XrplModule, UserModule, LearnerModule],
 	controllers: [ResourceController],
 	providers: [ResourceProvider, ResourceService, ResourceHelper],
 	exports: [ResourceProvider],

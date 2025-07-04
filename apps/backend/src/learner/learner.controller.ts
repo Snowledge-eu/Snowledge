@@ -59,7 +59,7 @@ export class LearnerController {
 		@Param('userId') userId: number,
 		@Body('isContributor') isContributor: boolean = false,
 	) {
-		return this.learnerService.addLearnerToCommunity(
+		return this.learnerService.addLearnerToCommunityBySlug(
 			slug,
 			userId,
 			isContributor,

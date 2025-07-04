@@ -162,6 +162,7 @@ export class XrplService {
 			if (!userAddress) throw new Error('Utilisateur sans adresse XRPL');
 			// On construit l'URL HTTP du endpoint de métadonnées
 			const metadataUrl = `${process.env.BACK_URL}/resources/${resourceId}/nft-metadata`;
+			// A revoir:
 			const uri = convertStringToHex(metadataUrl);
 			// 1. Mint par le backend
 			const mintResult = await this.xrplHelper.mintNft(

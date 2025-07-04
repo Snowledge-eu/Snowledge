@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Users } from "lucide-react";
 import { Community } from "@/types/community";
 import { toSlug } from "@/utils/slug";
-import { useAddLearnerToCommunity } from "./hooks/useAddLearnerToCommunity";
+import { useaddLearnerToCommunityBySlug } from "./hooks/useAddLearnerToCommunityBySlug";
 
 interface CommunityJoinFormProps {
   communities: Community[] | undefined;
@@ -15,7 +15,8 @@ export function CommunityJoinForm({ communities, t }: CommunityJoinFormProps) {
   const [inputError, setInputError] = useState(false);
   const [notFound, setNotFound] = useState(false);
 
-  const { mutate: addLearnerToCommunity } = useAddLearnerToCommunity();
+  const { mutate: addLearnerToCommunityBySlug } =
+    useaddLearnerToCommunityBySlug();
 
   const handleJoinCommunity = () => {
     setInputError(false);
@@ -33,7 +34,7 @@ export function CommunityJoinForm({ communities, t }: CommunityJoinFormProps) {
       communities?.find((c) => c.slug === input);
 
     if (community) {
-      addLearnerToCommunity({ communitySlug: community.slug });
+      addLearnerToCommunityBySlug({ communitySlug: community.slug });
       window.location.href = `/${community.slug}`;
     } else {
       setNotFound(true);

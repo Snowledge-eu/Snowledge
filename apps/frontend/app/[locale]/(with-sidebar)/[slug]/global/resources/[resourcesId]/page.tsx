@@ -28,8 +28,6 @@ export default function ResourcePage() {
     isLoading,
     error,
   } = useResource(resourcesId as string);
-  // Simule l'accès (à remplacer par la vraie logique plus tard)
-  const [hasAccess, setHasAccess] = useState(false);
   // Pour l'édition
   const [editTitle, setEditTitle] = useState("");
   const [editFile, setEditFile] = useState<File | null>(null);
@@ -38,7 +36,8 @@ export default function ResourcePage() {
   const [copied, setCopied] = useState(false);
   const resourceUrl =
     typeof window !== "undefined"
-      ? window.location.origin + `/resources/${resourcesId}/buy`
+      ? window.location.origin +
+        `/resources/${resourcesId}/buy?community=${activeCommunity?.id}`
       : "";
   const handleCopy = () => {
     navigator.clipboard.writeText(resourceUrl);
