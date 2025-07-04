@@ -76,7 +76,7 @@ export default function ResourcePage() {
                 <Separator />
                 <div className="flex flex-col gap-1 text-sm">
                   <span>
-                    <b>Durée :</b> {resource.duration}
+                    <b>Longueur :</b> {resource.length}
                   </span>
                   <span>
                     <b>Date :</b> {resource.date}
@@ -143,24 +143,6 @@ export default function ResourcePage() {
                 ))}
               </CardContent>
             </Card>
-            {/* Aperçu PDF si whitepaper */}
-            {resource.format === "Whitepaper" && resource.pdfUrl && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Aperçu du PDF</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <a
-                    href={resource.pdfUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-blue-600 underline"
-                  >
-                    <Upload className="w-4 h-4" /> Voir le PDF actuel
-                  </a>
-                </CardContent>
-              </Card>
-            )}
           </div>
           {/* Colonne droite : édition + partage lien */}
           <div className="space-y-6">

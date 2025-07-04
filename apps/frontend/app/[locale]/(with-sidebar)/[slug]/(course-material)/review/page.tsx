@@ -16,6 +16,7 @@ import {
   Upload,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useParams, useRouter } from "next/navigation";
 
 interface RevenueIncreaseRequest {
   currentShare: number;
@@ -68,6 +69,8 @@ const contributors = [
 ];
 
 export default function ReviewingPage() {
+  const router = useRouter();
+  const { slug } = useParams();
   const [activeExpertise, setActiveExpertise] = useState("All");
   const [feedbacks, setFeedbacks] = useState<Record<string, string>>({});
   const MIN_FEEDBACK_LENGTH = 50;
@@ -407,9 +410,12 @@ export default function ReviewingPage() {
             <Button
               className="w-64"
               disabled={!editFile}
-              onClick={() =>
-                toast.success("Produit mis en vente avec succès !")
-              }
+              onClick={() => {
+                toast.success("Produit mis en vente avec succès !");
+                setTimeout(() => {
+                  router.push(`/${slug}/global/resources/561903247`);
+                }, 2000);
+              }}
             >
               Mettre en vente le produit
             </Button>
