@@ -80,7 +80,7 @@ export class AuthController {
 		@Res({ passthrough: true }) res: Response,
 	) {
 		// return this.authProvider.signUp(signUpDto);
-		const { access_token, refresh_token, auth } =
+		const { access_token, refresh_token, auth, nftId } =
 			await this.authProvider.signUp(signUpDto);
 		res.cookie('refresh-token', refresh_token, {
 			httpOnly: true,
@@ -100,7 +100,7 @@ export class AuthController {
 			domain: process.env.COOKIE_DOMAIN || undefined,
 		});
 
-		return { access_token, auth };
+		return { access_token, auth, nftId };
 	}
 
 	@Public()

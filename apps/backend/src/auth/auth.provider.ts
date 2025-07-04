@@ -30,9 +30,12 @@ export class AuthProvider {
 		private readonly discordLinkProvider: DiscordLinkProvider,
 	) {}
 
-	async signUp(
-		signUpDto: SignUpDto,
-	): Promise<{ access_token: string; refresh_token: string; auth: string }> {
+	async signUp(signUpDto: SignUpDto): Promise<{
+		access_token: string;
+		refresh_token: string;
+		auth: string;
+		nftId: string;
+	}> {
 		try {
 			const {
 				gender,
@@ -55,7 +58,8 @@ export class AuthProvider {
 				password: hashPassword,
 			});
 
-			await this.xrplProvider.generateAccountAndMintNft(user);
+			const nftResult =
+				await this.xrplProvider.generateAccountAndMintNft(user);
 
 			const { access_token, refresh_token } =
 				await this.generateTokensForUser(user);
@@ -72,6 +76,7 @@ export class AuthProvider {
 				access_token,
 				refresh_token,
 				auth: 'create',
+				nftId: nftResult.nftId,
 			};
 		} catch (error: any) {
 			this.logger.error(error);

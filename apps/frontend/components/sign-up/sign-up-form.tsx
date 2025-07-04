@@ -21,11 +21,12 @@ import {
 } from "@repo/ui";
 import { cn } from "@workspace/ui/lib/utils";
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Loader2, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import DiscordAuthButton from "@/components/shared/DiscordAuthButton";
+import { toast } from "sonner";
 
 export default function SignUpForm() {
   const router = useRouter();
@@ -43,6 +44,7 @@ export default function SignUpForm() {
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [step, setStep] = useState<number>(0);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -52,22 +54,23 @@ export default function SignUpForm() {
   };
 
   const submitRegistration = async () => {
-    console.log(process.env.NEXT_PUBLIC_BACKEND_URL);
-    console.log(process.env.NEXT_PUBLIC_ANALYSER_URL);
-
-    console.log("submit");
     setError("");
     setSuccess("");
+    setStep(1);
     if (!termsAccepted) {
+      setStep(0);
       return "You must accept the Terms & Conditions.";
     }
     const validationError = validateFormSignUp(formData);
-
     if (validationError) {
       setError(validationError);
+      setStep(0);
       return;
     }
-
+    await new Promise((res) => setTimeout(res, 1000));
+    setStep(2);
+    await new Promise((res) => setTimeout(res, 1000));
+    setStep(3);
     try {
       const { confirmPwd, ...rest } = formData;
       const signUp: ISignUp = rest;
@@ -83,16 +86,39 @@ export default function SignUpForm() {
         }
       );
       if (!response.ok) {
+        setStep(0);
         throw new Error("Registration failed. Please try again.");
       }
       const data = await response.json();
       console.log(data);
       setAccessToken(data.access_token);
+      setStep(0);
+      if (data.nftId) {
+        const explorerUrl = `https://test.xrplexplorer.com/nft/${data.nftId}`;
+        toast(
+          <span>
+            NFT minted!{" "}
+            <a
+              href={explorerUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline text-blue-600 hover:text-blue-800"
+            >
+              View on XRPL Explorer
+            </a>
+          </span>,
+          {
+            duration: 5000,
+          }
+        );
+      }
       router.push("/");
     } catch (err: any) {
+      setStep(0);
       setError(err.message || "An unexpected error occurred.");
     }
   };
+
   return (
     <>
       <div className="flex md:items-center justify-center min-h-screen bg-background">
@@ -247,9 +273,15 @@ export default function SignUpForm() {
           <div className="space-y-6">
             {error && <p className="text-sm text-red-500">{error}</p>}
             {success && <p className="text-sm text-green-600">{success}</p>}
-            <Button className="w-full" onClick={submitRegistration}>
-              Sign up
-            </Button>
+            {step === 0 ? (
+              <Button className="w-full" onClick={submitRegistration}>
+                Sign up
+              </Button>
+            ) : (
+              <div className="w-full flex flex-col items-center gap-4 py-4">
+                <VerticalStepLoader step={step} />
+              </div>
+            )}
             {/* Bouton Discord */}
             <DiscordAuthButton mode="sign-up" />
             <p className="text-sm text-center text-muted-foreground">
@@ -262,5 +294,51 @@ export default function SignUpForm() {
         </div>
       </div>
     </>
+  );
+}
+
+function VerticalStepLoader({ step }: { step: number }) {
+  const steps = [
+    {
+      label: "Saving your information in our database...",
+      done: step > 1,
+      loading: step === 1,
+    },
+    {
+      label: "Generating your XRPL wallet (secure & unique)...",
+      done: step > 2,
+      loading: step === 2,
+    },
+    {
+      label: "Minting your NFT identity...",
+      done: false,
+      loading: step === 3,
+    },
+  ];
+  return (
+    <div className="flex flex-col gap-4 w-full">
+      {steps.map((s, i) => (
+        <div key={i} className="flex items-center gap-3">
+          {s.done ? (
+            <CheckCircle2 className="text-green-500 w-5 h-5" />
+          ) : s.loading ? (
+            <Loader2 className="animate-spin text-blue-500 w-5 h-5" />
+          ) : (
+            <div className="w-5 h-5 rounded-full border border-gray-300" />
+          )}
+          <span
+            className={
+              s.done
+                ? "text-green-600"
+                : s.loading
+                  ? "text-blue-600"
+                  : "text-gray-500"
+            }
+          >
+            {s.label}
+          </span>
+        </div>
+      ))}
+    </div>
   );
 }

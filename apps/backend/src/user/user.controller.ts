@@ -39,8 +39,11 @@ export class UserController {
 	@Get(':id/nft-metadata')
 	async getNftMetadata(@Param('id') id: string) {
 		const user = await this.userService.findOneById(+id);
-		if (!user || !user.discordId) {
-			throw new NotFoundException('User or Discord profile not found');
+		console.log(user);
+		if (!user && !user.nftId && !user.discordId) {
+			throw new NotFoundException(
+				'User and NFT ID and Discord profile not found',
+			);
 		}
 
 		const nbProposals = user.proposals?.length || 0;
@@ -61,10 +64,19 @@ export class UserController {
 			{ for: 0, against: 0, total: 0 },
 		);
 
+		let image = '';
+		if (user.discordId) {
+			image = `https://cdn.discordapp.com/avatars/${user.discordId}/${user.discordAvatar}.png`;
+		} else {
+			image = `https://ui-avatars.com/api/?name=${encodeURIComponent(
+				user.firstname + ' ' + user.lastname,
+			)}&rounded=true&background=random`;
+		}
+
 		return {
 			name: `Snowledge Profile: ${user.firstname}`,
 			description: `This NFT represents the user ${user.firstname} on the Snowledge platform.`,
-			image: `https://cdn.discordapp.com/avatars/${user.discordId}/${user.discordAvatar}.png`,
+			image: image,
 			attributes: [
 				{
 					trait_type: 'Snowledge User ID',
@@ -95,7 +107,10 @@ export class UserController {
 	}
 
 	@Put('add-expertise/:idUser')
-	async addExpertise(@Param('idUser') idUser: number, @Body() add: AddExpertiseUserDto) {
+	async addExpertise(
+		@Param('idUser') idUser: number,
+		@Body() add: AddExpertiseUserDto,
+	) {
 		return this.userService.setExpertise(idUser, add.expertise);
 	}
 	@Delete('/by-email/:email')
