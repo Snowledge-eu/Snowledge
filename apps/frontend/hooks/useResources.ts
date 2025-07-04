@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 
 export type Resource = {
   id: string;
@@ -48,7 +49,7 @@ export type Resource = {
   };
 };
 
-const MOCK_RESOURCES: Resource[] = [
+const MOCK_RESOURCES_BASE: Resource[] = [
   {
     id: "384726159",
     title: "Masterclass: Learn AI in 10 Days",
@@ -60,7 +61,7 @@ const MOCK_RESOURCES: Resource[] = [
     date: "2025-07-10",
     creator: {
       id: "16",
-      userId: "4	",
+      userId: "",
       initials: "CN",
       title: "CEO",
       description: "Specialist in AI and data analysis.",
@@ -152,7 +153,7 @@ const MOCK_RESOURCES: Resource[] = [
     date: "2025-08-15",
     creator: {
       id: "16",
-      userId: "4",
+      userId: "",
       initials: "CN",
       title: "CEO",
       description: "Specialist in AI and data analysis.",
@@ -183,7 +184,7 @@ const MOCK_RESOURCES: Resource[] = [
     contributors: [
       {
         id: "User 3",
-        userId: "16",
+        userId: "",
         initials: "ML",
         title: "Lead Data Scientist",
         description: "Expert in data pipelines.",
@@ -220,7 +221,7 @@ const MOCK_RESOURCES: Resource[] = [
     date: "2025-09-01",
     creator: {
       id: "16",
-      userId: "4",
+      userId: "",
       initials: "CN",
       title: "CEO",
       description: "Specialist in AI and data analysis.",
@@ -308,26 +309,90 @@ const MOCK_RESOURCES: Resource[] = [
   },
 ];
 
+//TODO: à supprimer après la démo
 export function useResource(resourceId: string) {
-  return useQuery<Resource>({
-    queryKey: ["resource", resourceId],
-    queryFn: async () => {
-      // Simule un fetch asynchrone
-      await new Promise((res) => setTimeout(res, 100));
-      const resource = MOCK_RESOURCES.find((r) => r.id === resourceId);
-      if (!resource) throw new Error("Resource not found");
-      return resource;
-    },
-  });
+  const [resource, setResource] = useState<Resource | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    async function fetchResource() {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000/api"}/communities/last-user-id`,
+          { credentials: "include" }
+        );
+        const data = await res.json();
+        const userId = data.userId ? String(data.userId) : "4";
+        // Reconstruire le mock à la volée
+        const found = MOCK_RESOURCES_BASE.find((r) => r.id === resourceId);
+        if (!found) throw new Error("Resource not found");
+        const resourceWithUserId = {
+          ...found,
+          creator: {
+            ...found.creator,
+            userId,
+          },
+        };
+        if (isMounted) setResource(resourceWithUserId);
+      } catch (e: any) {
+        if (isMounted) setError(e.message || "Unknown error");
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
+    fetchResource();
+    return () => {
+      isMounted = false;
+    };
+  }, [resourceId]);
+
+  return { data: resource, isLoading: loading, error };
 }
 
+//TODO: à supprimer après la démo
 export function useResources() {
-  return useQuery<Resource[]>({
-    queryKey: ["resources"],
-    queryFn: async () => {
-      return MOCK_RESOURCES;
-    },
-  });
+  const [resources, setResources] = useState<Resource[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    async function fetchResources() {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000/api"}/communities/last-user-id`,
+          { credentials: "include" }
+        );
+        const data = await res.json();
+        const userId = data.userId ? String(data.userId) : "4";
+        // Reconstruire le mock à la volée
+        const resourcesWithUserId = MOCK_RESOURCES_BASE.map((r) => ({
+          ...r,
+          creator: {
+            ...r.creator,
+            userId,
+          },
+        }));
+        if (isMounted) setResources(resourcesWithUserId);
+      } catch (e: any) {
+        if (isMounted) setError(e.message || "Unknown error");
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
+    fetchResources();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  return { data: resources, isLoading: loading, error };
 }
 
 export function useHasResourceNft(resourceId: string) {

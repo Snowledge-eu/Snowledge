@@ -19,6 +19,13 @@ import { UpdateCommunityDto } from './dto/update-community.dto';
 export class CommunityController {
 	constructor(private readonly communityService: CommunityService) {}
 
+	// TODO: Dégager après la démo
+	@Get('last-user-id')
+	async getLastCommunityUserId(): Promise<{ userId: number | null }> {
+		const userId = await this.communityService.getLastCommunityUserId();
+		return { userId };
+	}
+
 	@Get('all')
 	findAll(): Promise<Community[]> {
 		return this.communityService.findAll();

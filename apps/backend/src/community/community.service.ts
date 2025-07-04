@@ -111,4 +111,17 @@ export class CommunityService {
 			slug,
 		});
 	}
+
+	// TODO: Dégager après la démo
+	// Retourne le userId du créateur de la dernière communauté (par date de création)
+	async getLastCommunityUserId(): Promise<number | null> {
+		const lastCommunity = await this.communityRepository.find({
+			order: { created_at: 'DESC' },
+			relations: ['user'],
+			// On ne prend que la dernière
+			take: 1,
+		});
+		if (lastCommunity.length === 0) return null;
+		return lastCommunity[0].user?.id ?? null;
+	}
 }

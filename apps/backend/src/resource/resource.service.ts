@@ -1,9 +1,13 @@
 import { Injectable } from '@nestjs/common';
+import { CommunityService } from '../community/community.service';
 
 @Injectable()
 export class ResourceService {
+	constructor(private readonly communityService: CommunityService) {}
+
 	// Mock synchronisé avec le front (voir useResources.ts)
-	private resources = [
+
+	private baseResources = [
 		{
 			id: '384726159',
 			title: 'Masterclass: Learn AI in 10 Days',
@@ -15,7 +19,7 @@ export class ResourceService {
 			date: '2025-07-10',
 			creator: {
 				id: '16',
-				userId: '4	',
+				userId: '',
 				initials: 'CN',
 				title: 'CEO',
 				description: 'Specialist in AI and data analysis.',
@@ -49,7 +53,7 @@ export class ResourceService {
 			contributors: [
 				{
 					id: 'User 1',
-					userId: '16',
+					userId: '',
 					initials: 'CN',
 					title: 'CEO',
 					description: 'Specialist in AI and data analysis.',
@@ -109,7 +113,7 @@ export class ResourceService {
 			date: '2025-08-15',
 			creator: {
 				id: '16',
-				userId: '4',
+				userId: '',
 				initials: 'CN',
 				title: 'CEO',
 				description: 'Specialist in AI and data analysis.',
@@ -178,7 +182,7 @@ export class ResourceService {
 			date: '2025-09-01',
 			creator: {
 				id: '16',
-				userId: '4',
+				userId: '',
 				initials: 'CN',
 				title: 'CEO',
 				description: 'Specialist in AI and data analysis.',
@@ -269,6 +273,22 @@ export class ResourceService {
 	];
 
 	async getResourceById(id: string) {
-		return this.resources.find((r) => r.id === id);
+		const userId = (await this.getLastCommunityUserId()) || '4';
+		const resource = this.baseResources.find((r) => r.id === id);
+		if (!resource) return null;
+		// On clone la ressource pour ne pas muter le mock de base
+
+		const resourceWithUserId = {
+			...resource,
+			creator: {
+				...resource.creator,
+				userId,
+			},
+		};
+		return resourceWithUserId;
+	}
+
+	async getLastCommunityUserId() {
+		return await this.communityService.getLastCommunityUserId();
 	}
 }
