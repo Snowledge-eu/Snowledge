@@ -46,9 +46,6 @@ async function bootstrap() {
 		SwaggerModule.setup('swagger', app, document);
 	}
 
-	// Sert le dossier public à la racine de l'API
-	app.useStaticAssets(join(__dirname, '..', 'public'));
-
 	await app.listen(configService.get('serverConfig.port'));
 
 	console.log(`Application is running on: ${await app.getUrl()}`);

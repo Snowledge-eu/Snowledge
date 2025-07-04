@@ -61,23 +61,23 @@ export class ResourceController {
 	@Public()
 	@Get(':id/nft-metadata')
 	async getResourceNftMetadata(@Param('id') resourceId: string) {
-		const baseUrl = process.env.BACK_URL || 'http://localhost:4000';
+		const baseUrl = process.env.FRONT_URL || 'http://localhost:3000';
 		const resource =
 			await this.resourceProvider.getResourceById(resourceId);
 		if (!resource) {
 			return {
 				name: 'Snowledge Resource',
 				description: 'Resource not found',
-				image: `${baseUrl}/default-resource.png`,
+				image: `${baseUrl}/nft-icon/default-resource.png`,
 				attributes: [],
 			};
 		}
 		// Mapping format → image (fichiers statiques dans /public)
 		const formatImages: Record<string, string> = {
-			Masterclass: `${baseUrl}/masterclass.png`,
-			Workshop: `${baseUrl}/workshop.png`,
-			Whitepaper: `${baseUrl}/whitepaper.png`,
-			Webinar: `${baseUrl}/webinar.png`,
+			Masterclass: `${baseUrl}/nft-icon/masterclass.png`,
+			Workshop: `${baseUrl}/nft-icon/workshop.png`,
+			Whitepaper: `${baseUrl}/nft-icon/whitepaper.png`,
+			Webinar: `${baseUrl}/nft-icon/webinar.png`,
 		};
 		const image =
 			formatImages[resource.format] || `${baseUrl}/default-resource.png`;
