@@ -8,6 +8,7 @@ export type Resource = {
   format: string;
   duration?: string;
   date?: string;
+  length?: string;
   outlines: { title: string; description: string }[];
   price: number;
   creatorSharePct: number;
@@ -216,6 +217,7 @@ const MOCK_RESOURCES: Resource[] = [
           "Analyse des enjeux éthiques, techniques et économiques à venir.",
       },
     ],
+    length: "10-20",
     price: 15,
     creatorSharePct: 50,
     contributorSharePct: 50,

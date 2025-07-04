@@ -36,7 +36,8 @@ export default function ResourcePage() {
         if (hasNft) {
           return (
             <div className="max-w-3xl mx-auto py-10 space-y-8">
-              <Card className="bg-green-50 border-green-200">
+              {/*<Card className="bg-green-50 border-green-200"> */}
+              <Card className="border-green-200">
                 <CardHeader className="flex flex-col items-center text-center">
                   <div className="flex items-center justify-center mb-2">
                     <svg
@@ -70,7 +71,8 @@ export default function ResourcePage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  <div className="bg-green-100 rounded-md p-4 text-green-900 text-center text-lg font-medium">
+                  {/*<div className="rounded-md p-4 text-green-900 text-center text-lg font-medium bg-green-100">*/}
+                  <div className="rounded-md p-4 text-green-900 text-center text-lg font-medium">
                     🎉 Félicitations ! Vous faites désormais partie des membres
                     ayant débloqué ce contenu premium.
                   </div>
@@ -85,7 +87,7 @@ export default function ResourcePage() {
                       Format : {resource.format}
                     </span>
                     <span className="text-base font-medium">
-                      Durée : {resource.duration}
+                      Taille : {resource.length} pages
                     </span>
                     {resource.format === "Whitepaper" && resource.pdfUrl && (
                       <a
@@ -133,7 +135,8 @@ export default function ResourcePage() {
         // Non-acheteur : accès refusé
         return (
           <div className="max-w-2xl mx-auto py-10 space-y-8">
-            <Card className="bg-yellow-50 border-yellow-200">
+            {/*<Card className="bg-yellow-50 border-yellow-200"> */}
+            <Card className="border-yellow-200">
               <CardHeader className="flex flex-col items-center text-center">
                 <div className="flex items-center justify-center mb-2">
                   <svg
@@ -168,7 +171,8 @@ export default function ResourcePage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="bg-yellow-100 rounded-md p-4 text-yellow-900 text-center text-lg font-medium">
+                {/*<div className="bg-yellow-100 rounded-md p-4 text-yellow-900 text-center text-lg font-medium">*/}
+                <div className="rounded-md p-4 text-yellow-900 text-center text-lg font-medium">
                   🚀 Ce contenu est réservé aux membres ayant débloqué l'accès.
                   Découvrez&nbsp;:
                 </div>
