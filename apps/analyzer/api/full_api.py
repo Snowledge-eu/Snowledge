@@ -196,7 +196,7 @@ async def discord_analyze(request: DiscordAnalyzeRequest):
     storage = MongoStorage()
     filters = {
         "channel_id": request.channelId,
-        "created_at": {"$gte": since, "$lte": now}
+        "created_at_by_discord": {"$gte": since, "$lte": now}
     }
     messages = storage.get_discord_messages(filters)
     if not messages:
@@ -204,14 +204,14 @@ async def discord_analyze(request: DiscordAnalyzeRequest):
 
     # Trie du plus ancien au plus récent
     for m in messages:
-        if isinstance(m["created_at"], str):
-            m["created_at"] = parse_date(m["created_at"])
-    messages = sorted(messages, key=lambda m: m["created_at"])
+        if isinstance(m["created_at_by_discord"], str):
+            m["created_at_by_discord"] = parse_date(m["created_at_by_discord"])
+    messages = sorted(messages, key=lambda m: m["created_at_by_discord"])
 
     # 3. Format messages for the prompt
     formatted = []
     for msg in messages:
-        dt = msg["created_at"].strftime("%Y-%m-%d %H:%M")
+        dt = msg["created_at_by_discord"].strftime("%Y-%m-%d %H:%M")
         user = msg.get("author_name", str(msg.get("user_id", "?")))
         content = msg["content"]
         formatted.append(f"[{dt}] {user}: {content}")
