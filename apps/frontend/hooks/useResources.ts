@@ -285,10 +285,7 @@ const MOCK_RESOURCES_BASE: Resource[] = [
             "Write the introduction, the synthesis of technological advances, and the conclusion of the whitepaper, ensuring scientific consistency and overall vision.",
           length: "10-20",
         },
-        synthesis: `Blablablablabla
-- I've done this
-- I've done that
-- but not this etc…`,
+        synthesis: `Done! Introduction, tech synthesis, and conclusion written with solid scientific references. I also added extra research on future AI trends, integrated new scientific citations, wrote 3 additional pages summarizing market impacts, and refined the narrative for better clarity and stronger impact. I’d like more share for the extra effort`,
         revenueIncreaseRequest: {
           currentShare: 10,
           requestedShare: 15,
@@ -311,9 +308,7 @@ const MOCK_RESOURCES_BASE: Resource[] = [
             "Analyze innovative use cases of generative AI in industry and healthcare, and write the corresponding chapters.",
           length: "10-20",
         },
-        synthesis: `Blablablablabla
-- Task 1
-- Task 2`,
+        synthesis: `Chapters complete. I analyzed key AI use cases in healthcare and industry, with examples, trends, and insights on market adoption and transformative impact.`,
       },
       {
         id: "User 3",
@@ -328,9 +323,7 @@ const MOCK_RESOURCES_BASE: Resource[] = [
             "Document the technical challenges, scalability, security, and governance of generative models, and write the technical chapters.",
           length: "10-20",
         },
-        synthesis: `Blablablablabla
-- Done something
-- Another thing`,
+        synthesis: `Technical sections delivered, covering scalability, security, model governance, and emerging risks of generative models. Included diagrams and practical examples.`,
       },
     ],
     attendees: [
