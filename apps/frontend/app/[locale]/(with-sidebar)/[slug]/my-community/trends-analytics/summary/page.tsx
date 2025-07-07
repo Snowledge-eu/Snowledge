@@ -57,8 +57,8 @@ export default function Page() {
         period: period,
       };
       console.log(body);
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_ANALYSER_URL}/discord/analyze`,
+      const res = await fetcher(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/analysis/discord`,
         {
           method: "POST",
           headers: {

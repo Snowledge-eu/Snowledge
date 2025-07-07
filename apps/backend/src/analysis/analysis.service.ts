@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { CreateAnalysisDto } from './dto/create-analysis.dto';
 import { UpdateAnalysisDto } from './dto/update-analysis.dto';
 import { Model } from 'mongoose';
@@ -7,15 +7,16 @@ import { AnalysisResult } from './schemas/analysis-result.schema';
 import { Long } from 'bson';
 @Injectable()
 export class AnalysisService {
+	private readonly logger = new Logger(AnalysisService.name);
 	constructor(@InjectModel(AnalysisResult.name) private analysisModel: Model<AnalysisResult>) {}
 
 	create(createAnalysisDto: CreateAnalysisDto) {
-		return 'This action adds a new analysis';
+		return this.analysisModel.create(createAnalysisDto);
 	}
 
-		findAll() {
-			return this.analysisModel.find().exec();
-		}
+	findAll() {
+		return this.analysisModel.find().exec();
+	}
 
 	findOne(id: number) {
 		return `This action returns a #${id} analysis`;
@@ -29,13 +30,13 @@ export class AnalysisService {
 
 				platform: "discord",
 				"scope": {
-					"server_id": Long.fromString(serverId),
-					"channel_id": Long.fromString(channelId),
+					"server_id": serverId,
+					"channel_id": channelId,
 				},
 				prompt_key: { $eq: promptKey },
 			
 			})
-			.sort({createdAt: -1})
+			.sort({created_at: -1})
 			.lean();
 		}
 	findByDiscordServer(serverId: string, promptKey: string): Promise<AnalysisResult[]> {
@@ -45,10 +46,10 @@ export class AnalysisService {
 		return this.analysisModel
 		.find({
 			platform: 'discord',
-			'scope.server_id': Long.fromString(serverId),
+			'scope.server_id': serverId,
 			prompt_key: { $eq: promptKey },
 		})
-		.sort({ createdAt: -1 })
+		.sort({ created_at: -1 })
 		.limit(10)
 		.lean()
 		.exec();

@@ -27,6 +27,7 @@ COPY turbo.json turbo.json
 RUN npx turbo run build --filter=backend^... --no-cache
 
 FROM base AS runner
+# RUN apk add --no-cache curl bash binutils && curl -Lo /etc/apk/keys/sgerrand.rsa.pub https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub curl -Lo glibc.apk https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.34-r0/glibc-2.34-r0.apk && apk add --no-cache glibc.apk && rm -f glibc.apk
 WORKDIR /app
 
 COPY --from=installer /app .

@@ -37,22 +37,22 @@ services:
     restart: unless-stopped
     networks:
       - snowledge_network
-  analyzer:
-    build:
-      context: .
-      dockerfile: ./apps/analyzer/Dockerfile
-    # volumes:
-    #   - ./apps/analyzer:/app
-    #   - ./llm_models.yaml:/app/standalone_version/llm/llm_models.yaml
-    #   - ./prompt_models.yaml:/app/standalone_version/llm/prompt_models.yaml
-    ports:
-      - 8000:8000
-    environment:
-      - PYTHONUNBUFFERED=1
-    depends_on:
-      - mongo
-    networks:
-      - snowledge_network
+  # analyzer:
+  #   build:
+  #     context: .
+  #     dockerfile: ./apps/analyzer/Dockerfile
+  #   # volumes:
+  #   #   - ./apps/analyzer:/app
+  #   #   - ./llm_models.yaml:/app/standalone_version/llm/llm_models.yaml
+  #   #   - ./prompt_models.yaml:/app/standalone_version/llm/prompt_models.yaml
+  #   ports:
+  #     - 8000:8000
+  #   environment:
+  #     - PYTHONUNBUFFERED=1
+  #   depends_on:
+  #     - mongo
+  #   networks:
+  #     - snowledge_network
   mongo:
     image: mongo
     container_name: snowlege-collector

@@ -109,7 +109,7 @@ export class DiscordProvider {
 	}
 	async disconnectDiscord(user: User) {
 		const findUser = await this.userService.findOneByEmail(user.email);
-		console.log(findUser)
+
 		await this.userService.update(user.id, {
 			discordId: '',
 			discordAccess: null,

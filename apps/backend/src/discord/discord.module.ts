@@ -27,6 +27,9 @@ import { DiscordServerModule } from 'src/discord-server/discord-server.module';
 import { DiscordHarvestJobService } from './services/discord-harvest-job.service';
 import { DiscordMessageService } from './services/discord-message.service';
 import { DiscordChannelService } from './services/discord-channel.service';
+import { DiscordHelper } from './helpers/discord.helper';
+import { DiscordClientHelper } from './helpers/discord-client.helper';
+import { DiscordHarvestJobHelper } from './helpers/discord-harvest-job.helper';
 
 @Module({
 	imports: [
@@ -45,10 +48,13 @@ import { DiscordChannelService } from './services/discord-channel.service';
 	providers: [
 		DiscordProvider,
 		DiscordService,
+		DiscordHelper,
 		DiscordChannelService,
 		DiscordHarvestJobService,
 		DiscordMessageService,
+		DiscordClientHelper,
+		DiscordHarvestJobHelper,
 	],
-	exports: [DiscordProvider, DiscordService, DiscordMessageService],
+	exports: [DiscordProvider,DiscordHelper, DiscordService, DiscordMessageService],
 })
 export class DiscordModule {}

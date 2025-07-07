@@ -25,10 +25,10 @@ export class DiscordHarvestJob {
 	channels: Long[];
 
 	@Prop()
-	after?: string;
+	after?: Date;
 
 	@Prop()
-	before?: string;
+	before?: Date;
 
 	@Prop({ enum: ['pending', 'running', 'completed', 'failed'], required: true })
 	status: string;

@@ -23,10 +23,11 @@ import { DiscordHarvestJob } from './schemas/discord-harvest-job.schema';
 import { DiscordMessageService } from './services/discord-message.service';
 import { DiscordChannelService } from './services/discord-channel.service';
 import { TransformLongToStringInterceptor } from 'src/shared/interceptors/transform-long-to-string.pipe';
+import { DiscordHarvestDto } from './dto/discord-harvest.dto';
 @ApiTags('auth')
 @Controller('discord')
 export class DiscordController {
-	// private readonly logger = new Logger(DiscordController.name);
+	private readonly logger = new Logger(DiscordController.name);
 	constructor(
 		private discordProvider: DiscordProvider,
 		private discordChannelService: DiscordChannelService,
@@ -132,7 +133,6 @@ export class DiscordController {
 				throw new Error(`Invalid interval: ${info.interval}`);
 		}
 		for (const id of info.channelId) {
-			console.log(await this.discordMessageService.findAllById(id))
 			const tmpcount =
 				await this.discordMessageService.countMessageForPeriod(
 					id,
@@ -142,7 +142,16 @@ export class DiscordController {
 		}
 		return count;
 	}
-
+	@Post('harvest')
+	async harvestDiscord(@Body() dto: DiscordHarvestDto) {
+		try {
+			this.logger.verbose(JSON.stringify(dto))
+			const jobId = await this.discordHarvestJobService.addJob(dto);
+			return { job_id: jobId, status: 'queued' };
+		} catch (error) {
+			this.logger.error(error);
+		}
+	}
 	@Delete('disconnect')
 	async disconnect(@User() user: UserEntity){
 		return await this.discordProvider.disconnectDiscord(user);

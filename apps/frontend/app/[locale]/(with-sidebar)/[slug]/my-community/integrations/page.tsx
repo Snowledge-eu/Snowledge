@@ -65,7 +65,7 @@ export default function Page() {
       channels: selected.discord.map((ch) => ch.value),
       after: afterDate,
     };
-    await fetch(`${process.env.NEXT_PUBLIC_ANALYSER_URL}/discord/harvest`, {
+    await fetcher(`${process.env.NEXT_PUBLIC_BACKEND_URL}/discord/harvest`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

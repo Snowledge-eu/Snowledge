@@ -3,10 +3,14 @@ import { AnalysisService } from './analysis.service';
 import { AnalysisController } from './analysis.controller';
 import { AnalysisResult, AnalysisResultSchema } from './schemas/analysis-result.schema';
 import { MongooseModule } from '@nestjs/mongoose';
+import { DiscordModule } from 'src/discord/discord.module';
+import { AnalysisHelper } from './analysis.helper';
+import { PayloadBuilder } from './llm/payload-builder';
+import { OvhClient } from './llm/call-ovh-api';
 
 @Module({
-	imports: [MongooseModule.forFeature([{ name: AnalysisResult.name, schema: AnalysisResultSchema }])],
+	imports: [MongooseModule.forFeature([{ name: AnalysisResult.name, schema: AnalysisResultSchema }]), DiscordModule],
 	controllers: [AnalysisController],
-	providers: [AnalysisService],
+	providers: [AnalysisHelper, AnalysisService, PayloadBuilder, OvhClient],
 })
 export class AnalysisModule {}
