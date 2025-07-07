@@ -203,9 +203,13 @@ export default function CardPlatform({
                 <br />
                 {platform.lastFetched.channels.map((channel, id) => (
                   <span key={id}>
-                    {channel.name} - {channel.qty} message
-                    {channel.qty > 1 && "s"} downloaded
-                    {channel.qty > 1 && "s"}
+                    {channel.qty > 0 && (
+                      <>
+                        {channel.name} - {channel.qty} message
+                        {channel.qty > 1 && "s"} downloaded
+                        {channel.qty > 1 && "s"}
+                      </>
+                    )}
                   </span>
                 ))}
               </div>
