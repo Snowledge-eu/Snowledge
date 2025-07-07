@@ -41,7 +41,7 @@ export default function Page() {
     .map((key) => ({
       label: capitalize(key), // Pour avoir "Ai", "Development", etc.
       value: key,
-  }));
+    }));
   // Fetch des membres
   const {
     data: members = [],
@@ -117,7 +117,7 @@ export default function Page() {
             <TableHead>{t("role_member")}</TableHead>
             <TableHead>Email</TableHead>
             <TableHead>Expertise</TableHead>
-            <TableHead>{t("role_contributor")}</TableHead>
+            <TableHead>{t("status")}</TableHead>
             <TableHead>{t("added_on")}</TableHead>
             <TableHead>{t("actions")}</TableHead>
           </TableRow>

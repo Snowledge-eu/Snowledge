@@ -341,6 +341,7 @@
     "search_placeholder": "Search a member...",
     "role_contributor": "Contributor",
     "role_member": "Member",
+    "status": "Status",
     "added_on": "Added on",
     "actions": "Actions",
     "promote": "Promote contributor",
