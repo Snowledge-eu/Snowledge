@@ -54,7 +54,7 @@ export default function Page() {
   const [sharePercentage, setSharePercentage] = useState(30);
   const [activeExpertise, setActiveExpertise] = useState("All");
   const [sliders, setSliders] = useState<number[]>(
-    contributors?.map(() => 10) || []
+    contributors?.map((c) => c.sharePct) || []
   );
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [duration, setDuration] = useState("");
@@ -151,6 +151,12 @@ export default function Page() {
     );
     setIsFormValid(isValid);
   }, [selectedFormat, date, duration, length, chapters]);
+
+  useEffect(() => {
+    if (contributors && contributors.length > 0) {
+      setSliders(contributors.map((c) => c.sharePct));
+    }
+  }, [contributors]);
 
   return (
     <>
@@ -541,7 +547,11 @@ export default function Page() {
                         <div className="flex items-center gap-2 md:w-fit">
                           <Input
                             type="number"
-                            value={sliders[index]}
+                            value={
+                              typeof sliders[index] === "number"
+                                ? sliders[index]
+                                : ""
+                            }
                             onChange={(e) => {
                               if (!lockedContributors[index]) {
                                 const num = Number(e.target.value);
@@ -575,8 +585,16 @@ export default function Page() {
                         </div>
                       </div>
                       <Badge variant="outline" className="mt-2">
-                        {((contributorCut * sliders[index]) / 100).toFixed(2)} $
-                        for {sliders[index]}%
+                        {isNaN(contributorCut) || isNaN(sliders[index])
+                          ? "—"
+                          : ((contributorCut * sliders[index]) / 100).toFixed(
+                              2
+                            )}{" "}
+                        $ for{" "}
+                        {typeof sliders[index] === "number"
+                          ? sliders[index]
+                          : 0}
+                        %
                       </Badge>
                     </div>
                   </CardContent>

@@ -305,7 +305,7 @@ const MOCK_RESOURCES_BASE: Resource[] = [
         title: "Data Scientist",
         description: "Expert in applied AI and data analysis.",
         sharePct: 15,
-        expertises: ["data"],
+        expertises: ["finance"],
         mission: {
           missionDescription:
             "Analyze innovative use cases of generative AI in industry and healthcare, and write the corresponding chapters.",
@@ -322,7 +322,7 @@ const MOCK_RESOURCES_BASE: Resource[] = [
         title: "Software Engineer",
         description: "Fullstack developer specialized in AI and cloud.",
         sharePct: 20,
-        expertises: ["communication", "security"],
+        expertises: ["communication"],
         mission: {
           missionDescription:
             "Document the technical challenges, scalability, security, and governance of generative models, and write the technical chapters.",
