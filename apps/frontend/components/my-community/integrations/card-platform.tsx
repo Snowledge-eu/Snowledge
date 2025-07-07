@@ -193,13 +193,18 @@ export default function CardPlatform({
               <div className="text-xs text-muted-foreground mt-1">
                 Last fetched:{" "}
                 <span className="font-semibold text-foreground">
-                  {new Date(platform.lastFetched.date).toLocaleDateString()}
+                  {platform.lastFetched.date &&
+                  platform.lastFetched.channels.some(
+                    (channel) => channel.qty > 0
+                  )
+                    ? new Date(platform.lastFetched.date).toLocaleDateString()
+                    : "Never fetched"}
                 </span>
                 <br />
                 {platform.lastFetched.channels.map((channel, id) => (
                   <span key={id}>
                     {channel.name} - {channel.qty} message
-                    {channel.qty > 1 && "s"} téléchargé
+                    {channel.qty > 1 && "s"} downloaded
                     {channel.qty > 1 && "s"}
                   </span>
                 ))}
