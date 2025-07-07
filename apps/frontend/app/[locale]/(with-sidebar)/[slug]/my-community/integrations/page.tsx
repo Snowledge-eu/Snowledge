@@ -183,6 +183,8 @@ export default function Page() {
   useEffect(() => {
     if (activeCommunity?.discordServerId) {
       fetchChannels(activeCommunity?.discordServerId);
+    } else {
+      setChannelFetched(true);
     }
     console.log(activeCommunity);
     console.log(user);
@@ -203,7 +205,7 @@ export default function Page() {
     console.log("platforms", platforms);
   }, [platforms]);
 
-  useEffect(()=> {
+  useEffect(() => {
     console.log("selected", selected);
   }, [selected]);
   return (
@@ -221,29 +223,30 @@ export default function Page() {
         {platforms.map((platform) => {
           const isDisabled = !enabled[platform.key as keyof typeof enabled];
           return (
-            (platform.cat === 'chat') &&
-            <CardPlatform
-              key={platform.key}
-              platform={platform} 
-              isDisabled={isDisabled} 
-              isEnabled={enabled[platform.key as keyof typeof enabled]} 
-              timeRange={timeRange[platform.key as keyof typeof timeRange]} 
-              setTimeRange={(val) => {
-                console.log('val', val);
-                 setTimeRange((r) => ({ ...r, ...val }));
-              }}
-              dates={dates[platform.key as keyof typeof dates]} 
-              setDates={(val) => setDates((r) => ({ ...r, ...val }))} 
-              channelFetched={channelFetched} 
-              selected={selected[platform.key as keyof typeof selected]} 
-              setSelected={(val) => {
-                console.log('val', val)
-                setSelected((r) => ({ ...r, ...val }));
-              }}
-              activeCommunity={activeCommunity}
-              handleCollect={handleCollect} 
-              isCollecting={isCollecting} />
-              
+            platform.cat === "chat" && (
+              <CardPlatform
+                key={platform.key}
+                platform={platform}
+                isDisabled={isDisabled}
+                isEnabled={enabled[platform.key as keyof typeof enabled]}
+                timeRange={timeRange[platform.key as keyof typeof timeRange]}
+                setTimeRange={(val) => {
+                  console.log("val", val);
+                  setTimeRange((r) => ({ ...r, ...val }));
+                }}
+                dates={dates[platform.key as keyof typeof dates]}
+                setDates={(val) => setDates((r) => ({ ...r, ...val }))}
+                channelFetched={channelFetched}
+                selected={selected[platform.key as keyof typeof selected]}
+                setSelected={(val) => {
+                  console.log("val", val);
+                  setSelected((r) => ({ ...r, ...val }));
+                }}
+                activeCommunity={activeCommunity}
+                handleCollect={handleCollect}
+                isCollecting={isCollecting}
+              />
+            )
           );
         })}
       </div>
@@ -254,23 +257,24 @@ export default function Page() {
         {platforms.map((platform) => {
           const isDisabled = !enabled[platform.key as keyof typeof enabled];
           return (
-            (platform.cat === 'social-network') &&
-            <CardPlatform
-              key={platform.key}
-              platform={platform} 
-              isDisabled={isDisabled} 
-              isEnabled={enabled[platform.key as keyof typeof enabled]} 
-              timeRange={timeRange[platform.key as keyof typeof timeRange]} 
-              setTimeRange={(val) => setTimeRange((r) => ({ ...r, val }))}
-              dates={dates[platform.key as keyof typeof dates]} 
-              setDates={(val) => setDates((r) => ({ ...r, val }))} 
-              channelFetched={channelFetched} 
-              selected={selected[platform.key as keyof typeof selected]} 
-              setSelected={(val) => setSelected((r) => ({ ...r, val }))}
-              activeCommunity={activeCommunity}
-              handleCollect={handleCollect} 
-              isCollecting={isCollecting} />
-              
+            platform.cat === "social-network" && (
+              <CardPlatform
+                key={platform.key}
+                platform={platform}
+                isDisabled={isDisabled}
+                isEnabled={enabled[platform.key as keyof typeof enabled]}
+                timeRange={timeRange[platform.key as keyof typeof timeRange]}
+                setTimeRange={(val) => setTimeRange((r) => ({ ...r, val }))}
+                dates={dates[platform.key as keyof typeof dates]}
+                setDates={(val) => setDates((r) => ({ ...r, val }))}
+                channelFetched={channelFetched}
+                selected={selected[platform.key as keyof typeof selected]}
+                setSelected={(val) => setSelected((r) => ({ ...r, val }))}
+                activeCommunity={activeCommunity}
+                handleCollect={handleCollect}
+                isCollecting={isCollecting}
+              />
+            )
           );
         })}
       </div>
