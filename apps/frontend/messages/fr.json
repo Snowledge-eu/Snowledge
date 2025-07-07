@@ -525,5 +525,33 @@
     "successRename": "Salon renommé avec succès !",
     "errorRename": "Erreur lors du renommage du salon Discord.",
     "validate": "Valider"
+  },
+  "signUp": {
+    "title": "Créer un compte",
+    "subtitle": "C'est parti. Remplis les informations ci-dessous pour créer ton compte.",
+    "gender": "Genre",
+    "genderPlaceholder": "Sélectionne un genre",
+    "firstname": "Prénom",
+    "lastname": "Nom",
+    "pseudo": "Pseudo",
+    "dateOfBirth": "Date de naissance",
+    "dateOfBirthPlaceholder": "Date de naissance",
+    "email": "Email",
+    "password": "Mot de passe",
+    "confirmPassword": "Confirme le mot de passe",
+    "terms": "J'accepte les ",
+    "termsLink": "Conditions Générales d'Utilisation",
+    "signUpButton": "Créer le compte",
+    "alreadyAccount": "Tu as déjà un compte ?",
+    "signInLink": "Se connecter",
+    "minPassword": "8 caractères minimum.",
+    "savingInfo": "Enregistrement de tes informations dans notre base de données...",
+    "generatingWallet": "Génération de ton wallet XRPL (sécurisé & unique)...",
+    "mintingNFT": "Mint de ton identité décentralisée...",
+    "registrationFailed": "Échec de l'inscription. Merci de réessayer.",
+    "unexpectedError": "Une erreur inattendue est survenue.",
+    "mustAcceptTerms": "Tu dois accepter les Conditions Générales d'Utilisation.",
+    "discordSignUp": "S'inscrire avec Discord",
+    "discordSignIn": "Se connecter avec Discord"
   }
 }

@@ -27,6 +27,7 @@ import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import DiscordAuthButton from "@/components/shared/DiscordAuthButton";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 export default function SignUpForm() {
   const router = useRouter();
@@ -45,6 +46,7 @@ export default function SignUpForm() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [step, setStep] = useState<number>(0);
+  const t = useTranslations("signUp");
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -129,13 +131,8 @@ export default function SignUpForm() {
             <Logo />
             {/* Title and subtitle */}
             <div className="space-y-3">
-              <h2 className="text-2xl md:text-3xl font-bold">
-                Create an account
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                Let&apos;s get started. Fill in the details below to create your
-                account.
-              </p>
+              <h2 className="text-2xl md:text-3xl font-bold">{t("title")}</h2>
+              <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
             </div>
           </div>
 
@@ -153,7 +150,7 @@ export default function SignUpForm() {
               }
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select a gender" />
+                <SelectValue placeholder={t("genderPlaceholder")} />
               </SelectTrigger>
               <SelectContent>
                 {getEnumKeys(Gender).map((key, index) => (
@@ -168,21 +165,21 @@ export default function SignUpForm() {
             <Input
               type="text"
               name="firstname"
-              placeholder="Firstname"
+              placeholder={t("firstname")}
               value={formData.firstname}
               onChange={handleInputChange}
             />
             <Input
               type="text"
               name="lastname"
-              placeholder="Lastname"
+              placeholder={t("lastname")}
               value={formData.lastname}
               onChange={handleInputChange}
             />
             <Input
               type="text"
               name="pseudo"
-              placeholder="Pseudo"
+              placeholder={t("pseudo")}
               value={formData.pseudo}
               onChange={handleInputChange}
             />
@@ -199,7 +196,7 @@ export default function SignUpForm() {
                   {formData.age ? (
                     format(formData.age, "PPP")
                   ) : (
-                    <span>Pick a date</span>
+                    <span>{t("dateOfBirthPlaceholder")}</span>
                   )}
                 </Button>
               </PopoverTrigger>
@@ -221,7 +218,7 @@ export default function SignUpForm() {
             <Input
               type="email"
               name="email"
-              placeholder="Email"
+              placeholder={t("email")}
               value={formData.email}
               onChange={handleInputChange}
             />
@@ -231,19 +228,19 @@ export default function SignUpForm() {
               <Input
                 type="password"
                 name="password"
-                placeholder="Password"
+                placeholder={t("password")}
                 value={formData.password}
                 onChange={handleInputChange}
               />
               <p className="text-sm text-muted-foreground">
-                Minimum 8 characters.
+                {t("minPassword")}
               </p>
             </div>
             <div className="space-y-2">
               <Input
                 type="password"
                 name="confirmPwd"
-                placeholder="Confirm password"
+                placeholder={t("confirmPassword")}
                 value={formData.confirmPwd}
                 onChange={handleInputChange}
               />
@@ -256,14 +253,14 @@ export default function SignUpForm() {
                 onCheckedChange={() => setTermsAccepted((prev) => !prev)}
               />
               <label htmlFor="terms" className="text-sm leading-none ">
-                I agree to the{" "}
+                {t("terms")}
                 <Link
                   href="/cgu"
                   target="_blank"
                   rel="noreferrer"
                   className="underline"
                 >
-                  Terms & Conditions
+                  {t("termsLink")}
                 </Link>
               </label>
             </div>
@@ -275,19 +272,19 @@ export default function SignUpForm() {
             {success && <p className="text-sm text-green-600">{success}</p>}
             {step === 0 ? (
               <Button className="w-full" onClick={submitRegistration}>
-                Sign up
+                {t("signUpButton")}
               </Button>
             ) : (
               <div className="w-full flex flex-col items-center gap-4 py-4">
-                <VerticalStepLoader step={step} />
+                <VerticalStepLoader step={step} t={t} />
               </div>
             )}
             {/* Bouton Discord */}
             <DiscordAuthButton mode="sign-up" />
             <p className="text-sm text-center text-muted-foreground">
-              Already have an account?{" "}
+              {t("alreadyAccount")}{" "}
               <Link href="/sign-in" className="text-primary underline">
-                Sign in
+                {t("signInLink")}
               </Link>
             </p>
           </div>
@@ -297,20 +294,24 @@ export default function SignUpForm() {
   );
 }
 
-function VerticalStepLoader({ step }: { step: number }) {
+type VerticalStepLoaderProps = {
+  step: number;
+  t: ReturnType<typeof useTranslations>;
+};
+function VerticalStepLoader({ step, t }: VerticalStepLoaderProps) {
   const steps = [
     {
-      label: "Saving your information in our database...",
+      label: t("savingInfo"),
       done: step > 1,
       loading: step === 1,
     },
     {
-      label: "Generating your XRPL wallet (secure & unique)...",
+      label: t("generatingWallet"),
       done: step > 2,
       loading: step === 2,
     },
     {
-      label: "Minting your NFT identity...",
+      label: t("mintingNFT"),
       done: false,
       loading: step === 3,
     },

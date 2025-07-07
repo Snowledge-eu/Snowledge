@@ -577,5 +577,33 @@
         "description": "Automatically identify and thank the most active and relevant members of your community. Highlight your ambassadors and encourage positive engagement."
       }
     }
+  },
+  "signUp": {
+    "title": "Create an account",
+    "subtitle": "Let's get started. Fill in the details below to create your account.",
+    "gender": "Gender",
+    "genderPlaceholder": "Select a gender",
+    "firstname": "First name",
+    "lastname": "Last name",
+    "pseudo": "Pseudo",
+    "dateOfBirth": "Date of birth",
+    "dateOfBirthPlaceholder": "Date of birth",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm password",
+    "terms": "I agree to the ",
+    "termsLink": "Terms & Conditions",
+    "signUpButton": "Sign up",
+    "alreadyAccount": "Already have an account?",
+    "signInLink": "Sign in",
+    "minPassword": "Minimum 8 characters.",
+    "savingInfo": "Saving your information in our database...",
+    "generatingWallet": "Generating your XRPL wallet (secure & unique)...",
+    "mintingNFT": "Minting your decentralized identity...",
+    "registrationFailed": "Registration failed. Please try again.",
+    "unexpectedError": "An unexpected error occurred.",
+    "mustAcceptTerms": "You must accept the Terms & Conditions.",
+    "discordSignUp": "Sign up with Discord",
+    "discordSignIn": "Sign in with Discord"
   }
 }

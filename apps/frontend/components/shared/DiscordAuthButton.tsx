@@ -1,15 +1,14 @@
 import React from "react";
 import { Button } from "@repo/ui";
+import { useTranslations } from "next-intl";
 
 interface DiscordAuthButtonProps {
   mode?: "sign-in" | "sign-up";
 }
 
 const DiscordAuthButton: React.FC<DiscordAuthButtonProps> = ({ mode }) => {
-  const label =
-    mode === "sign-up"
-      ? "S'inscrire avec Discord"
-      : "Se connecter avec Discord";
+  const t = useTranslations("signUp");
+  const label = mode === "sign-up" ? t("discordSignUp") : t("discordSignIn");
   return (
     <Button
       className="w-full bg-[#5865F2] hover:bg-[#4752C4] text-white"
