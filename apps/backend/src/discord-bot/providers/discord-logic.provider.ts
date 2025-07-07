@@ -129,7 +129,7 @@ export class DiscordLogicProvider {
 - ✅ Access to exclusive Snowledge features  
 - ✅ Ability to participate in community voting
 - ✅ Full integration with the Snowledge platform
-- ✅ **NFT minted on XRPL blockchain** (check with \`/mynft\`)
+- ✅ **NFT minted on XRPL blockchain** (check with \`/myid\`)
 
 ## 🆘 **Need Help?**
 If you encounter any issues, contact an administrator for assistance.

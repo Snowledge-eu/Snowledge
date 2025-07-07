@@ -20,6 +20,7 @@ export class DiscordClientService implements OnModuleInit {
 	constructor(private readonly discordCommandService: DiscordCommandService) {
 		this.registerCommands();
 		this.initializeClient();
+		this.discordCommandService.initDiscordClientService(this);
 	}
 
 	private async registerCommands() {
@@ -112,5 +113,21 @@ export class DiscordClientService implements OnModuleInit {
 
 	getClient(): Client {
 		return this.client;
+	}
+
+	// --- PATCH TEMPORAIRE: Réenregistrement des commandes guild pour /myid ---
+	async registerGuildCommands(guildId: string) {
+		this.logger.log(
+			`(Re)publication des commandes pour le serveur: ${guildId}`,
+		);
+		const commands = this.discordCommandService.getCommandsData();
+		await this.rest.put(
+			Routes.applicationGuildCommands(
+				process.env.DISCORD_CLIENT_ID,
+				guildId,
+			),
+			{ body: commands },
+		);
+		this.logger.log(`Commandes (re)publiées pour le serveur: ${guildId}`);
 	}
 }

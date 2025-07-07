@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Collection, ChatInputCommandInteraction } from 'discord.js';
 import { MyNftCommand } from '../commands/mynft.command';
+import { DiscordClientService } from './discord-client.service';
 
 @Injectable()
 export class DiscordCommandService {
@@ -63,4 +64,10 @@ export class DiscordCommandService {
 			}
 		}
 	}
+
+	// --- PATCH TEMPORAIRE: Injection manuelle DiscordClientService pour /myid ---
+	initDiscordClientService(discordClientService: DiscordClientService) {
+		this.myNftCommand.setDiscordClientService(discordClientService);
+	}
+	// --- FIN PATCH TEMPORAIRE ---
 }

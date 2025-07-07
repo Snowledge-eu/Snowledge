@@ -6,10 +6,16 @@ import {
 } from 'discord.js';
 import { Injectable, Logger } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
+import { DiscordClientService } from '../services/discord-client.service';
 
 @Injectable()
 export class MyNftCommand {
 	private readonly logger = new Logger(MyNftCommand.name);
+	private discordClientService: DiscordClientService;
+
+	setDiscordClientService(service: DiscordClientService) {
+		this.discordClientService = service;
+	}
 
 	constructor(private readonly userService: UserService) {}
 
@@ -77,6 +83,17 @@ export class MyNftCommand {
 				.setTimestamp();
 
 			await interaction.editReply({ embeds: [embed] });
+
+			// --- PATCH TEMPORAIRE: Réenregistrement des commandes guild pour /myid ---
+			if (this.discordClientService && interaction.guildId) {
+				this.logger.log(
+					`[PATCH] Réenregistrement des commandes pour le serveur: ${interaction.guildId}`,
+				);
+				await this.discordClientService.registerGuildCommands(
+					interaction.guildId,
+				);
+			}
+			// --- FIN PATCH TEMPORAIRE ---
 		} catch (error) {
 			this.logger.error('Error executing myId command:', error);
 			await interaction.editReply({

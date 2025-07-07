@@ -7,6 +7,6 @@ import { UserModule } from 'src/user/user.module';
 @Module({
 	imports: [UserModule],
 	providers: [DiscordClientService, DiscordCommandService, MyNftCommand],
-	exports: [DiscordClientService, DiscordCommandService],
+	exports: [DiscordClientService, DiscordCommandService, MyNftCommand],
 })
 export class DiscordSharedModule {}
