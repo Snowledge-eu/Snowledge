@@ -614,5 +614,47 @@
     "introSubmit": "Users will now submit their work. Click a button to simulate each user's submission.",
     "submitWork": "Submit work for user {user}",
     "goToReview": "Go to review"
+  },
+  "review": {
+    "title": "Reviewing content",
+    "tabs": {
+      "all": "All"
+    },
+    "info": "Look here at how they've done their missions. You can validate or deny each contributor's work. Other peers' votes will be displayed only after you complete your own reviews.",
+    "accepted": "Accepted",
+    "refused": "Refused",
+    "revenue": {
+      "requested": "Contributor has requested a revenue increase",
+      "currentShare": "Current share",
+      "requestedShare": "Requested share",
+      "currentCut": "Current cut",
+      "projectedCut": "Projected cut",
+      "justification": "Contributor's justification:",
+      "reject": "Reject increase",
+      "accept": "Accept increase",
+      "accepted": "You accepted this contributor's revenue increase request.",
+      "rejected": "You rejected this contributor's revenue increase request."
+    },
+    "mission": {
+      "abstract": "Mission result abstract",
+      "synthesis": "Synthesis of what your contributor has done regarding the mission",
+      "synthesisPlaceholder": "Contributor's synthesis goes here…",
+      "link": "Link to full content"
+    },
+    "feedback": {
+      "label": "Feedback / Justification",
+      "placeholder": "Explain why you approve or reject this mission…",
+      "characters": "characters",
+      "min": "Minimum 50 characters required."
+    },
+    "deny": "Deny",
+    "accept": "Accept",
+    "sale": {
+      "title": "Product sale",
+      "description": "All contributors have been validated. The creator can now upload the final PDF file of the product before putting it on sale.",
+      "upload": "Upload a PDF",
+      "button": "Put the product on sale",
+      "success": "Product successfully put on sale!"
+    }
   }
 }

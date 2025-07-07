@@ -562,5 +562,47 @@
     "introSubmit": "Les utilisateurs vont maintenant déposer leur travail. Cliquez sur un bouton pour simuler le dépôt de chaque utilisateur.",
     "submitWork": "Déposer le travail de l'utilisateur {user}",
     "goToReview": "Passer à la review"
+  },
+  "review": {
+    "title": "Relecture du contenu",
+    "tabs": {
+      "all": "Tous"
+    },
+    "info": "Consultez ici comment les contributeurs ont réalisé leurs missions. Vous pouvez valider ou refuser le travail de chaque contributeur. Les votes des autres pairs ne seront affichés qu'après avoir complété vos propres revues.",
+    "accepted": "Accepté",
+    "refused": "Refusé",
+    "revenue": {
+      "requested": "Le contributeur a demandé une augmentation de revenu",
+      "currentShare": "Part actuelle",
+      "requestedShare": "Part demandée",
+      "currentCut": "Part actuelle (€)",
+      "projectedCut": "Part projetée (€)",
+      "justification": "Justification du contributeur :",
+      "reject": "Refuser l'augmentation",
+      "accept": "Accepter l'augmentation",
+      "accepted": "Vous avez accepté la demande d'augmentation de ce contributeur.",
+      "rejected": "Vous avez refusé la demande d'augmentation de ce contributeur."
+    },
+    "mission": {
+      "abstract": "Résumé de la mission",
+      "synthesis": "Synthèse de ce que le contributeur a réalisé pour la mission",
+      "synthesisPlaceholder": "La synthèse du contributeur s'affichera ici…",
+      "link": "Lien vers le contenu complet"
+    },
+    "feedback": {
+      "label": "Feedback / Justification",
+      "placeholder": "Expliquez pourquoi vous approuvez ou refusez cette mission…",
+      "characters": "caractères",
+      "min": "Minimum 50 caractères requis."
+    },
+    "deny": "Refuser",
+    "accept": "Accepter",
+    "sale": {
+      "title": "Mise en vente du produit",
+      "description": "Tous les contributeurs ont été validés. Le créateur peut maintenant déposer le fichier PDF final du produit avant de le mettre en vente.",
+      "upload": "Déposer un PDF",
+      "button": "Mettre en vente le produit",
+      "success": "Produit mis en vente avec succès !"
+    }
   }
 }

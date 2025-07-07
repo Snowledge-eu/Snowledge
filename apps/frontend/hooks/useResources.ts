@@ -36,6 +36,14 @@ export type Resource = {
       length?: string;
       chapters?: string;
     };
+    synthesis?: string;
+    revenueIncreaseRequest?: {
+      currentShare: number;
+      requestedShare: number;
+      currentCut: number;
+      projectedCut: number;
+      justification: string;
+    };
   }[];
   attendees: {
     id: string;
@@ -277,6 +285,18 @@ const MOCK_RESOURCES_BASE: Resource[] = [
             "Write the introduction, the synthesis of technological advances, and the conclusion of the whitepaper, ensuring scientific consistency and overall vision.",
           length: "10-20",
         },
+        synthesis: `Blablablablabla
+- I've done this
+- I've done that
+- but not this etc…`,
+        revenueIncreaseRequest: {
+          currentShare: 10,
+          requestedShare: 15,
+          currentCut: 10.0,
+          projectedCut: 15.0,
+          justification:
+            "I worked 20 extra hours and added two new chapters to the course content.",
+        },
       },
       {
         id: "User 2",
@@ -291,6 +311,9 @@ const MOCK_RESOURCES_BASE: Resource[] = [
             "Analyze innovative use cases of generative AI in industry and healthcare, and write the corresponding chapters.",
           length: "10-20",
         },
+        synthesis: `Blablablablabla
+- Task 1
+- Task 2`,
       },
       {
         id: "User 3",
@@ -305,6 +328,9 @@ const MOCK_RESOURCES_BASE: Resource[] = [
             "Document the technical challenges, scalability, security, and governance of generative models, and write the technical chapters.",
           length: "10-20",
         },
+        synthesis: `Blablablablabla
+- Done something
+- Another thing`,
       },
     ],
     attendees: [

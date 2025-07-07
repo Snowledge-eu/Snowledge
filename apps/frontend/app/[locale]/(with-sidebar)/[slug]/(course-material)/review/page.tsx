@@ -17,6 +17,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useParams, useRouter } from "next/navigation";
+import { useResource } from "@/hooks/useResources";
+import { useTranslations } from "next-intl";
 
 interface RevenueIncreaseRequest {
   currentShare: number;
@@ -26,49 +28,9 @@ interface RevenueIncreaseRequest {
   justification: string;
 }
 
-const contributors = [
-  {
-    id: "User 1",
-    initials: "CN",
-    title: "CEO",
-    description: "Description of the user",
-    expertises: ["Expertise 1", "Expertise 2"],
-    synthesis: `Blablablablabla
-- I've done this
-- I've done that
-- but not this etc…`,
-    revenueIncreaseRequest: {
-      currentShare: 10,
-      requestedShare: 15,
-      currentCut: 10.0,
-      projectedCut: 15.0,
-      justification:
-        "I worked 20 extra hours and added two new chapters to the course content.",
-    },
-  },
-  {
-    id: "User 2",
-    initials: "CN",
-    title: "CEO",
-    description: "Description of the user",
-    expertises: ["Expertise 2", "Expertise 3"],
-    synthesis: `Blablablablabla
-- Task 1
-- Task 2`,
-  },
-  {
-    id: "User 3",
-    initials: "CN",
-    title: "CEO",
-    description: "Description of the user",
-    expertises: ["Expertise 1"],
-    synthesis: `Blablablablabla
-- Done something
-- Another thing`,
-  },
-];
-
 export default function ReviewingPage() {
+  const { data: resource } = useResource("561903247");
+  const contributors = resource?.contributors || [];
   const router = useRouter();
   const { slug } = useParams();
   const [activeExpertise, setActiveExpertise] = useState("All");
@@ -85,6 +47,8 @@ export default function ReviewingPage() {
 
   const [editFile, setEditFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const t = useTranslations("review");
 
   const handleFeedbackChange = (id: string, text: string) => {
     setFeedbacks((prev) => ({
@@ -137,25 +101,26 @@ export default function ReviewingPage() {
   return (
     <>
       <div className="px-6 pt-8 pb-10 space-y-10">
-        <h1 className="text-2xl font-bold">Reviewing content</h1>
+        <h1 className="text-2xl font-bold">{t("title")}</h1>
 
         <Tabs defaultValue="All" onValueChange={setActiveExpertise}>
           <TabsList className="space-x-2 w-fit">
-            <TabsTrigger value="All">All</TabsTrigger>
-            <TabsTrigger value="Expertise 1">Expertise 1</TabsTrigger>
-            <TabsTrigger value="Expertise 2">Expertise 2</TabsTrigger>
-            <TabsTrigger value="Expertise 3">Expertise 3</TabsTrigger>
+            <TabsTrigger value="All">{t("tabs.all")}</TabsTrigger>
+
+            {contributors.map((c) =>
+              c.expertises.map((e) => (
+                <TabsTrigger key={e} value={e}>
+                  {e}
+                </TabsTrigger>
+              ))
+            )}
           </TabsList>
         </Tabs>
 
         <Card className="bg-blue-50">
           <CardContent className="p-4 text-sm text-muted-foreground flex items-start gap-3">
             <Info className="mt-1 h-4 w-4 text-muted-foreground" />
-            <span>
-              Look here at how they've done their missions. You can validate or
-              deny each contributor's work. Other peers' votes will be displayed
-              only after you complete your own reviews.
-            </span>
+            <span>{t("info")}</span>
           </CardContent>
         </Card>
 
@@ -185,12 +150,12 @@ export default function ReviewingPage() {
                     className="mt-4 bg-green-600 text-white"
                     variant="default"
                   >
-                    Accepté
+                    {t("accepted")}
                   </Badge>
                 )}
                 {decisions[user.id] === "declined" && (
                   <Badge className="mt-4" variant="destructive">
-                    Refusé
+                    {t("refused")}
                   </Badge>
                 )}
 
@@ -203,13 +168,13 @@ export default function ReviewingPage() {
                       <div className="flex items-center gap-2">
                         <DollarSign className="h-4 w-4 text-green-700" />
                         <span className="text-sm font-semibold text-green-800 uppercase tracking-wide">
-                          Contributor has requested a revenue increase
+                          {t("revenue.requested")}
                         </span>
                       </div>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mt-3">
                         <div className="flex flex-col items-center space-y-1">
                           <span className="text-muted-foreground whitespace-nowrap">
-                            Current share
+                            {t("revenue.currentShare")}
                           </span>
                           <div className="text-lg font-semibold text-foreground">
                             {user.revenueIncreaseRequest.currentShare}%
@@ -217,7 +182,7 @@ export default function ReviewingPage() {
                         </div>
                         <div className="flex flex-col items-center space-y-1">
                           <span className="text-muted-foreground whitespace-nowrap">
-                            Requested share
+                            {t("revenue.requestedShare")}
                           </span>
                           <div className="text-lg font-semibold text-green-700">
                             {user.revenueIncreaseRequest.requestedShare}%
@@ -225,7 +190,7 @@ export default function ReviewingPage() {
                         </div>
                         <div className="flex flex-col items-center space-y-1">
                           <span className="text-muted-foreground whitespace-nowrap">
-                            Current cut
+                            {t("revenue.currentCut")}
                           </span>
                           <div className="text-lg font-semibold text-foreground">
                             ${user.revenueIncreaseRequest.currentCut.toFixed(2)}
@@ -233,7 +198,7 @@ export default function ReviewingPage() {
                         </div>
                         <div className="flex flex-col items-center space-y-1">
                           <span className="text-muted-foreground whitespace-nowrap">
-                            Projected cut
+                            {t("revenue.projectedCut")}
                           </span>
                           <div className="text-lg font-semibold text-green-700">
                             $
@@ -246,7 +211,7 @@ export default function ReviewingPage() {
 
                       <div className="bg-muted p-3 rounded text-xs text-muted-foreground italic">
                         <span className="not-italic font-semibold">
-                          Contributor's justification:
+                          {t("revenue.justification")}
                         </span>{" "}
                         "{user.revenueIncreaseRequest.justification}"
                       </div>
@@ -258,7 +223,7 @@ export default function ReviewingPage() {
                             size="sm"
                             onClick={() => handleRejectDecision(user.id)}
                           >
-                            Reject increase
+                            {t("revenue.reject")}
                           </Button>
                           <Button
                             variant="default"
@@ -266,7 +231,7 @@ export default function ReviewingPage() {
                             className="bg-green-600 hover:bg-green-700 text-white"
                             onClick={() => handleAcceptDecision(user.id)}
                           >
-                            Accept increase
+                            {t("revenue.accept")}
                           </Button>
                         </div>
                       )}
@@ -274,16 +239,14 @@ export default function ReviewingPage() {
                       {decision === "accepted" && (
                         <div className="flex items-center gap-2 text-green-700 text-sm font-medium mt-2">
                           <CheckCircle className="h-4 w-4" />
-                          You accepted this contributor's revenue increase
-                          request.
+                          {t("revenue.accepted")}
                         </div>
                       )}
 
                       {decision === "rejected" && (
                         <div className="flex items-center gap-2 text-red-600 text-sm font-medium mt-2">
                           <XCircle className="h-4 w-4" />
-                          You rejected this contributor's revenue increase
-                          request.
+                          {t("revenue.rejected")}
                         </div>
                       )}
                     </CardContent>
@@ -298,14 +261,13 @@ export default function ReviewingPage() {
                 {/* Abstract */}
                 <div className="space-y-2">
                   <div className="text-sm font-semibold">
-                    Mission result abstract
+                    {t("mission.abstract")}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Synthesis of what your contributor has done regarding the
-                    mission
+                    {t("mission.synthesis")}
                   </p>
                   <Textarea
-                    placeholder="Contributor's synthesis goes here…"
+                    placeholder={t("mission.synthesisPlaceholder")}
                     value={user.synthesis}
                     disabled
                   />
@@ -314,10 +276,10 @@ export default function ReviewingPage() {
                 {/* Feedback */}
                 <div className="space-y-2">
                   <label className="text-sm font-medium">
-                    Feedback / Justification
+                    {t("feedback.label")}
                   </label>
                   <Textarea
-                    placeholder="Explain why you approve or reject this mission…"
+                    placeholder={t("feedback.placeholder")}
                     value={feedbacks[user.id] || ""}
                     onChange={(e) =>
                       handleFeedbackChange(user.id, e.target.value)
@@ -338,12 +300,12 @@ export default function ReviewingPage() {
                       }`}
                     >
                       {feedbacks[user.id]?.length || 0} / {MIN_FEEDBACK_LENGTH}{" "}
-                      characters
+                      {t("feedback.characters")}
                     </span>
                     {!isFeedbackValid(user.id) &&
                       feedbacks[user.id]?.length > 0 && (
                         <span className="text-red-600">
-                          Minimum {MIN_FEEDBACK_LENGTH} characters required.
+                          {t("feedback.min")}
                         </span>
                       )}
                   </div>
@@ -353,7 +315,7 @@ export default function ReviewingPage() {
                 <div className="flex items-center gap-2">
                   <ExternalLink className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm text-muted-foreground cursor-pointer underline">
-                    Link to full content
+                    {t("mission.link")}
                   </span>
                 </div>
 
@@ -366,7 +328,7 @@ export default function ReviewingPage() {
                       !isFeedbackValid(user.id) || decisions[user.id] !== null
                     }
                   >
-                    Deny
+                    {t("deny")}
                   </Button>
                   <Button
                     variant="default"
@@ -376,7 +338,7 @@ export default function ReviewingPage() {
                       !isFeedbackValid(user.id) || decisions[user.id] !== null
                     }
                   >
-                    Accept
+                    {t("accept")}
                   </Button>
                 </div>
               </CardContent>
@@ -386,19 +348,15 @@ export default function ReviewingPage() {
 
         {allAccepted && (
           <div className="mt-12 p-8 border rounded-lg bg-muted/10 flex flex-col items-center gap-6">
-            <h2 className="text-xl font-bold mb-2">Mise en vente du produit</h2>
-            <p className="text-center mb-4">
-              Tous les contributeurs ont été validés. Le créateur peut
-              maintenant déposer le fichier PDF final du produit avant de le
-              mettre en vente.
-            </p>
+            <h2 className="text-xl font-bold mb-2">{t("sale.title")}</h2>
+            <p className="text-center mb-4">{t("sale.description")}</p>
             <Button
               variant="outline"
               onClick={() => fileInputRef.current?.click()}
               className="flex items-center gap-2"
             >
               <Upload className="w-4 h-4" />
-              {editFile ? editFile.name : "Déposer un PDF"}
+              {editFile ? editFile.name : t("sale.upload")}
             </Button>
             <input
               ref={fileInputRef}
@@ -411,13 +369,13 @@ export default function ReviewingPage() {
               className="w-64"
               disabled={!editFile}
               onClick={() => {
-                toast.success("Produit mis en vente avec succès !");
+                toast.success(t("sale.success"));
                 setTimeout(() => {
                   router.push(`/${slug}/global/resources/561903247`);
                 }, 2000);
               }}
             >
-              Mettre en vente le produit
+              {t("sale.button")}
             </Button>
           </div>
         )}
