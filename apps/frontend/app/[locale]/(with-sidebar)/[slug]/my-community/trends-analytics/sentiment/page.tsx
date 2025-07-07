@@ -13,10 +13,12 @@ import { useAuth } from "@/contexts/auth-context";
 import { useCurrentCommunity } from "@/hooks/useCurrentCommunity";
 import { interval } from "date-fns";
 import { toast } from "sonner";
+import { useChannelSections } from "@/components/manage-integrations/hooks/useChannelSections";
 
 export default function Page() {
   const { user, fetcher } = useAuth();
   const { activeCommunity } = useCurrentCommunity();
+  const { isLoading, meta } = useChannelSections(activeCommunity?.id || 0);
   const [selectedResult, setSelectedResult] = useState<any>();
   const [sentimentHistory, setSentimentHistory] = useState<any[]>([]);
   // Réutilisation des props pour la démo
@@ -200,26 +202,27 @@ export default function Page() {
   const fetchChannels = async (guildId: string) => {
     console.log("fetchChannel");
     try {
-      const data = await fetch(
-        `${process.env.NEXT_PUBLIC_ANALYSER_URL}/discord/channels/${guildId}`,
-        {
-          method: "GET",
-        }
-      );
-      const info: {
-        server_id: string;
-        server_name: string;
-        channels: [{ id: string; name: string, harvested: boolean }];
-      } = await data.json();
-
-      const options = info.channels.map((channel) => ({
-        label: `#${channel.name}`,
-        value: channel.id,
-        disabled: !channel.harvested,
-      }));
-      const optionSelected = options.filter(op => !op.disabled);
-      setDiscordChannels(options);
-      setSelectedChannels(optionSelected);
+      // const data = await fetch(
+      //   `${process.env.NEXT_PUBLIC_ANALYSER_URL}/discord/channels/${guildId}`,
+      //   {
+      //     method: "GET",
+      //   }
+      // );
+      // const info: {
+      //   server_id: string;
+      //   server_name: string;
+      //   channels: [{ id: string; name: string, harvested: boolean }];
+      // } = await data.json();
+      if(meta && meta.listData) {
+        const options = meta?.listData?.map((channel) => ({
+          label: `#${channel.name}`,
+          value: channel.id,
+          disabled: !channel.harvested,
+        }));
+        const optionSelected = options?.filter(op => !op.disabled);
+        setDiscordChannels(options);
+        setSelectedChannels(optionSelected);
+      }
     } catch (error) {
       console.error(error);
     }
@@ -260,7 +263,7 @@ export default function Page() {
     }
     console.log(activeCommunity);
     console.log(user);
-  }, []);
+  }, [isLoading]);
   return (
     <main className="grid grid-cols-1 md:grid-cols-[minmax(640px,800px)_1fr] items-stretch gap-8 h-screen min-h-screen bg-background">
       {/* Panneau gauche (formulaire) */}

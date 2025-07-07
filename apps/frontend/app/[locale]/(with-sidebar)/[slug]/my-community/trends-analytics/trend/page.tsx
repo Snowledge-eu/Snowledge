@@ -14,6 +14,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/auth-context";
 import { useCurrentCommunity } from "@/hooks/useCurrentCommunity";
 import { toast } from "sonner";
+import { useChannelSections } from "@/components/manage-integrations/hooks/useChannelSections";
 const platforms = [
   {
     key: "discord",
@@ -58,6 +59,7 @@ const platforms = [
 export default function Page() {
   const { user, fetcher } = useAuth();
   const { activeCommunity } = useCurrentCommunity();
+  const { isLoading, meta } = useChannelSections(activeCommunity?.id || 0);
   const [selectedPlatform, setSelectedPlatform] = useState("discord");
   const [scope, setScope] = useState<"all" | "custom">("all");
   const [discordChannels, setDiscordChannels] = useState<
@@ -76,39 +78,14 @@ export default function Page() {
   const [topP, setTopP] = useState(0.9);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
-  // const [analysisId, setAnalysisId] = useState<string>('');
+
   const [selectedResult, setSelectedResult] = useState<any>();
   const [trendHistory, setTrendHistory] = useState<any[]>([]);
-  // Mock data for channels and message count
-  // const discordChannels = [
-  //   { label: '#general', value: 'general' },
-  //   { label: '#announcements', value: 'announcements' },
-  //   { label: '#random', value: 'random' },
-  //   { label: '#support', value: 'support' },
-  // ]
+
   const [messageCount, setMessageCount] = useState(0);
   const canLaunch =
     messageCount > 0 && (scope === "all" || selectedChannels.length > 0);
 
-  // // Mock result for demo
-  // const mockResult = {
-  //   sentiment: 'positive',
-  //   confidence: 87,
-  //   topics: [
-  //     { title: 'Voting System', summary: 'Most users discussed the new voting system and its impact on community decisions.' },
-  //     { title: 'Bot Issues', summary: 'Several users reported issues with the moderation bot not responding.' },
-  //     { title: 'Upcoming AMA', summary: 'Excitement about the upcoming AMA with the founders.' },
-  //   ],
-  //   raw: '{ "sentiment": "positive", "topics": [ ... ] }',
-  // }
-
-  // function handleStart() {
-  //   setLoading(true)
-  //   setTimeout(() => {
-  //     setResult(mockResult)
-  //     setLoading(false)
-  //   }, 1800)
-  // }
   const startAnalysis = async (
     channels: Array<string>,
     model: string,
@@ -254,27 +231,29 @@ export default function Page() {
   const fetchChannels = async (guildId: string) => {
     console.log("fetchChannel");
     try {
-      const data = await fetch(
-        `${process.env.NEXT_PUBLIC_ANALYSER_URL}/discord/channels/${guildId}`,
-        {
-          method: "GET",
-        }
-      );
-      const info: {
-        server_id: string;
-        server_name: string;
-        channels: [{ id: string; name: string, harvested: boolean }];
-      } = await data.json();
+      // const data = await fetch(
+      //   `${process.env.NEXT_PUBLIC_ANALYSER_URL}/discord/channels/${guildId}`,
+      //   {
+      //     method: "GET",
+      //   }
+      // );
+      // const info: {
+      //   server_id: string;
+      //   server_name: string;
+      //   channels: [{ id: string; name: string, harvested: boolean }];
+      // } = await data.json();
 
       
-      const options = info.channels.map(channel => ({
-        label: `#${channel.name}`,
-        value: channel.id,
-        disabled: !channel.harvested,
-      }));
-      const optionSelected = options.filter(op => !op.disabled);
-      setDiscordChannels(options);
-      setSelectedChannels(optionSelected);
+      if(meta && meta.listData) {
+        const options = meta?.listData?.map((channel) => ({
+          label: `#${channel.name}`,
+          value: channel.id,
+          disabled: !channel.harvested,
+        }));
+        const optionSelected = options?.filter(op => !op.disabled);
+        setDiscordChannels(options);
+        setSelectedChannels(optionSelected);
+      }
     } catch (error) {
       console.error(error);
     }
@@ -315,7 +294,7 @@ useEffect(() => {
     }
     console.log(activeCommunity);
     console.log(user);
-  }, []);
+  }, [isLoading]);
   return (
     <main className="grid grid-cols-1 md:grid-cols-[minmax(640px,800px)_1fr] items-stretch gap-8 h-screen min-h-screen bg-background">
       {/* Panneau gauche (formulaire) */}

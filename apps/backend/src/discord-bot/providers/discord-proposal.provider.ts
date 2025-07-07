@@ -20,6 +20,7 @@ import {
 } from '../utils/discord-proposal.utils';
 import { DiscordClientService } from '../services/discord-client.service';
 import type { Proposal } from 'src/proposal/entities/proposal.entity';
+import { DiscordMessageService } from 'src/discord/services/discord-message.service';
 
 @Injectable()
 export class DiscordProposalProvider {
@@ -38,6 +39,7 @@ export class DiscordProposalProvider {
 		private readonly discordLogicProvider: DiscordLogicProvider,
 		private readonly discordServerService: DiscordServerService,
 		private readonly discordClientService: DiscordClientService,
+		private readonly discordMessageService: DiscordMessageService,
 	) {}
 
 	@OnEvent('proposal.created')
@@ -294,11 +296,26 @@ export class DiscordProposalProvider {
 	}
 
 	async listTextChannels(guildId: string) {
+		// const client = this.discordClientService.getClient();
+		// const guild = await client.guilds.fetch(guildId);
+		// const channels = guild.channels.cache
+		// 	.filter((ch) => ch.type === ChannelType.GuildText)
+		// 	.map((ch) => ({ id: ch.id, name: ch.name }));
+		// return channels;
+
 		const client = this.discordClientService.getClient();
 		const guild = await client.guilds.fetch(guildId);
-		const channels = guild.channels.cache
-			.filter((ch) => ch.type === ChannelType.GuildText)
-			.map((ch) => ({ id: ch.id, name: ch.name }));
-		return channels;
+		const textChannels = guild.channels.cache.filter((ch) => ch.type === ChannelType.GuildText);
+
+		const channelIds = textChannels.map((ch) => ch.id);
+		// Appel au service Mongo pour savoir quels salons ont déjà des messages
+		const harvestedIds = await this.discordMessageService.findHarvestedChannelIds(channelIds);
+
+		// Marquage des salons
+		return textChannels.map((ch) => ({
+			id: ch.id,
+			name: ch.name,
+			harvested: harvestedIds.includes(ch.id),
+		}));
 	}
 }

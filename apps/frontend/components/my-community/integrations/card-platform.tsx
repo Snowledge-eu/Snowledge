@@ -8,7 +8,7 @@ import { Logo, Button, Checkbox, Input, Label, Card, Switch, Separator, Select, 
 import { cn } from "@workspace/ui/lib/utils";
 import { format } from "date-fns";
 import { CalendarIcon, Download } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SocialIcon } from "react-social-icons";
 export default function CardPlatform({
     platform,
@@ -42,6 +42,17 @@ export default function CardPlatform({
     const [enabled, setEnabled] = useState(isEnabled); 
     const [open, setOpen] = useState<string | null>(null);
     const [manageIntegrationsOpen, setManageIntegrationsOpen] = useState(false);
+
+    useEffect(() => {
+      //Si l'url contient ?connect=true alors on ouvre la modal
+      if (window.location.search.includes("connect=true") && platform.key === "discord") {
+        setOpen("discord");
+      }
+      //Si l'url contient ?manageIntegrations=true alors on ouvre la modal
+      if (window.location.search.includes("manageIntegrations=true")) {
+        setManageIntegrationsOpen(true);
+      }
+    }, []);
   return (
             <Card
               key={platform.key}

@@ -55,4 +55,14 @@ export class DiscordMessageService {
             })
             .exec();
     }
+
+    async findHarvestedChannelIds(channelIds: string[]): Promise<string[]> {
+        const longIds = channelIds.map((id) => Long.fromString(id));
+
+        const results: Long[] = await this.messageModel.distinct("channel_id", {
+            channel_id: { $in: longIds },
+        });
+
+        return results.map((id) => id.toString());
+    }
 }

@@ -49,6 +49,6 @@ import { DiscordChannelService } from './services/discord-channel.service';
 		DiscordHarvestJobService,
 		DiscordMessageService,
 	],
-	exports: [DiscordProvider, DiscordService],
+	exports: [DiscordProvider, DiscordService, DiscordMessageService],
 })
 export class DiscordModule {}

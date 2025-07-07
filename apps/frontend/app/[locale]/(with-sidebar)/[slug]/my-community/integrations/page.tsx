@@ -1,42 +1,21 @@
 "use client";
-import { ManageIntegrations } from "@/components/manage-integrations/ManageIntegrations";
 import { useCurrentCommunity } from "@/hooks/useCurrentCommunity";
 
 import {
-  Button,
-  Calendar,
-  Card,
-  Label,
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
   Separator,
-  Spinner,
-  Switch,
 } from "@repo/ui";
-import { CalendarIcon, Download, Info } from "lucide-react";
-import PlatformSettingsDialog from "./settings-dialog";
-import { format } from "date-fns";
-import { cn } from "@workspace/ui/lib/utils";
-import { SocialIcon } from "react-social-icons";
-import { MultiSelect } from "@/components/shared/community/ui/MultiSelect";
+import { Info } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/auth-context";
 import { DiscordHarvestJob } from "@/shared/interfaces/IDiscordHarvestJob";
 import { initialPlatforms } from "@/shared/constants/initial-platforms";
 import CardPlatform from "@/components/my-community/integrations/card-platform";
+import { useChannelSections } from "@/components/manage-integrations/hooks/useChannelSections";
 
 export default function Page() {
   const { user, fetcher } = useAuth();
   const { activeCommunity } = useCurrentCommunity();
-  const [open, setOpen] = useState<string | null>(null);
-  const [manageIntegrationsOpen, setManageIntegrationsOpen] = useState(false);
-
+  const { isLoading, meta } = useChannelSections(activeCommunity?.id || 0);
   const [channelFetched, setChannelFetched] = useState(false);
   const [platforms, setPlatforms] = useState(initialPlatforms);
   const [enabled, setEnabled] = useState({
@@ -129,12 +108,12 @@ export default function Page() {
   const fetchChannels = async (guildId: string) => {
     console.log("fetchChannelllss");
     try {
-      const data = await fetch(
-        `${process.env.NEXT_PUBLIC_ANALYSER_URL}/discord/channels/${guildId}`,
-        {
-          method: "GET",
-        }
-      );
+      // const data = await fetch(
+      //   `${process.env.NEXT_PUBLIC_ANALYSER_URL}/discord/channels/${guildId}`,
+      //   {
+      //     method: "GET",
+      //   }
+      // );
       // console.log("data", data);
       const harvest: DiscordHarvestJob & {
         lastFetched: {
@@ -144,15 +123,15 @@ export default function Page() {
       } = await fetcher(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/discord/last-harvest/${guildId}`
       ).catch((err) => console.error(err));
-      const info: {
-        server_id: string;
-        server_name: string;
-        channels: { id: string; name: string }[];
-      } = await data.json();
+      // const info: {
+      //   server_id: string;
+      //   server_name: string;
+      //   channels: { id: string; name: string }[];
+      // } = await data.json();
 
       const options: Array<{ label: string; value: string }> = [];
-      if (Array.isArray(info.channels)) {
-        for (const channel of info.channels) {
+      if (Array.isArray(meta.listData)) {
+        for (const channel of meta.listData) {
           options.push({ label: `#${channel.name}`, value: channel.id });
         }
       }
@@ -163,8 +142,8 @@ export default function Page() {
                 ...platform,
                 options: options,
                 account: {
-                  id: info.server_id,
-                  name: info.server_name,
+                  id: guildId,
+                  name: "",
                   connected: user.discordId != "",
                 },
                 lastFetched: harvest?.lastFetched || {
@@ -183,21 +162,14 @@ export default function Page() {
   useEffect(() => {
     if (activeCommunity?.discordServerId) {
       fetchChannels(activeCommunity?.discordServerId);
+    }else{
+      setChannelFetched(true);
     }
     console.log(activeCommunity);
     console.log(user);
-  }, [activeCommunity]);
+  }, [activeCommunity, isLoading]);
 
-  useEffect(() => {
-    //Si l'url contient ?connect=true alors on ouvre la modal
-    if (window.location.search.includes("connect=true")) {
-      setOpen("discord");
-    }
-    //Si l'url contient ?manageIntegrations=true alors on ouvre la modal
-    if (window.location.search.includes("manageIntegrations=true")) {
-      setManageIntegrationsOpen(true);
-    }
-  }, []);
+
 
   useEffect(() => {
     console.log("platforms", platforms);
