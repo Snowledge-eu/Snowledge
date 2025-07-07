@@ -605,5 +605,14 @@
     "mustAcceptTerms": "You must accept the Terms & Conditions.",
     "discordSignUp": "Sign up with Discord",
     "discordSignIn": "Sign in with Discord"
+  },
+  "simulatePage": {
+    "title": "Collaborative workflow simulation",
+    "introAccept": "This page allows you to simulate switching from one user to another in the mission process. Choose a user to see their personalized mission.",
+    "continueWithUser": "Continue with user {user}",
+    "nextStep": "Go to the next step (work submission)",
+    "introSubmit": "Users will now submit their work. Click a button to simulate each user's submission.",
+    "submitWork": "Submit work for user {user}",
+    "goToReview": "Go to review"
   }
 }

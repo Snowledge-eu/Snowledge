@@ -553,5 +553,14 @@
     "mustAcceptTerms": "Tu dois accepter les Conditions Générales d'Utilisation.",
     "discordSignUp": "S'inscrire avec Discord",
     "discordSignIn": "Se connecter avec Discord"
+  },
+  "simulatePage": {
+    "title": "Simulation du workflow collaboratif",
+    "introAccept": "Cette page permet de simuler le passage d'un utilisateur à un autre dans le processus de mission. Choisissez un utilisateur pour voir sa mission personnalisée.",
+    "continueWithUser": "Continuer avec l'utilisateur {user}",
+    "nextStep": "Passer à l'étape suivante (dépôt des travaux)",
+    "introSubmit": "Les utilisateurs vont maintenant déposer leur travail. Cliquez sur un bouton pour simuler le dépôt de chaque utilisateur.",
+    "submitWork": "Déposer le travail de l'utilisateur {user}",
+    "goToReview": "Passer à la review"
   }
 }

@@ -19,6 +19,7 @@ import {
   PiggyBank,
   Info,
   ExternalLink,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@repo/ui/components/button";
 import { Badge } from "@repo/ui/components/badge";
@@ -74,6 +75,20 @@ export default function MissionReceptionPage() {
 
   // Fallback si pas trouvé
   if (!contributor || !mission || !resource) {
+    // Loader si en cours de chargement (ex: undefined, mais pas null)
+    if (
+      contributor === undefined ||
+      mission === undefined ||
+      resource === undefined
+    ) {
+      return (
+        <div className="flex flex-col items-center justify-center min-h-[200px]">
+          <Loader2 className="animate-spin w-8 h-8 text-gray-400 mb-2" />
+          <span className="text-gray-500">Loading...</span>
+        </div>
+      );
+    }
+    // Fallback si vraiment non trouvé (null ou false)
     return (
       <div className="p-10 text-center text-red-600">
         Contributor introuvable ou mission non définie.

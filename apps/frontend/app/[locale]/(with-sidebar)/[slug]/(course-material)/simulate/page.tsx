@@ -3,6 +3,7 @@
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@repo/ui/components/button";
+import { useTranslations } from "next-intl";
 
 export default function SimulatePage() {
   const router = useRouter();
@@ -14,25 +15,21 @@ export default function SimulatePage() {
   );
   console.log("step", step);
 
+  const t = useTranslations("simulatePage");
+
   // IDs des users simulés
   const users = [
-    { id: "100", label: "Continue with user 1", fakeUserId: 1 },
-    { id: "101", label: "Continue with user 2", fakeUserId: 2 },
-    { id: "102", label: "Continue with user 3", fakeUserId: 3 },
+    { id: "100", label: t("continueWithUser", { user: 1 }), fakeUserId: 1 },
+    { id: "101", label: t("continueWithUser", { user: 2 }), fakeUserId: 2 },
+    { id: "102", label: t("continueWithUser", { user: 3 }), fakeUserId: 3 },
   ];
 
   return (
     <div className="max-w-xl mx-auto py-12 space-y-8">
-      <h1 className="text-2xl font-bold text-center mb-6">
-        Simulation du workflow collaboratif
-      </h1>
+      <h1 className="text-2xl font-bold text-center mb-6">{t("title")}</h1>
       {step === "accept" && (
         <>
-          <p className="text-center mb-4">
-            Cette page permet de simuler le passage d'un utilisateur à un autre
-            dans le processus de mission. Choisissez un utilisateur pour voir sa
-            mission personnalisée.
-          </p>
+          <p className="text-center mb-4">{t("introAccept")}</p>
           <div className="flex flex-col gap-4 items-center">
             {users.map((u) => (
               <Button
@@ -46,17 +43,14 @@ export default function SimulatePage() {
           </div>
           <div className="flex justify-center mt-8">
             <Button variant="secondary" onClick={() => setStep("submit")}>
-              Passer à l'étape suivante (dépôt des travaux)
+              {t("nextStep")}
             </Button>
           </div>
         </>
       )}
       {step === "submit" && (
         <>
-          <p className="text-center mb-4">
-            Les utilisateurs vont maintenant déposer leur travail. Cliquez sur
-            un bouton pour simuler le dépôt de chaque utilisateur.
-          </p>
+          <p className="text-center mb-4">{t("introSubmit")}</p>
           <div className="flex flex-col gap-4 items-center">
             {users.map((u) => (
               <Button
@@ -64,7 +58,7 @@ export default function SimulatePage() {
                 className="w-64"
                 onClick={() => router.push(`/${slug}/m-submit`)}
               >
-                Déposer le travail de l'utilisateur {u.fakeUserId}
+                {t("submitWork", { user: u.fakeUserId })}
               </Button>
             ))}
           </div>
@@ -73,7 +67,7 @@ export default function SimulatePage() {
               variant="secondary"
               onClick={() => router.push(`/${slug}/review`)}
             >
-              Passer à la review
+              {t("goToReview")}
             </Button>
           </div>
         </>
