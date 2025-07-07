@@ -15,6 +15,7 @@ import { Badge } from "@repo/ui/components/badge";
 import { Button } from "@repo/ui/components/button";
 import { Separator } from "@repo/ui/components/separator";
 import { Layers, FileText, Users, BookOpen } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 const formatColor: Record<string, string> = {
   Masterclass: "bg-blue-100 text-blue-800",
@@ -26,13 +27,12 @@ const formatColor: Record<string, string> = {
 export default function ResourcesListPage() {
   const { slug } = useParams();
   const { data: resources, isLoading, error } = useResources();
+  const t = useTranslations("resources");
 
-  if (isLoading) return <div className="text-center py-10">Chargement...</div>;
+  if (isLoading) return <div className="text-center py-10">{t("loading")}</div>;
   if (error || !resources)
     return (
-      <div className="text-center py-10 text-red-600">
-        Erreur lors du chargement des ressources
-      </div>
+      <div className="text-center py-10 text-red-600">{t("errorLoading")}</div>
     );
 
   return (
@@ -41,12 +41,10 @@ export default function ResourcesListPage() {
         <div className="flex flex-col items-center mb-10">
           <div className="flex items-center gap-3 mb-2">
             <BookOpen className="w-8 h-8 text-primary" />
-            <h1 className="text-3xl font-bold">Ressources disponibles</h1>
+            <h1 className="text-3xl font-bold">{t("availableResources")}</h1>
           </div>
           <p className="text-muted-foreground text-lg text-center max-w-2xl">
-            Explorez nos contenus premium&nbsp;: masterclass, ateliers,
-            whitepapers et plus encore. Cliquez sur une ressource pour en savoir
-            plus et la débloquer !
+            {t("explorePremium")}
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -58,7 +56,7 @@ export default function ResourcesListPage() {
               <div
                 className={`rounded-t-md px-4 py-2 font-semibold text-sm ${formatColor[resource.format] || "bg-muted/30 text-muted-foreground"}`}
               >
-                {resource.format}
+                {t(`format.${resource.format}`)}
               </div>
               <CardHeader className="pb-2">
                 <CardTitle className="flex items-center gap-2 text-lg">
@@ -77,16 +75,16 @@ export default function ResourcesListPage() {
                 <Separator />
                 <div className="flex flex-col gap-1 text-sm mt-2">
                   <span>
-                    <b>Durée :</b> {resource.duration}
+                    <b>{t("duration")} :</b> {resource.duration}
                   </span>
                   <span>
-                    <b>Date :</b> {resource.date}
+                    <b>{t("date")} :</b> {resource.date}
                   </span>
                 </div>
                 {/* Mini-aperçu du plan */}
                 {resource.outlines?.[0] && (
                   <div className="mt-2 text-xs text-muted-foreground">
-                    <span className="font-semibold">Aperçu :</span>{" "}
+                    <span className="font-semibold">{t("preview")} :</span>{" "}
                     {resource.outlines[0].title} —{" "}
                     {resource.outlines[0].description}
                   </div>
@@ -95,7 +93,7 @@ export default function ResourcesListPage() {
                 <div className="flex justify-end mt-4">
                   <Button asChild size="lg" className="w-full">
                     <Link href={`/${slug}/global/resources/${resource.id}`}>
-                      Découvrir
+                      {t("discover")}
                     </Link>
                   </Button>
                 </div>

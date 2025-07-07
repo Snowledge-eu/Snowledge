@@ -46,6 +46,7 @@ import {
 } from "@repo/ui/components/dialog";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { ResourceAccessStatus } from "./ResourceAccessStatus";
+import { useTranslations } from "next-intl";
 
 // Fonction utilitaire pour tronquer les hash/adresses
 function truncateMiddle(str: string, front = 5, back = 5) {
@@ -93,6 +94,8 @@ export default function BuyResourcePageContent() {
     enabled: open,
   });
 
+  const t = useTranslations("buyResource");
+
   // React Query mutation pour l'achat
   const buyMutation = useMutation({
     mutationFn: async () => {
@@ -132,9 +135,9 @@ export default function BuyResourcePageContent() {
     }
   }, [txStatus, refetchBalances, refetchNftStatus]);
 
-  if (isLoading) return <div>Chargement...</div>;
+  if (isLoading) return <div>{t("loading")}</div>;
   if (error || !resource)
-    return <div>Erreur : {error || "Ressource introuvable"}</div>;
+    return <div>{t("error", { error: error || t("notFound") })}</div>;
 
   const {
     title,
@@ -177,7 +180,7 @@ export default function BuyResourcePageContent() {
         <>
           <div className="px-6 pt-8 pb-10 space-y-10">
             <div className="space-y-2">
-              <h1 className="text-2xl fon t-bold">{title}</h1>
+              <h1 className="text-2xl font-bold">{title}</h1>
               <p className="text-muted-foreground">{description}</p>
             </div>
 
@@ -188,7 +191,7 @@ export default function BuyResourcePageContent() {
                 <Card className="bg-muted/10">
                   <CardContent className="p-4 flex flex-col gap-4">
                     <div className="h-48 bg-muted rounded-md flex items-center justify-center text-muted-foreground">
-                      Thumbnail Image
+                      {t("thumbnail")}
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {tags.map((tag: string) => (
@@ -206,14 +209,14 @@ export default function BuyResourcePageContent() {
                         <div className="flex items-center gap-2">
                           <Layers className="w-4 h-4 text-muted-foreground" />
                           <span className="text-sm text-muted-foreground">
-                            Format:
+                            {t("format")}
                           </span>
                           <span className="text-sm font-medium">{format}</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <Clock className="w-4 h-4 text-muted-foreground" />
                           <span className="text-sm text-muted-foreground">
-                            Duration:
+                            {t("duration")}
                           </span>
                           <span className="text-sm font-medium">
                             {duration}
@@ -223,7 +226,7 @@ export default function BuyResourcePageContent() {
                           <div className="flex items-center gap-2">
                             <Calendar className="w-4 h-4 text-muted-foreground" />
                             <span className="text-sm text-muted-foreground">
-                              Date:
+                              {t("date")}
                             </span>
                             <span className="text-sm font-medium">{date}</span>
                           </div>
@@ -232,7 +235,7 @@ export default function BuyResourcePageContent() {
 
                       <div className="flex flex-col items-end md:items-center md:flex-row md:gap-4">
                         <span className="text-xs text-muted-foreground">
-                          Add to your calendar:
+                          {t("addToCalendar")}
                         </span>
                         <div className="flex gap-2 mt-1 md:mt-0">
                           <div className="p-2 rounded-md bg-muted/20">
@@ -250,10 +253,8 @@ export default function BuyResourcePageContent() {
                 {/* Outlines */}
                 <Card>
                   <CardHeader>
-                    <CardTitle>Content Details</CardTitle>
-                    <CardDescription>
-                      Explore the structure and chapters of this content.
-                    </CardDescription>
+                    <CardTitle>{t("contentDetails")}</CardTitle>
+                    <CardDescription>{t("exploreStructure")}</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <Accordion type="single" collapsible>
@@ -275,12 +276,9 @@ export default function BuyResourcePageContent() {
                 <Card className="bg-muted/10">
                   <CardHeader>
                     <CardTitle className="text-sm text-muted-foreground">
-                      People attending this masterclass
+                      {t("attending")}
                     </CardTitle>
-                    <CardDescription>
-                      Join other learners who are already enrolled and connect
-                      with the community.
-                    </CardDescription>
+                    <CardDescription>{t("joinLearners")}</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="flex items-center gap-3 flex-wrap">
@@ -302,7 +300,7 @@ export default function BuyResourcePageContent() {
                       ))}
                       {attendees.length > 8 && (
                         <span className="text-xs text-muted-foreground">
-                          + {attendees.length - 8} more attending
+                          {t("moreAttending", { count: attendees.length - 8 })}
                         </span>
                       )}
                     </div>
@@ -315,16 +313,16 @@ export default function BuyResourcePageContent() {
                 {/* Revenue Overview */}
                 <Card>
                   <CardHeader>
-                    <CardTitle>Revenue Overview</CardTitle>
+                    <CardTitle>{t("revenueOverview")}</CardTitle>
                     <CardDescription>
-                      Transparency on how revenue is distributed.
+                      {t("revenueTransparency")}
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="flex justify-between items-center">
                       <span className="flex items-center gap-2 text-sm text-muted-foreground">
                         <DollarSign className="w-4 h-4" />
-                        Selling price
+                        {t("sellingPrice")}
                       </span>
                       <span className="text-base font-bold">${price}</span>
                     </div>
@@ -332,7 +330,7 @@ export default function BuyResourcePageContent() {
                     <div className="flex justify-between items-center">
                       <span className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Users className="w-4 h-4 text-green-600" />
-                        Creator cut
+                        {t("creatorCut")}
                       </span>
                       <span className="text-green-600 font-semibold text-base">
                         ${((price * creatorSharePct) / 100).toFixed(2)} (
@@ -342,7 +340,7 @@ export default function BuyResourcePageContent() {
                     <div className="flex justify-between items-center">
                       <span className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Users className="w-4 h-4 text-blue-600" />
-                        Contributors cut
+                        {t("contributorsCut")}
                       </span>
                       <span className="text-blue-600 font-semibold text-base">
                         ${((price * contributorSharePct) / 100).toFixed(2)} (
@@ -356,12 +354,9 @@ export default function BuyResourcePageContent() {
                 <Card className="md:col-span-1">
                   <CardHeader>
                     <CardTitle className="text-sm text-muted-foreground">
-                      Contributors & Revenue Sharing
+                      {t("contributorsRevenue")}
                     </CardTitle>
-                    <CardDescription>
-                      Meet the team behind this content and see how revenue is
-                      shared.
-                    </CardDescription>
+                    <CardDescription>{t("meetTeam")}</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {contributors.map((contributor: any) => (
@@ -403,7 +398,7 @@ export default function BuyResourcePageContent() {
                               </span>
                             </div>
                             <div className="text-xs text-muted-foreground mt-1 text-right">
-                              Revenue share
+                              {t("revenueShare")}
                             </div>
                           </div>
                         </CardContent>
@@ -417,30 +412,30 @@ export default function BuyResourcePageContent() {
                   <Dialog open={open} onOpenChange={setOpen}>
                     <DialogTrigger asChild>
                       <Button className="w-full" disabled={hasNft}>
-                        {hasNft ? "Resource already unlocked" : "Purchase now"}
+                        {hasNft ? t("alreadyUnlocked") : t("purchaseNow")}
                       </Button>
                     </DialogTrigger>
                     <DialogContent className="!max-w-5xl !w-fit">
                       <DialogHeader>
                         <DialogTitle className="text-2xl font-bold text-primary">
-                          Confirmer l'achat
+                          {t("confirmPurchase")}
                         </DialogTitle>
                         <DialogDescription>
-                          Récapitulatif de votre achat et distribution XRPL.
+                          {t("purchaseRecap")}
                         </DialogDescription>
                       </DialogHeader>
                       <div className="mt-4">
                         <div className="mt-2 text-base">
                           <div className="flex items-center gap-2">
                             <DollarSign className="w-5 h-5 text-muted-foreground" />
-                            <span>Prix :</span>
+                            <span>{t("price")} :</span>
                             <span className="font-bold">{price} €</span>
                             <span className="font-bold">≈ {priceXRP} XRP</span>
                             <span className="text-xs text-muted-foreground">
-                              (10€ = 1 XRP testnet)
+                              {t("conversionRate")}
                             </span>
                           </div>
-                          <div className="mt-2">Distribution :</div>
+                          <div className="mt-2">{t("distribution")} :</div>
                           <ul className="mt-1 space-y-1">
                             {distribution.map((d, i) => (
                               <li key={i} className="flex items-center gap-2">
@@ -461,7 +456,7 @@ export default function BuyResourcePageContent() {
                           </ul>
                           <Separator className="my-3" />
                           <div className="flex items-center gap-2">
-                            <span>Votre balance actuelle :</span>
+                            <span>{t("yourBalance")} :</span>
                             {loadingBalances ? (
                               <Loader2 className="animate-spin w-4 h-4" />
                             ) : (
@@ -471,7 +466,7 @@ export default function BuyResourcePageContent() {
                             )}
                           </div>
                           <div className="mt-2">
-                            Balances des bénéficiaires :
+                            {t("beneficiariesBalances")} :
                           </div>
                           <ul className="mt-1 space-y-1">
                             {distribution.map((d, i) => {
@@ -501,11 +496,11 @@ export default function BuyResourcePageContent() {
                                       <Loader2 className="inline animate-spin w-4 h-4 text-blue-700" />
                                     ) : balances?.[userKey] === undefined ? (
                                       <span className="text-red-500">
-                                        Erreur
+                                        {t("error")}
                                       </span>
                                     ) : balances[userKey] === null ? (
                                       <span className="text-muted-foreground">
-                                        Non disponible
+                                        {t("notAvailable")}
                                       </span>
                                     ) : (
                                       `${balances[userKey]} XRP`
@@ -524,7 +519,7 @@ export default function BuyResourcePageContent() {
                                 window.location.href = `/resources/${resourcesId}`;
                               }}
                             >
-                              Accéder à la ressource
+                              {t("accessResource")}
                             </Button>
                           )}
                           {txStatus === "idle" && (
@@ -533,14 +528,14 @@ export default function BuyResourcePageContent() {
                               onClick={() => buyMutation.mutate()}
                               disabled={buyMutation.isPending}
                             >
-                              Confirmer l'achat
+                              {t("confirmPurchase")}
                             </Button>
                           )}
                           {txStatus === "pending" && (
                             <div className="flex flex-col items-center gap-2 py-4">
                               <Loader2 className="animate-spin w-8 h-8 text-primary" />
                               <span className="text-primary font-semibold">
-                                Transaction en cours sur le testnet XRPL...
+                                {t("transactionPending")}
                               </span>
                             </div>
                           )}
@@ -550,7 +545,7 @@ export default function BuyResourcePageContent() {
                               {txResult?.txResults?.length > 0 && (
                                 <div className="flex-1 bg-muted/40 border rounded p-4 text-xs min-w-0 max-w-full w-full overflow-x-auto">
                                   <div className="mb-2 font-semibold text-muted-foreground">
-                                    Transactions XRPL (distribution)
+                                    {t("xrplTransactions")}
                                   </div>
                                   {txResult.txResults.map(
                                     (tx: any, i: number) => (
@@ -560,7 +555,7 @@ export default function BuyResourcePageContent() {
                                       >
                                         <div className="flex items-center gap-2">
                                           <span className="font-mono text-xs">
-                                            Hash :
+                                            {t("hash")} :
                                           </span>
                                           <span
                                             className="font-mono break-all text-xs"
@@ -578,12 +573,12 @@ export default function BuyResourcePageContent() {
                                             rel="noopener noreferrer"
                                             className="text-blue-600 underline text-xs"
                                           >
-                                            Voir sur XRPL Explorer
+                                            {t("seeOnExplorer")}
                                           </a>
                                         )}
                                         <div className="flex items-center gap-2 mt-1">
                                           <span className="font-mono text-xs">
-                                            Montant :
+                                            {t("amount")} :
                                           </span>
                                           <span className="font-bold text-green-700">
                                             {tx.amount} XRP
@@ -591,7 +586,7 @@ export default function BuyResourcePageContent() {
                                         </div>
                                         <div className="flex items-center gap-2 mt-1">
                                           <span className="font-mono text-xs">
-                                            Destinataire :
+                                            {t("recipient")} :
                                           </span>
                                           <span
                                             className="font-mono break-all text-xs"
@@ -609,17 +604,16 @@ export default function BuyResourcePageContent() {
                               {txResult?.nftMintResult && (
                                 <div className="flex-1 bg-green-50 border border-green-200 rounded p-4 text-xs min-w-0">
                                   <div className="font-semibold text-green-700 mb-1">
-                                    Votre NFT d'accès à la ressource a bien été
-                                    créé et transféré sur votre wallet XRPL.
+                                    {t("nftCreated")}
                                   </div>
                                   {/* Étape 1 : Mint du NFT */}
                                   <div className="mb-2">
                                     <span className="font-semibold">
-                                      Étape 1 : Mint du NFT
+                                      {t("step1Mint")}
                                     </span>
                                     <div className="flex items-center gap-2 mt-1">
                                       <span className="font-mono">
-                                        Hash mint :
+                                        {t("mintHash")} :
                                       </span>
                                       <span className="font-mono break-all">
                                         {truncateMiddle(
@@ -637,7 +631,7 @@ export default function BuyResourcePageContent() {
                                         rel="noopener noreferrer"
                                         className="text-blue-600 underline text-xs"
                                       >
-                                        Voir le mint sur XRPL Explorer
+                                        {t("seeMintOnExplorer")}
                                       </a>
                                     )}
                                   </div>
@@ -645,11 +639,11 @@ export default function BuyResourcePageContent() {
                                   {txResult.nftMintResult?.transferResult && (
                                     <div className="mb-2">
                                       <span className="font-semibold">
-                                        Étape 2 : Transfert du NFT
+                                        {t("step2Transfer")}
                                       </span>
                                       <div className="flex items-center gap-2 mt-1">
                                         <span className="font-mono">
-                                          Hash transfert :
+                                          {t("transferHash")} :
                                         </span>
                                         <span className="font-mono break-all">
                                           {truncateMiddle(
@@ -670,7 +664,7 @@ export default function BuyResourcePageContent() {
                                           rel="noopener noreferrer"
                                           className="text-blue-600 underline text-xs"
                                         >
-                                          Voir le transfert sur XRPL Explorer
+                                          {t("seeTransferOnExplorer")}
                                         </a>
                                       )}
                                     </div>
@@ -687,66 +681,21 @@ export default function BuyResourcePageContent() {
                                               rel="noopener noreferrer"
                                               className="text-blue-600 underline text-xs cursor-pointer"
                                             >
-                                              Visualiser ce NFT sur XRPL
-                                              Explorer
+                                              {t("seeNftOnExplorer")}
                                             </a>
                                           </TooltipTrigger>
                                           <TooltipContent className="max-w-xs text-xs">
                                             <div className="font-semibold mb-1">
-                                              Comment fonctionne l'accès
-                                              XRPL&nbsp;?
+                                              {t("howAccessWorksTitle")}
                                             </div>
-                                            <div>
-                                              1. Le backend <b>mint</b> un NFT
-                                              d'accès unique pour cette
-                                              ressource.
-                                              <br />
-                                              2. Il crée une{" "}
-                                              <b>offre de transfert</b> XRPL à 0
-                                              XRP à votre adresse.
-                                              <br />
-                                              3. Il <b>accepte l'offre</b>{" "}
-                                              automatiquement pour vous
-                                              transférer le NFT.
-                                              <br />
-                                              4. Ce NFT devient la{" "}
-                                              <b>preuve d'accès</b> à la
-                                              ressource :{" "}
-                                              <b>
-                                                seuls les NFT mintés par
-                                                l'issuer officiel (le backend)
-                                              </b>{" "}
-                                              donnent accès au contenu.
-                                              <br />
-                                              5. Lors de l'accès, le backend
-                                              vérifie que{" "}
-                                              <b>
-                                                l'issuer du NFT est bien le
-                                                backend
-                                              </b>{" "}
-                                              et que{" "}
-                                              <b>
-                                                vous en êtes le propriétaire
-                                              </b>{" "}
-                                              (owner).
-                                              <br />
-                                              <span className="text-muted-foreground">
-                                                Tout est automatisé, aucune
-                                                action blockchain n'est requise
-                                                de votre part. La sécurité de
-                                                l'accès repose sur l'issuer du
-                                                NFT.
-                                              </span>
-                                            </div>
+                                            <div>{t("howAccessWorks")}</div>
                                           </TooltipContent>
                                         </Tooltip>
                                       </TooltipProvider>
                                     </div>
                                   )}
                                   <div className="mt-1 text-green-700">
-                                    Ce NFT est la preuve d'accès à la ressource.
-                                    Vous pouvez le retrouver à tout moment dans
-                                    votre wallet.
+                                    {t("nftProof")}
                                   </div>
                                 </div>
                               )}
@@ -756,7 +705,7 @@ export default function BuyResourcePageContent() {
                             <div className="flex flex-col items-center gap-2 py-4">
                               <XCircle className="w-8 h-8 text-red-600" />
                               <span className="text-red-700 font-semibold">
-                                Erreur lors de la transaction
+                                {t("transactionError")}
                               </span>
                               <div className="text-xs text-muted-foreground">
                                 {errorMsg}
@@ -766,7 +715,7 @@ export default function BuyResourcePageContent() {
                                 className="mt-2"
                                 onClick={() => setTxStatus("idle")}
                               >
-                                Réessayer
+                                {t("retry")}
                               </Button>
                             </div>
                           )}
@@ -781,11 +730,11 @@ export default function BuyResourcePageContent() {
                         window.location.href = `/resources/${resourcesId}`;
                       }}
                     >
-                      Accéder à la ressource
+                      {t("accessResource")}
                     </Button>
                   )}
                   <Button variant="outline" className="w-full">
-                    Return to dashboard
+                    {t("returnDashboard")}
                   </Button>
                 </div>
               </div>

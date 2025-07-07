@@ -18,6 +18,7 @@ import { Upload, Copy } from "lucide-react";
 import { useResource } from "@/hooks/useResources";
 import { useState, useRef } from "react";
 import AccessRessourcePage from "@/components/shared/AccessRessourcePage";
+import { useTranslations } from "next-intl";
 
 export default function ResourcePage() {
   const { activeCommunity } = useCurrentCommunity();
@@ -44,10 +45,11 @@ export default function ResourcePage() {
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   };
+  const t = useTranslations("resource");
 
-  if (isLoading) return <div>Chargement...</div>;
+  if (isLoading) return <div>{t("loading")}</div>;
   if (error || !resource)
-    return <div>Erreur : {error || "Ressource introuvable"}</div>;
+    return <div>{t("error", { error: error || t("notFound") })}</div>;
 
   // Créateur : édition
   if (user?.id === activeCommunity?.user?.id) {
@@ -76,15 +78,15 @@ export default function ResourcePage() {
                 <Separator />
                 <div className="flex flex-col gap-1 text-sm">
                   <span>
-                    <b>Longueur :</b> {resource.length}
+                    <b>{t("length")} :</b> {resource.length}
                   </span>
                   <span>
-                    <b>Date :</b> {resource.date}
+                    <b>{t("date")} :</b> {resource.date}
                   </span>
                 </div>
                 <Separator />
                 <div>
-                  <h3 className="font-semibold mb-1">Plan</h3>
+                  <h3 className="font-semibold mb-1">{t("plan")}</h3>
                   <ul className="list-disc pl-5 text-sm text-muted-foreground">
                     {resource.outlines.map((item, idx) => (
                       <li key={idx}>
@@ -101,27 +103,27 @@ export default function ResourcePage() {
             {/* Stats mockées */}
             <Card className="bg-muted/30">
               <CardHeader>
-                <CardTitle>Statistiques</CardTitle>
+                <CardTitle>{t("stats")}</CardTitle>
               </CardHeader>
               <CardContent className="flex gap-6 text-sm">
                 <div>
                   <span className="font-bold text-lg">12</span>
-                  <div className="text-muted-foreground">Acheteurs</div>
+                  <div className="text-muted-foreground">{t("buyers")}</div>
                 </div>
                 <div>
                   <span className="font-bold text-lg">87</span>
-                  <div className="text-muted-foreground">Vues</div>
+                  <div className="text-muted-foreground">{t("views")}</div>
                 </div>
                 <div>
                   <span className="font-bold text-lg">2024-06-01</span>
-                  <div className="text-muted-foreground">Créée le</div>
+                  <div className="text-muted-foreground">{t("createdAt")}</div>
                 </div>
               </CardContent>
             </Card>
             {/* Contributeurs */}
             <Card>
               <CardHeader>
-                <CardTitle>Contributeurs</CardTitle>
+                <CardTitle>{t("contributors")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
                 {resource.contributors.map((contrib) => (
@@ -149,10 +151,8 @@ export default function ResourcePage() {
             {/* Bloc de partage du lien */}
             <Card className="border border-primary/40 bg-primary/5">
               <CardHeader>
-                <CardTitle>Partager le lien</CardTitle>
-                <CardDescription>
-                  Copie ce lien pour le partager à tes acheteurs potentiels.
-                </CardDescription>
+                <CardTitle>{t("shareLink")}</CardTitle>
+                <CardDescription>{t("copyLinkDesc")}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex gap-2 items-center">
@@ -165,12 +165,14 @@ export default function ResourcePage() {
                     variant="outline"
                     size="icon"
                     onClick={handleCopy}
-                    title="Copier le lien"
+                    title={t("copyLink")}
                   >
                     <Copy className="w-4 h-4" />
                   </Button>
                   {copied && (
-                    <span className="text-green-600 text-xs ml-2">Copié !</span>
+                    <span className="text-green-600 text-xs ml-2">
+                      {t("copied")}
+                    </span>
                   )}
                 </div>
               </CardContent>
@@ -178,27 +180,25 @@ export default function ResourcePage() {
             {/* Bloc édition */}
             <Card>
               <CardHeader>
-                <CardTitle>Éditer la ressource</CardTitle>
-                <CardDescription>
-                  Modifie le titre et le fichier associé si besoin.
-                </CardDescription>
+                <CardTitle>{t("editResource")}</CardTitle>
+                <CardDescription>{t("editResourceDesc")}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div>
                   <label className="block text-sm font-medium mb-1">
-                    Titre
+                    {t("title")}
                   </label>
                   <Input
                     value={editTitle || resource.title}
                     onChange={(e) => setEditTitle(e.target.value)}
-                    placeholder="Titre de la ressource"
+                    placeholder={t("resourceTitlePlaceholder")}
                     className="max-w-md"
                   />
                 </div>
                 {resource.format === "Whitepaper" && (
                   <div>
                     <label className="block text-sm font-medium mb-1">
-                      Fichier PDF
+                      {t("pdfFile")}
                     </label>
                     <div className="flex items-center gap-4">
                       <Button
@@ -207,7 +207,7 @@ export default function ResourcePage() {
                         className="flex items-center gap-2"
                       >
                         <Upload className="w-4 h-4" />
-                        {editFile ? editFile.name : "Déposer un PDF"}
+                        {editFile ? editFile.name : t("dropPdf")}
                       </Button>
                       <input
                         ref={fileInputRef}
@@ -225,13 +225,13 @@ export default function ResourcePage() {
                           rel="noopener noreferrer"
                           className="text-blue-600 underline text-sm"
                         >
-                          Voir le PDF actuel
+                          {t("seeCurrentPdf")}
                         </a>
                       )}
                     </div>
                   </div>
                 )}
-                <Button className="mt-4">Enregistrer</Button>
+                <Button className="mt-4">{t("save")}</Button>
               </CardContent>
             </Card>
           </div>
