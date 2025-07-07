@@ -101,6 +101,20 @@ export class ResourceService {
 				description:
 					'This trend highlights the rapid democratization of artificial intelligence, making advanced tools accessible to a broader audience. It explores how AI is transforming both education and business, enabling individuals and organizations to leverage machine learning and automation without deep technical expertise. The trend also discusses the challenges of adoption, the need for upskilling, and the societal implications of widespread AI usage.',
 			},
+			links: [
+				{
+					name: 'Official Documentation',
+					url: 'https://www.example.com/docs',
+				},
+				{
+					name: 'Related Article',
+					url: 'https://www.example.com/article',
+				},
+				{
+					name: 'Community Forum',
+					url: 'https://www.example.com/forum',
+				},
+			],
 		},
 		{
 			id: '927415836',
@@ -113,7 +127,7 @@ export class ResourceService {
 			date: '2025-08-15',
 			creator: {
 				id: '16',
-				userId: '100',
+				userId: '',
 				initials: 'CN',
 				title: 'CEO',
 				description: 'Specialist in AI and data analysis.',
@@ -146,7 +160,7 @@ export class ResourceService {
 			contributors: [
 				{
 					id: 'User 3',
-					userId: '16',
+					userId: '100',
 					initials: 'ML',
 					title: 'Lead Data Scientist',
 					description: 'Expert in data pipelines.',
@@ -171,12 +185,26 @@ export class ResourceService {
 				description:
 					'This trend examines the growing importance of data science as a foundational skill in the modern workforce. It covers the increasing demand for data literacy, the integration of data-driven decision-making in business processes, and the proliferation of bootcamps and workshops aimed at upskilling professionals. The trend also addresses the evolving landscape of data tools and the challenges of keeping pace with technological advancements.',
 			},
+			links: [
+				{
+					name: 'Workshop Materials',
+					url: 'https://www.example.com/materials',
+				},
+				{
+					name: 'Data Science Blog',
+					url: 'https://www.example.com/blog',
+				},
+				{
+					name: 'Project Repository',
+					url: 'https://www.example.com/repo',
+				},
+			],
 		},
 		{
 			id: '561903247',
-			title: "Whitepaper: L'IA Générative en 2025",
+			title: 'Whitepaper: Generative AI in 2025',
 			description:
-				"Un whitepaper détaillé sur les avancées, usages et enjeux de l'IA générative en 2025.",
+				'A detailed whitepaper on the advances, uses, and challenges of generative AI in 2025.',
 			tags: ['Whitepaper', 'IA', 'Tendances'],
 			format: 'Whitepaper',
 			date: '2025-09-01',
@@ -215,46 +243,45 @@ export class ResourceService {
 			contributorSharePct: 50,
 			contributors: [
 				{
-					id: 'User 4',
+					id: 'User 1',
 					userId: '100',
 					initials: 'EP',
-					title: 'Chercheur IA',
-					description: 'Spécialiste des modèles génératifs.',
+					title: 'AI Researcher',
+					description: 'Specialist in generative models.',
 					sharePct: 15,
-					expertises: ['Recherche', 'Générative'],
+					expertises: ['ai'],
 					mission: {
 						missionDescription:
-							"Rédiger l'introduction, la synthèse des avancées technologiques et la conclusion du whitepaper, en assurant la cohérence scientifique et la vision globale.",
+							'Write the introduction, the synthesis of technological advances, and the conclusion of the whitepaper, ensuring scientific consistency and overall vision.',
 						length: '10-20',
 					},
 				},
 				{
-					id: '101',
+					id: 'User 2',
 					userId: '101',
 					initials: 'JD',
 					title: 'Data Scientist',
-					description:
-						'Expert en IA appliquée et analyse de données.',
+					description: 'Expert in applied AI and data analysis.',
 					sharePct: 15,
-					expertises: ['Data Science', 'Machine Learning'],
+					expertises: ['data'],
 					mission: {
 						missionDescription:
-							"Analyser les cas d'usage innovants de l'IA générative dans l'industrie et la santé, et rédiger les chapitres correspondants.",
+							'Analyze innovative use cases of generative AI in industry and healthcare, and write the corresponding chapters.',
 						length: '10-20',
 					},
 				},
 				{
-					id: '102',
+					id: 'User 3',
 					userId: '102',
 					initials: 'AM',
-					title: 'Ingénieur Logiciel',
+					title: 'Software Engineer',
 					description:
-						'Développeur fullstack spécialisé IA et cloud.',
+						'Fullstack developer specialized in AI and cloud.',
 					sharePct: 20,
-					expertises: ['Développement', 'Cloud', 'DevOps'],
+					expertises: ['communication', 'security'],
 					mission: {
 						missionDescription:
-							'Documenter les défis techniques, la scalabilité, la sécurité et la gouvernance des modèles génératifs, et rédiger les chapitres techniques.',
+							'Document the technical challenges, scalability, security, and governance of generative models, and write the technical chapters.',
 						length: '10-20',
 					},
 				},
@@ -269,6 +296,20 @@ export class ResourceService {
 				description:
 					'This trend delves into the transformative impact of generative AI technologies in 2025. It explores how models like GPT, DALL-E, and others are revolutionizing content creation, product design, and problem-solving across sectors. The trend discusses the opportunities for innovation, the ethical and regulatory challenges, and the new business models emerging from generative AI. It also highlights the need for interdisciplinary collaboration to harness the full potential of these technologies.',
 			},
+			links: [
+				{
+					name: 'Generative AI Whitepaper (Fujitsu)',
+					url: 'https://sp.ts.fujitsu.com/dmsp/Publications/public/wp-generative-ai-en.pdf',
+				},
+				{
+					name: "Generative AI's Class of 2025 (Medium)",
+					url: 'https://medium.com/genai-nexus/generative-ais-class-of-2025-962fa45d3acb',
+				},
+				{
+					name: 'Demystifying AI Agents: The Final Generation of Intelligence (arXiv)',
+					url: 'https://arxiv.org/abs/2505.09932',
+				},
+			],
 		},
 	];
 

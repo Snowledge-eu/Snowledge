@@ -24,14 +24,9 @@ import { Textarea } from "@repo/ui/components/textarea";
 import { Slider } from "@repo/ui/components/slider";
 import { Avatar, AvatarFallback } from "@repo/ui/components/avatar";
 import { Badge } from "@repo/ui/components/badge";
+import { useResource } from "@/hooks/useResources";
 
 import { Info, ListFilter, Lock, Unlock } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@repo/ui/components/tooltip";
 import { Calendar } from "@repo/ui/components/calendar";
 import {
   Calendar as CalendarIcon,
@@ -47,44 +42,26 @@ import {
 import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
 
-const contributors = [
-  {
-    id: "User 1",
-    initials: "CN",
-    title: "CEO",
-    description: "Description of the user",
-    expertises: ["Expertise 1", "Expertise 2"],
-  },
-  {
-    id: "User 2",
-    initials: "CN",
-    title: "CEO",
-    description: "Description of the user",
-    expertises: ["Expertise 2", "Expertise 3"],
-  },
-  {
-    id: "User 3",
-    initials: "CN",
-    title: "CEO",
-    description: "Description of the user",
-    expertises: ["Expertise 1"],
-  },
-];
-
 export default function Page() {
+  const { data: resource } = useResource("561903247");
+
+  const contributors = resource?.contributors;
+
   const router = useRouter();
   const { slug } = useParams();
   const [selectedFormat, setSelectedFormat] = useState("");
   const [price, setPrice] = useState(100);
   const [sharePercentage, setSharePercentage] = useState(30);
   const [activeExpertise, setActiveExpertise] = useState("All");
-  const [sliders, setSliders] = useState<number[]>(contributors.map(() => 10));
+  const [sliders, setSliders] = useState<number[]>(
+    contributors?.map(() => 10) || []
+  );
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [duration, setDuration] = useState("");
   const [length, setLength] = useState("");
   const [chapters, setChapters] = useState("");
   const [lockedContributors, setLockedContributors] = useState<boolean[]>(
-    contributors.map(() => false)
+    contributors?.map(() => false) || []
   );
   const [isFormValid, setIsFormValid] = useState(false);
 
@@ -146,7 +123,7 @@ export default function Page() {
   const filteredContributors =
     activeExpertise === "All"
       ? contributors
-      : contributors.filter((c) => c.expertises.includes(activeExpertise));
+      : contributors?.filter((c) => c.expertises.includes(activeExpertise));
 
   const contributorCut = (price * sharePercentage) / 100;
   const creatorCut = price - contributorCut;
@@ -204,9 +181,14 @@ export default function Page() {
         <Tabs defaultValue="All" onValueChange={setActiveExpertise}>
           <TabsList className="space-x-2 w-fit">
             <TabsTrigger value="All">All</TabsTrigger>
-            <TabsTrigger value="Expertise 1">Expertise 1</TabsTrigger>
-            <TabsTrigger value="Expertise 2">Expertise 2</TabsTrigger>
-            <TabsTrigger value="Expertise 3">Expertise 3</TabsTrigger>
+            {/* Contributor . expertise */}
+            {contributors?.map((contributor) =>
+              contributor.expertises.map((expertise) => (
+                <TabsTrigger key={expertise} value={expertise}>
+                  {expertise}
+                </TabsTrigger>
+              ))
+            )}
           </TabsList>
         </Tabs>
 
@@ -499,7 +481,7 @@ export default function Page() {
 
         <div className="space-y-10">
           <h2 className="text-lg font-semibold">Contributors and Missions</h2>
-          {filteredContributors.map((user, index) => (
+          {filteredContributors?.map((user, index) => (
             <div key={user.id} className="space-y-4">
               <div className="flex flex-col md:flex-row gap-6">
                 <Card className="md:w-1/3 bg-muted/10">

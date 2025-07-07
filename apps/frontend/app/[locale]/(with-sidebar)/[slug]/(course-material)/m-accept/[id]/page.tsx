@@ -201,18 +201,15 @@ export default function MissionReceptionPage() {
             Resources you may check
           </h2>
           <div className="space-y-3 text-sm">
-            {[
-              "Title of resource 1",
-              "Title of resource 2",
-              "Title of resource 3",
-            ].map((title, index) => (
+            {resource.links.map((link, index) => (
               <div
                 key={index}
                 className="flex items-center gap-2 cursor-pointer"
+                onClick={() => window.open(link.url, "_blank")}
               >
                 <ExternalLink className="h-4 w-4" aria-hidden="true" />
-                <span tabIndex={0} aria-label={title}>
-                  {title}
+                <span tabIndex={0} aria-label={link.name}>
+                  {link.name}
                 </span>
               </div>
             ))}
