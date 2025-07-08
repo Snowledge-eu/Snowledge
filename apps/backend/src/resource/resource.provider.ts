@@ -144,11 +144,13 @@ export class ResourceProvider {
 				);
 			}
 
-			// 6. Ajouter l'acheteur à la communauté
-			await this.learnerService.addLearnerToCommunityById(
-				Number(communityId),
-				buyer.id,
-			);
+			// 6. Ajouter l'acheteur à la communauté si il est passé par le lien community (et que donc il a pas rejoint la communauté avant)
+			if (communityId) {
+				await this.learnerService.addLearnerToCommunityById(
+					Number(communityId),
+					buyer.id,
+				);
+			}
 
 			console.log('[ResourceProvider] Achat terminé', {
 				resourceId,
