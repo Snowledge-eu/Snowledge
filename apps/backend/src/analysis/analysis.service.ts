@@ -21,7 +21,9 @@ export class AnalysisService {
 	findOne(id: number) {
 		return `This action returns a #${id} analysis`;
 	}
-
+	async findById(id: string) {
+		return this.analysisModel.findById(id).exec();
+	}
 	findByDiscordScope(serverId: string, channelId: string, promptKey: string): Promise<AnalysisResult | null> {
 		if (typeof promptKey !== 'string') {
             throw new Error('Invalid promptKey: must be a string');

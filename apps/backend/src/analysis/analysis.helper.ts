@@ -19,17 +19,32 @@ export class AnalysisHelper {
 		userContent: string[] | string;
 	}): Promise<any> {
 		try {
-		const payload = await this.payloadBuilder.buildPayload(
-			input.modelName,
-			input.promptKey,
-			input.userContent
-		);
-		return this.ovhClient.callOvhApi(payload);
+			const payload = await this.payloadBuilder.buildPayload(
+				input.modelName,
+				input.promptKey,
+				input.userContent
+			);
+			return this.ovhClient.callOvhApi(payload);
 		} catch (error) {
 			this.logger.error(error)
 		}
 	}
-
+	async trendToContent(input: {
+		modelName: string;
+		promptKey: string;
+		trend: any;
+	}){
+		try {
+			const payload = await this.payloadBuilder.buildPayloadForContent(
+				input.modelName,
+				input.promptKey,
+				input.trend
+			);
+			return this.ovhClient.callOvhApi(payload);
+		} catch (error) {
+			this.logger.error(error)
+		}
+	}
 	async saveAnalysis(data: any): Promise<Analysis> {
 		// À adapter selon ton ORM ou accès Mongo/Mongoose :
 		const created = await this.analysisService.create({

@@ -12,5 +12,6 @@ import { OvhClient } from './llm/call-ovh-api';
 	imports: [MongooseModule.forFeature([{ name: AnalysisResult.name, schema: AnalysisResultSchema }]), DiscordModule],
 	controllers: [AnalysisController],
 	providers: [AnalysisHelper, AnalysisService, PayloadBuilder, OvhClient],
+	exports: [AnalysisService, AnalysisHelper]
 })
 export class AnalysisModule {}
