@@ -49,7 +49,7 @@
 		"slugify": "^1.6.6",
 		"sql-highlight": "^6.0.0",
 		"typeorm": "^0.3.24",
-		"xrpl": "^3.0.0"
+		"xrpl": "^4.3.0"
 	},
 	"devDependencies": {
 		"@discordjs/rest": "^2.3.0",
