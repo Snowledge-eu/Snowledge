@@ -2,17 +2,13 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query, BadRequestExc
 import { SummaryService } from './summary.service';
 import { CreateSummaryDto } from './dto/create-summary.dto';
 import { UpdateSummaryDto } from './dto/update-summary.dto';
-import { User } from 'src/user/decorator';
-import { User as UserEntity } from 'src/user/entities/user.entity';
-import { AnalysisHelper } from 'src/analysis/analysis.helper';
-import { AnalysisService } from 'src/analysis/analysis.service';
-import { AnalysisProvider } from 'src/analysis/analysis.provider';
+import { User } from '../../user/decorator';
+import { User as UserEntity } from '../../user/entities/user.entity';
+import { AnalysisProvider } from '../../analysis/analysis.provider';
 
 @Controller('summary')
 export class SummaryController {
 	constructor(
-		private readonly analysisService: AnalysisService,
-		private readonly analysisHelper: AnalysisHelper,
 		private readonly summaryService: SummaryService,
 		private readonly analysisProvider: AnalysisProvider,
 	) {}
