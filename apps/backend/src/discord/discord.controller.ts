@@ -9,7 +9,6 @@ import {
 	Param,
 	Post,
 	Body,
-	UsePipes,
 	UseInterceptors,
 	Delete,
 } from '@nestjs/common';
@@ -29,10 +28,10 @@ import { DiscordHarvestDto } from './dto/discord-harvest.dto';
 export class DiscordController {
 	private readonly logger = new Logger(DiscordController.name);
 	constructor(
-		private discordProvider: DiscordProvider,
-		private discordChannelService: DiscordChannelService,
-		private discordHarvestJobService: DiscordHarvestJobService,
-		private discordMessageService: DiscordMessageService,
+		private readonly discordProvider: DiscordProvider,
+		private readonly discordChannelService: DiscordChannelService,
+		private readonly discordHarvestJobService: DiscordHarvestJobService,
+		private readonly discordMessageService: DiscordMessageService,
 	) {}
 
 	@HttpCode(HttpStatus.OK)
@@ -104,6 +103,20 @@ export class DiscordController {
 		return { ...last, lastFetched };
 	}
 
+	@Get('servers')
+	async listDiscordServers() {
+		return await this.discordProvider.listDiscordServers();
+	}
+
+	@Get('harvest/status/:jobId')
+	async getHarvestJobStatus(@Param('jobId') jobId: string) {
+		try {
+			return await this.discordProvider.getHarvestJobStatus(jobId);
+		} catch (e) {
+			return { error: (e as Error).message };
+		}
+	}
+
 	@Post('count-message')
 	async countMessageInterval(
 		@Body()
@@ -152,6 +165,7 @@ export class DiscordController {
 			this.logger.error(error);
 		}
 	}
+	
 	@Delete('disconnect')
 	async disconnect(@User() user: UserEntity){
 		return await this.discordProvider.disconnectDiscord(user);

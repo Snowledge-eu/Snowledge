@@ -7,6 +7,9 @@ import { ConfigType } from '@nestjs/config';
 import { CommunityService } from 'src/community/community.service';
 import { Community } from 'src/community/entities/community.entity';
 import { DiscordServerService } from 'src/discord-server/discord-server.service';
+import { DiscordClientHelper } from './helpers/discord-client.helper';
+import { DiscordHarvestJobService } from './services/discord-harvest-job.service';
+import { Types } from 'mongoose';
 
 @Injectable()
 export class DiscordProvider {
@@ -18,6 +21,8 @@ export class DiscordProvider {
 		private readonly userService: UserService,
 		private readonly communityService: CommunityService,
 		private readonly discordServerService: DiscordServerService,
+		private readonly discordClientHelper: DiscordClientHelper, // Ajout injection helper
+		private readonly discordHarvestJobService: DiscordHarvestJobService,
 	) {}
 
 	async linkDiscord(code: string, user: User, communityId?: number) {
@@ -118,5 +123,33 @@ export class DiscordProvider {
 			await this.discordService.delete(findUser.discordAccess.id);
 		}
 		// TODO enelver le bot discord du serveur si c'est le créateur 
+	}
+
+	async listDiscordServers(): Promise<Array<{ id: string; name: string }>> {
+		const client = this.discordClientHelper.getClient();
+		const guilds = client.guilds.cache.map(guild => ({
+			id: guild.id,
+			name: guild.name,
+		}));
+		return guilds;
+	}
+
+	async getHarvestJobStatus(jobId: string): Promise<any> {
+		let job;
+		try {
+			job = await this.discordHarvestJobService['harvestJobModel'].findById(new Types.ObjectId(jobId)).lean();
+		} catch (e) {
+			throw new Error('Invalid job_id format');
+		}
+		if (!job) {
+			throw new Error('Job not found');
+		}
+		return {
+			job_id: job._id.toString(),
+			status: job.status,
+			inserted: job.inserted,
+			finished_at: job.finished_at,
+			error: job.error,
+		};
 	}
 }
