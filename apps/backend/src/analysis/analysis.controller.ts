@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, HttpException, HttpStatus, Logger, HttpCode, Header, Res } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, HttpException, HttpStatus, Logger, HttpCode, Header, Res, NotFoundException, BadRequestException } from '@nestjs/common';
 import { AnalysisService } from './analysis.service';
 import { CreateAnalysisDto } from './dto/create-analysis.dto';
 import { UpdateAnalysisDto } from './dto/update-analysis.dto';
@@ -56,17 +56,50 @@ export class AnalysisController {
 	}
 
 	@Get(':id')
-	findOne(@Param('id') id: string) {
-		return this.analysisService.findOne(+id);
+	async findOne(@Param('id') id: string) {
+		try {
+			const analysis = await this.analysisService.findOne(+id);
+			if (!analysis) {
+				throw new NotFoundException('Analysis not found');
+			}
+			return analysis;
+		} catch (error) {
+			if (error instanceof NotFoundException) {
+				throw error;
+			}
+			throw new BadRequestException('Invalid analysis ID format');
+		}
 	}
 
 	@Patch(':id')
-	update(@Param('id') id: string, @Body() updateAnalysisDto: UpdateAnalysisDto) {
-		return this.analysisService.update(+id, updateAnalysisDto);
+	async update(@Param('id') id: string, @Body() updateAnalysisDto: UpdateAnalysisDto) {
+		try {
+			const updatedAnalysis = await this.analysisService.update(+id, updateAnalysisDto);
+			if (!updatedAnalysis) {
+				throw new NotFoundException('Analysis not found');
+			}
+			return updatedAnalysis;
+		} catch (error) {
+			if (error instanceof NotFoundException) {
+				throw error;
+			}
+			throw new BadRequestException('Invalid analysis ID format');
+		}
 	}
 
 	@Delete(':id')
-	remove(@Param('id') id: string) {
-		return this.analysisService.remove(+id);
+	async remove(@Param('id') id: string) {
+		try {
+			const deletedAnalysis = await this.analysisService.remove(+id);
+			if (!deletedAnalysis) {
+				throw new NotFoundException('Analysis not found');
+			}
+			return { message: 'Analysis deleted successfully' };
+		} catch (error) {
+			if (error instanceof NotFoundException) {
+				throw error;
+			}
+			throw new BadRequestException('Invalid analysis ID format');
+		}
 	}
 }

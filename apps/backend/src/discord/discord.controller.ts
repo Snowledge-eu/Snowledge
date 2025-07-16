@@ -63,44 +63,8 @@ export class DiscordController {
 
 	@Get('last-harvest/:guildId')
 	@UseInterceptors(TransformLongToStringInterceptor)
-	async getLastHarvest(@Param('guildId') guildId: string): Promise<
-		DiscordHarvestJob & {
-			lastFetched: {
-				date: Date;
-				channels: Array<{ name: string; qty: number }>;
-			};
-		}
-	> {
-		const last =
-			await this.discordHarvestJobService.findLastHarvestJobByDiscordServerId(
-				guildId,
-			);
-
-		if (!last) {
-			return null;
-		}
-
-		const arrInfo: Array<{ name: string; qty: number }> = [];
-		for (const channel of last.channels) {
-			const channelInfo = await this.discordChannelService.findOne(
-				channel.toString(),
-			);
-			const countMess =
-				await this.discordMessageService.countMessageForDate(
-					channel,
-					last.created_at,
-				);
-			arrInfo.push({
-				name: channelInfo.name,
-				qty: countMess,
-			});
-		}
-		const lastFetched = {
-			date: last.created_at,
-			channels: arrInfo,
-		};
-
-		return { ...last, lastFetched };
+	async getLastHarvest(@Param('guildId') guildId: string) {
+		return this.discordProvider.getLastHarvest(guildId);
 	}
 
 	@Get('servers')
@@ -119,51 +83,13 @@ export class DiscordController {
 
 	@Post('count-message')
 	async countMessageInterval(
-		@Body()
-		info: {
-			channelId: string[];
-			interval: 'last_day' | 'last_week' | 'last_month';
-		},
+		@Body() info: { channelId: string[]; interval: 'last_day' | 'last_week' | 'last_month' },
 	): Promise<number> {
-		const now = new Date();
-		let startDate: Date;
-		let count = 0;
-
-		switch (info.interval) {
-			case 'last_day':
-				startDate = new Date(now);
-				startDate.setDate(now.getDate() - 1);
-				break;
-			case 'last_week':
-				startDate = new Date(now);
-				startDate.setDate(now.getDate() - 7);
-				break;
-			case 'last_month':
-				startDate = new Date(now);
-				startDate.setMonth(now.getMonth() - 1);
-				break;
-			default:
-				throw new Error(`Invalid interval: ${info.interval}`);
-		}
-		for (const id of info.channelId) {
-			const tmpcount =
-				await this.discordMessageService.countMessageForPeriod(
-					id,
-					startDate,
-				);
-			count += tmpcount;
-		}
-		return count;
+		return this.discordProvider.countMessageInterval(info);
 	}
 	@Post('harvest')
-	async harvestDiscord(@Body() dto: DiscordHarvestDto) {
-		try {
-			this.logger.verbose(JSON.stringify(dto))
-			const jobId = await this.discordHarvestJobService.addJob(dto);
-			return { job_id: jobId, status: 'queued' };
-		} catch (error) {
-			this.logger.error(error);
-		}
+	async harvestDiscord(@Body() dto: any) {
+		return this.discordProvider.harvestDiscord(dto);
 	}
 	
 	@Delete('disconnect')

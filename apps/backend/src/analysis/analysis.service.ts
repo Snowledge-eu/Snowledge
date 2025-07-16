@@ -19,7 +19,7 @@ export class AnalysisService {
 	}
 
 	findOne(id: number) {
-		return `This action returns a #${id} analysis`;
+		return this.analysisModel.findById(id).exec();
 	}
 	async findById(id: string) {
 		return this.analysisModel.findById(id).exec();
@@ -57,10 +57,10 @@ export class AnalysisService {
 		.exec();
 	}
 	update(id: number, updateAnalysisDto: UpdateAnalysisDto) {
-		return `This action updates a #${id} analysis`;
+		return this.analysisModel.findByIdAndUpdate(id, updateAnalysisDto, { new: true }).exec();
 	}
 
 	remove(id: number) {
-		return `This action removes a #${id} analysis`;
+		return this.analysisModel.findByIdAndDelete(id).exec();
 	}
 }

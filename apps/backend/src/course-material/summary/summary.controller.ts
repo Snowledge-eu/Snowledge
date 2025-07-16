@@ -6,13 +6,15 @@ import { User } from 'src/user/decorator';
 import { User as UserEntity } from 'src/user/entities/user.entity';
 import { AnalysisHelper } from 'src/analysis/analysis.helper';
 import { AnalysisService } from 'src/analysis/analysis.service';
+import { AnalysisProvider } from 'src/analysis/analysis.provider';
 
 @Controller('summary')
 export class SummaryController {
 	constructor(
 		private readonly analysisService: AnalysisService,
 		private readonly analysisHelper: AnalysisHelper,
-		private readonly summaryService: SummaryService
+		private readonly summaryService: SummaryService,
+		private readonly analysisProvider: AnalysisProvider,
 	) {}
 
   @Get('trend-to-content/:analyseId')
@@ -20,60 +22,15 @@ export class SummaryController {
 	@Param('analyseId') analyseId: string,
 	@Query('trend_index') trendIndex = 0,
 	) {
-		let analysis;
-	try {
-		analysis = await this.analysisService.findById(analyseId);
-	} catch {
-		throw new HttpException('Invalid analyse_id format', HttpStatus.BAD_REQUEST);
-	}
-
-	if (!analysis) {
-		throw new NotFoundException('Analyse not found');
-	}
-
-	let parsedResult: any;
-	try {
-		const raw = analysis.result?.choices?.[0]?.message?.content;
-		parsedResult = JSON.parse(raw);
-	} catch {
-		throw new InternalServerErrorException('Failed to parse LLM analysis content');
-	}
-
-	const trends = parsedResult?.trends || [];
-	if (!trends.length) {
-		throw new BadRequestException('No trends found in the analysis result');
-	}
-	if (trendIndex >= trends.length) {
-		throw new BadRequestException(`Trend index ${trendIndex} out of range. Only ${trends.length} trend(s) available.`);
-	}
-
-	const selectedTrend = trends[trendIndex];
-	const trendInput = {
-		trend_title: selectedTrend?.title,
-		summary: selectedTrend?.summary,
-		representative_messages: selectedTrend?.representative_messages || [],
-		activity_level: selectedTrend?.activity_level,
-		timeframe: analysis.result?.timeframe,
-	};
-
-	const modelName = analysis.llm_model;
-
-	try {
-		const response = await this.analysisHelper.trendToContent({
-			modelName,
-			promptKey: 'trend_to_content',
-			trend: trendInput,
-		});
-
-		// Stocker dans summary_results
+		const { response, analysis, trendInput, trendIndex: idx, selectedTrend } = await this.analysisProvider.trendToContent(analyseId, trendIndex);
 		await this.summaryService.create({
 			creator_id: analysis.creator_id || -1,
 			platform: 'discord',
 			source_analysis_id: analysis._id,
 			prompt_key: 'trend_to_content',
-			llm_model: modelName,
+			llm_model: analysis.llm_model,
 			scope: {
-				trend_id: trendIndex,
+				trend_id: idx,
 				trend_title: selectedTrend?.title,
 				timeframe: trendInput.timeframe,
 			},
@@ -81,11 +38,7 @@ export class SummaryController {
 			result: response,
 			created_at: new Date(),
 		});
-
 		return response;
-	} catch (e) {
-		throw new InternalServerErrorException(`LLM error: ${e}`);
-	}
 	}
   @Post()
   create(@Body() createSummaryDto: CreateSummaryDto) {
@@ -99,12 +52,7 @@ export class SummaryController {
 
   @Get(':analyseId')
   async findOne(@Param('analyseId') analyseId: string, @Query('trendId') trendId: number, @User() user: UserEntity) {
-    console.log(user);
-    const all = await this.summaryService.findAll()
-    console.log(all);
-    console.log("--->", analyseId, trendId)
-    const summaryData = await this.summaryService.findOneByAnalysisIdAndTrendId(analyseId, trendId);
-    return summaryData;
+    return this.summaryService.findOneByAnalysisIdAndTrendId(analyseId, trendId);
   }
 
   @Patch(':id')
