@@ -7,11 +7,12 @@ import { DiscordModule } from 'src/discord/discord.module';
 import { AnalysisHelper } from './analysis.helper';
 import { PayloadBuilder } from './llm/payload-builder';
 import { OvhClient } from './llm/call-ovh-api';
+import { AnalysisProvider } from './analysis.provider';
 
 @Module({
 	imports: [MongooseModule.forFeature([{ name: AnalysisResult.name, schema: AnalysisResultSchema }]), DiscordModule],
 	controllers: [AnalysisController],
-	providers: [AnalysisHelper, AnalysisService, PayloadBuilder, OvhClient],
-	exports: [AnalysisService, AnalysisHelper]
+	providers: [AnalysisHelper, AnalysisService, PayloadBuilder, OvhClient, AnalysisProvider],
+	exports: [AnalysisService, AnalysisHelper, AnalysisProvider]
 })
 export class AnalysisModule {}
