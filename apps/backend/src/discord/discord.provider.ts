@@ -1,12 +1,12 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { User } from 'src/user/entities/user.entity';
+import { User } from '../user/entities/user.entity';
 import { DiscordService } from './services/discord.service';
-import { UserService } from 'src/user/user.service';
-import discordConfig from 'src/config/discord.config';
+import { UserService } from '../user/user.service';
+import discordConfig from '../config/discord.config';
 import { ConfigType } from '@nestjs/config';
-import { CommunityService } from 'src/community/community.service';
-import { Community } from 'src/community/entities/community.entity';
-import { DiscordServerService } from 'src/discord-server/discord-server.service';
+import { CommunityService } from '../community/community.service';
+import { Community } from '../community/entities/community.entity';
+import { DiscordServerService } from '../discord-server/discord-server.service';
 import { DiscordClientHelper } from './helpers/discord-client.helper';
 import { DiscordHarvestJobService } from './services/discord-harvest-job.service';
 import { DiscordChannelService } from './services/discord-channel.service';
@@ -112,7 +112,7 @@ export class DiscordProvider {
 				});
 			}
 		} else {
-			this.logger.error('Error client information', data.error);
+			this.logger.error('Error client information', data && data.error ? data.error : data);
 		}
 		return community;
 	}
