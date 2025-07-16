@@ -1,6 +1,6 @@
 import { Injectable, Logger, HttpException, HttpStatus } from '@nestjs/common';
 import { DiscordAnalyzeDto, AnalyzePeriod } from './dto/discord-analyse.dto';
-import { DiscordMessageService } from 'src/discord/services/discord-message.service';
+import { DiscordMessageService } from '../discord/services/discord-message.service';
 import { AnalysisHelper } from './analysis.helper';
 import { AnalysisService } from './analysis.service';
 import { NotFoundException, BadRequestException, InternalServerErrorException } from '@nestjs/common';
