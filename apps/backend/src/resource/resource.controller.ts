@@ -23,29 +23,29 @@ export class ResourceController {
 		private readonly xrplService: XrplService,
 	) {}
 
-	@Post(':id/buy')
-	async buyResource(
-		@Param('id') resourceId: string,
-		@Query('community') communityId: string,
-		@Body() buyResourceDto: BuyResourceDto,
-		@User() user: UserEntity,
-	) {
-		console.log('communityId', communityId);
-		return this.resourceProvider.buyResource(
-			resourceId,
-			user,
-			buyResourceDto,
-			communityId,
-		);
-	}
+	// @Post(':id/buy')
+	// async buyResource(
+	// 	@Param('id') resourceId: string,
+	// 	@Query('community') communityId: string,
+	// 	@Body() buyResourceDto: BuyResourceDto,
+	// 	@User() user: UserEntity,
+	// ) {
+	// 	console.log('communityId', communityId);
+	// 	return this.resourceProvider.buyResource(
+	// 		resourceId,
+	// 		user,
+	// 		buyResourceDto,
+	// 		communityId,
+	// 	);
+	// }
 
-	@Get(':id/balances')
-	async getResourceBalances(
-		@Param('id') resourceId: string,
-		@User() user: UserEntity,
-	) {
-		return this.resourceProvider.getResourceBalances(resourceId, user);
-	}
+	// @Get(':id/balances')
+	// async getResourceBalances(
+	// 	@Param('id') resourceId: string,
+	// 	@User() user: UserEntity,
+	// ) {
+	// 	return this.resourceProvider.getResourceBalances(resourceId, user);
+	// }
 
 	@UseGuards(AuthGuard)
 	@Get(':id/has-nft')
@@ -58,47 +58,47 @@ export class ResourceController {
 		return { hasNft };
 	}
 
-	@Public()
-	@Get(':id/nft-metadata')
-	async getResourceNftMetadata(@Param('id') resourceId: string) {
-		const baseUrl = process.env.FRONT_URL || 'http://localhost:3000';
-		const resource =
-			await this.resourceProvider.getResourceById(resourceId);
-		if (!resource) {
-			return {
-				name: 'Snowledge Resource',
-				description: 'Resource not found',
-				image: `${baseUrl}/nft-icon/default-resource.png`,
-				attributes: [],
-			};
-		}
-		// Mapping format → image (fichiers statiques dans /public)
-		const formatImages: Record<string, string> = {
-			Masterclass: `${baseUrl}/nft-icon/masterclass.png`,
-			Workshop: `${baseUrl}/nft-icon/workshop.png`,
-			Whitepaper: `${baseUrl}/nft-icon/whitepaper.png`,
-			Webinar: `${baseUrl}/nft-icon/webinar.png`,
-		};
-		const image =
-			formatImages[resource.format] || `${baseUrl}/default-resource.png`;
-		return {
-			name: `Snowledge Resource: ${resource.title}`,
-			description: resource.description,
-			image,
-			attributes: [
-				{ trait_type: 'Resource ID', value: resource.id },
-				{ trait_type: 'Format', value: resource.format },
-				{ trait_type: 'Date', value: resource.date },
-				{
-					trait_type: 'CreatorId',
-					value: resource.creator?.userId || '',
-				},
-				{ trait_type: 'Price (EUR)', value: resource.price },
-				{
-					trait_type: 'ContributorIds',
-					value: resource.contributors.map((c: any) => c.userId),
-				},
-			],
-		};
-	}
+	// @Public()
+	// @Get(':id/nft-metadata')
+	// async getResourceNftMetadata(@Param('id') resourceId: string) {
+	// 	const baseUrl = process.env.FRONT_URL || 'http://localhost:3000';
+	// 	const resource =
+	// 		await this.resourceProvider.getResourceById(resourceId);
+	// 	if (!resource) {
+	// 		return {
+	// 			name: 'Snowledge Resource',
+	// 			description: 'Resource not found',
+	// 			image: `${baseUrl}/nft-icon/default-resource.png`,
+	// 			attributes: [],
+	// 		};
+	// 	}
+	// 	// Mapping format → image (fichiers statiques dans /public)
+	// 	const formatImages: Record<string, string> = {
+	// 		Masterclass: `${baseUrl}/nft-icon/masterclass.png`,
+	// 		Workshop: `${baseUrl}/nft-icon/workshop.png`,
+	// 		Whitepaper: `${baseUrl}/nft-icon/whitepaper.png`,
+	// 		Webinar: `${baseUrl}/nft-icon/webinar.png`,
+	// 	};
+	// 	const image =
+	// 		formatImages[resource.format] || `${baseUrl}/default-resource.png`;
+	// 	return {
+	// 		name: `Snowledge Resource: ${resource.title}`,
+	// 		description: resource.description,
+	// 		image,
+	// 		attributes: [
+	// 			{ trait_type: 'Resource ID', value: resource.id },
+	// 			{ trait_type: 'Format', value: resource.format },
+	// 			{ trait_type: 'Date', value: resource.date },
+	// 			{
+	// 				trait_type: 'CreatorId',
+	// 				value: resource.creator?.userId || '',
+	// 			},
+	// 			{ trait_type: 'Price (EUR)', value: resource.price },
+	// 			{
+	// 				trait_type: 'ContributorIds',
+	// 				value: resource.contributors.map((c: any) => c.userId),
+	// 			},
+	// 		],
+	// 	};
+	// }
 }

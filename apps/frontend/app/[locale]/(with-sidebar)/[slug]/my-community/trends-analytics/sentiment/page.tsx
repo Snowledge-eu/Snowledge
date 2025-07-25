@@ -88,19 +88,22 @@ export default function Page() {
           }
         ).catch((err) => console.error(err));
         setSelectedResult({
-          id: analysis?.result?.id ? shortenString(analysis?.result?.id) : "temp", 
+          id: analysis?.result?.id
+            ? shortenString(analysis?.result?.id)
+            : "temp",
           timeframe: `${new Date(analysis?.period.from).toLocaleDateString()} to ${new Date(analysis?.period.to).toLocaleDateString()}`,
           platform: analysis?.platform,
           scope: "Custom", //TODO définir regle All | Custom
           sentiment: JSON.parse(analysis?.result?.choices[0].message.content)
             .sentiment,
-          messages: JSON.parse(analysis?.result?.choices[0].message.content)
-            .representative_messages.map((msg: string) => {
-              return {
-                user: msg.split(": ")[0].split("]")[1],
-                text: msg.split(": ")[1].trim(),
-              };
-            }),
+          messages: JSON.parse(
+            analysis?.result?.choices[0].message.content
+          ).representative_messages.map((msg: string) => {
+            return {
+              user: msg.split(": ")[0].split("]")[1],
+              text: msg.split(": ")[1]?.trim() || "",
+            };
+          }),
           date: new Date(analysis?.created_at).toLocaleDateString(),
           score: getRandomByLevel(
             JSON.parse(analysis?.result?.choices[0].message.content).confidence
@@ -108,12 +111,12 @@ export default function Page() {
           summary: JSON.parse(analysis?.result?.choices[0].message.content)
             .reasoning,
         });
-      }else if(res.status === 204){
-          const reason = res.headers.get("x-reason");
-          console.log(reason);
-          toast.info(reason, {
-            position: "top-center",
-          });
+      } else if (res.status === 204) {
+        const reason = res.headers.get("x-reason");
+        console.log(reason);
+        toast.info(reason, {
+          position: "top-center",
+        });
       }
       setLoading(false);
     }
@@ -172,7 +175,7 @@ export default function Page() {
     const tempArr = [];
     for (const item of analysis) {
       tempArr.push({
-        id: item?.result?.id ? shortenString(item?.result?.id) : "temp", 
+        id: item?.result?.id ? shortenString(item?.result?.id) : "temp",
         timeframe: `${new Date(item?.period.from).toLocaleDateString()} to ${new Date(item?.period.to).toLocaleDateString()}`,
         platform: item?.platform,
         scope: "Custom", //TODO définir regle All | Custom vient du back
@@ -183,7 +186,7 @@ export default function Page() {
         ).representative_messages.map((msg: string) => {
           return {
             user: msg.split(": ")[0].split("]")[1],
-            text: msg.split(": ")[1].trim(),
+            text: msg.split(": ")[1]?.trim() || "",
           };
         }),
         date: new Date(item?.created_at).toLocaleDateString(),
@@ -209,7 +212,7 @@ export default function Page() {
       const info: {
         server_id: string;
         server_name: string;
-        channels: [{ id: string; name: string, harvested: boolean }];
+        channels: [{ id: string; name: string; harvested: boolean }];
       } = await data.json();
 
       const options = info.channels.map((channel) => ({
@@ -217,7 +220,7 @@ export default function Page() {
         value: channel.id,
         disabled: !channel.harvested,
       }));
-      const optionSelected = options.filter(op => !op.disabled);
+      const optionSelected = options.filter((op) => !op.disabled);
       setDiscordChannels(options);
       setSelectedChannels(optionSelected);
     } catch (error) {
