@@ -33,11 +33,11 @@ export function useNavMyCommunity(activeCommunity: { name: string }) {
       // url: `/${slug}/my-community/trends-analytics`,
       icon: BarChart3,
       items: [
-        {
-          title: tNavbar("sentiment-analysis"),
-          url: `/${slug}/my-community/trends-analytics/sentiment`,
-          icon: ChartPie,
-        },
+        // {
+        //   title: tNavbar("sentiment-analysis"),
+        //   url: `/${slug}/my-community/trends-analytics/sentiment`,
+        //   icon: ChartPie,
+        // },
         {
           title: tNavbar("summary-analysis"),
           url: `/${slug}/my-community/trends-analytics/summary`,

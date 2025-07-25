@@ -201,17 +201,16 @@ export default function CardPlatform({
                     : "Never fetched"}
                 </span>
                 <br />
-                {platform.lastFetched.channels.map((channel, id) => (
-                  <span key={id}>
-                    {channel.qty > 0 && (
-                      <>
+                <ul className="list-disc list-inside space-y-1 mt-1">
+                  {platform.lastFetched.channels
+                    .filter((channel) => channel.qty > 0)
+                    .map((channel, id) => (
+                      <li key={id}>
                         {channel.name} - {channel.qty} message
                         {channel.qty > 1 && "s"} downloaded
-                        {channel.qty > 1 && "s"}
-                      </>
-                    )}
-                  </span>
-                ))}
+                      </li>
+                    ))}
+                </ul>
               </div>
             </>
           ) : (
