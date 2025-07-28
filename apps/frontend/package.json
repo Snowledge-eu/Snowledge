@@ -20,7 +20,7 @@
     "lucide-react": "^0.510.0",
     "next": "15.2.4",
     "next-intl": "^4.1.0",
-    "react": "^18.2.0",
+    "react": "^19.1.1",
     "react-day-picker": "^9.7.0",
     "react-dom": "^18.2.0",
     "react-social-icons": "^6.24.0",
