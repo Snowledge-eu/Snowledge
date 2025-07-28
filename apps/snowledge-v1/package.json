@@ -50,7 +50,7 @@
     "firebase-admin": "^13.2.0",
     "form-data": "^4.0.2",
     "glob": "^11.0.1",
-    "html-react-parser": "^5.2.2",
+    "html-react-parser": "^5.2.6",
     "htmldiff-js": "^1.0.5",
     "i18next": "^25.0.1",
     "i18next-browser-languagedetector": "^8.0.5",
