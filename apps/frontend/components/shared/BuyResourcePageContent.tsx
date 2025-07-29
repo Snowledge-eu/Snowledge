@@ -430,7 +430,7 @@ export default function BuyResourcePageContent() {
                             <DollarSign className="w-5 h-5 text-muted-foreground" />
                             <span>{t("price")} :</span>
                             <span className="font-bold">{price} €</span>
-                            <span className="font-bold">≈ {priceXRP} XRP</span>
+                            <span className="font-bold">≈ {priceXRP} STRK</span>
                             <span className="text-xs text-muted-foreground">
                               {t("conversionRate")}
                             </span>
@@ -446,7 +446,7 @@ export default function BuyResourcePageContent() {
                                   {d.pct}%
                                 </span>
                                 <span className="text-green-700 font-bold">
-                                  {d.amount} XRP
+                                  {d.amount} STRK
                                 </span>
                                 <span className="text-muted-foreground">
                                   ({d.title})
@@ -461,7 +461,7 @@ export default function BuyResourcePageContent() {
                               <Loader2 className="animate-spin w-4 h-4" />
                             ) : (
                               <span className="font-bold text-primary">
-                                {balances?.buyer ?? "?"} XRP
+                                {balances?.buyer ?? "?"} STRK
                               </span>
                             )}
                           </div>
@@ -503,7 +503,7 @@ export default function BuyResourcePageContent() {
                                         {t("notAvailable")}
                                       </span>
                                     ) : (
-                                      `${balances[userKey]} XRP`
+                                      `${balances[userKey]} STRK`
                                     )}
                                   </span>
                                 </li>
@@ -581,7 +581,7 @@ export default function BuyResourcePageContent() {
                                             {t("amount")} :
                                           </span>
                                           <span className="font-bold text-green-700">
-                                            {tx.amount} XRP
+                                            {tx.amount} STRK
                                           </span>
                                         </div>
                                         <div className="flex items-center gap-2 mt-1">
