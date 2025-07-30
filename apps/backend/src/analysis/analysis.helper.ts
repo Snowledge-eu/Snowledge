@@ -26,7 +26,8 @@ export class AnalysisHelper {
 			);
 			return this.ovhClient.callOvhApi(payload);
 		} catch (error) {
-			this.logger.error(error)
+			this.logger.error('Error in analyse method:', error);
+			throw error; // Relancer l'erreur
 		}
 	}
 	async trendToContent(input: {
@@ -42,7 +43,8 @@ export class AnalysisHelper {
 			);
 			return this.ovhClient.callOvhApi(payload);
 		} catch (error) {
-			this.logger.error(error)
+			this.logger.error('Error in trendToContent method:', error);
+			throw error; // Relancer l'erreur
 		}
 	}
 	async saveAnalysis(data: any): Promise<Analysis> {

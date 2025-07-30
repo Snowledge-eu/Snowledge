@@ -8,7 +8,7 @@ export function useUserCommunities(userId: number) {
   return useQuery<Community[]>({
     queryKey: ["communities", userId],
     queryFn: async () => {
-      const res = await fetcher(
+      const response = await fetcher(
         `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000/api"}/communities/all/${userId}`,
         {
           method: "GET",
@@ -18,7 +18,7 @@ export function useUserCommunities(userId: number) {
           },
         }
       );
-      return res;
+      return response?.data;
     },
     enabled: !!userId,
   });

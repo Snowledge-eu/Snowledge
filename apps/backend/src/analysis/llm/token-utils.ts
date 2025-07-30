@@ -7,6 +7,11 @@ const modelToTokenizer: Record<string, string> = {
 	'gpt2': 'gpt2'
 };
 
+// Modèles qui nécessitent l'estimation naïve (pas de tokenizer)
+const modelsUsingNaiveEstimation = [
+	'Meta-Llama-3_3-70B-Instruct'
+];
+
 const tokenizerCache: Record<string, PreTrainedTokenizer> = {};
 
 type Message = {
@@ -15,6 +20,12 @@ type Message = {
 };
 
 async function loadTokenizer(modelName: string): Promise<PreTrainedTokenizer | null> {
+	// Si le modèle nécessite l'estimation naïve, on retourne null directement
+	if (modelsUsingNaiveEstimation.includes(modelName)) {
+		console.warn(`[TokenUtils] Using naive estimation for "${modelName}" (private model)`);
+		return null;
+	}
+
 	const identifier = modelToTokenizer[modelName];
 	if (!identifier) return null;
 
@@ -27,6 +38,7 @@ async function loadTokenizer(modelName: string): Promise<PreTrainedTokenizer | n
 		return tokenizer;
 	} catch (err) {
 		console.warn(`[TokenUtils] Failed to load tokenizer for model "${modelName}"`, err);
+		console.warn(`[TokenUtils] Using fallback estimation for "${modelName}"`);
 		return null;
 	}
 }

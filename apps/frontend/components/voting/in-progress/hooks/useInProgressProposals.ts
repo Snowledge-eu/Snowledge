@@ -8,11 +8,11 @@ export function useInProgressProposals(communitySlug: string) {
   return useQuery<Proposal[]>({
     queryKey: ["proposals", "in-progress", communitySlug],
     queryFn: async () => {
-      const res = await fetcher(
+      const response = await fetcher(
         `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000/api"}/communities/${communitySlug}/proposals/in-progress`,
         { credentials: "include" }
       );
-      return res;
+      return response?.data;
     },
   });
 }

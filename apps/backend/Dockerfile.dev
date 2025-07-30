@@ -1,18 +1,18 @@
-FROM node:22-alpine3.21 AS base
+FROM node:lts-slim AS base
 
 RUN npm install -g npm@latest @nestjs/cli
 
 FROM base AS prune
-RUN apk update
-RUN apk add --no-cache libc6-compat
+# RUN apk update
+# RUN apk add --no-cache libc6-compat
 WORKDIR /app
 RUN npm install turbo --global
 COPY . .
 RUN turbo prune backend --docker
 
 FROM base AS installer
-RUN apk update
-RUN apk add --no-cache libc6-compat
+# RUN apk update
+# RUN apk add --no-cache libc6-compat
 WORKDIR /app
 # Copier les fichiers de dépendances
 COPY --from=prune /app/out/json/ .

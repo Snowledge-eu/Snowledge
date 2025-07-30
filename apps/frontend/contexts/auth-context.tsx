@@ -21,6 +21,7 @@ type AuthContextType = {
   refreshAccessToken: () => Promise<string | null>;
   fetchDataUser: () => Promise<boolean>;
   validateFormSignUp: (formData: FormDataSignUp) => string | null;
+  validPassword: (pwd: string, confirmPwd: string) => string | null;
   verifyToken: (token: string) => Promise<boolean>;
 };
 
@@ -124,6 +125,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         },
         credentials: "include",
       });
+      
+      // Créer un objet qui simule la Response avec les données
+      const responseWrapper = {
+        status: res.status,
+        headers: res.headers,
+        ok: res.ok,
+        data: null as any
+      };
+
       if (!res.ok) {
         if (res.status === 401) {
           toast.error("Votre session a expiré, veuillez vous reconnecter.", {
@@ -136,10 +146,28 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           }
         } else throw new Error("Failed. Please try again.");
       }
-      if (res.headers.get("Content-Length") === "0") {
-        return null;
+      
+      // Vérifier si la réponse est vide
+      const contentLength = res.headers.get("Content-Length");
+      
+      if (contentLength === "0" || contentLength === null) {
+        console.log('[Fetcher] Empty response detected');
+        return responseWrapper;
       }
-      return res.json();
+      
+      // Essayer de parser le JSON seulement si on a du contenu
+      try {
+        const text = await res.text();
+        if (!text || text.trim() === '') {
+          console.log('[Fetcher] Empty response body');
+          return responseWrapper;
+        }
+        responseWrapper.data = JSON.parse(text);
+        return responseWrapper;
+      } catch (parseError) {
+        console.error('[Fetcher] JSON parse error:', parseError);
+        throw new Error('Invalid JSON response from server');
+      }
     },
     [accessToken, refreshAccessToken]
   );
@@ -147,7 +175,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const fetchDataUser = async () => {
     try {
       setFetchDataUserInProgress(true);
-      const data = await fetcher(
+      const response = await fetcher(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/user`,
         {
           method: "GET",
@@ -155,8 +183,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
       );
 
-      if (data.user) {
-        setUser(data.user);
+      if (response.data?.user) {
+        setUser(response.data.user);
         setFetchDataUserInProgress(false);
         return true;
       } else {
@@ -210,14 +238,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     ) {
       return "All fields are required.";
     }
-    if (password.length < 8) {
+    validPassword(password, confirmPwd);
+    return null;
+  };
+  const validPassword = (pwd: string, confirmPwd: string) => {
+    if(!pwd) {
+      return "Password is empty";
+    }
+    if (!confirmPwd) {
+      return "Confirm password is empty"
+    }
+    if (pwd.length < 8) {
       return "Password must be at least 8 characters.";
     }
-    if (password !== confirmPwd) {
+    if (pwd !== confirmPwd) {
       return "Passwords do not match.";
     }
     return null;
-  };
+  }
 
   useEffect(() => {
     const cookie = document.cookie.match(/(?:^| )access-token=([^;]*)/);
@@ -243,6 +281,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         fetchDataUser,
         refreshAccessToken,
         validateFormSignUp,
+        validPassword,
         verifyToken,
       }}
     >

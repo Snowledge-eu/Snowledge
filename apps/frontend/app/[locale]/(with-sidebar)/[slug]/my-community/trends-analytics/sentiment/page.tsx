@@ -72,7 +72,7 @@ export default function Page() {
       );
 
       if (res.status === 200) {
-        const analysis = await fetcher(
+        const analysisResponse = await fetcher(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/analysis`,
           {
             method: "POST",
@@ -89,6 +89,8 @@ export default function Page() {
             }),
           }
         ).catch((err) => console.error(err));
+        
+        const analysis = analysisResponse?.data;
         setSelectedResult({
           id: analysis?.result?.id ? shortenString(analysis?.result?.id) : "temp", 
           timeframe: `${new Date(analysis?.period.from).toLocaleDateString()} to ${new Date(analysis?.period.to).toLocaleDateString()}`,
@@ -156,7 +158,7 @@ export default function Page() {
       promptKey: "discord_sentiment",
     };
 
-    const analysis = await fetcher(
+    const analysisResponse = await fetcher(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/analysis`,
       {
         method: "POST",
@@ -166,6 +168,8 @@ export default function Page() {
         body: JSON.stringify(body),
       }
     ).catch((err) => console.error(err));
+    
+    const analysis = analysisResponse?.data;
     if (analysis?.length > 0) {
       deserializeAnalyse(analysis);
     }
@@ -236,7 +240,7 @@ export default function Page() {
       interval: interval,
     };
     try {
-      const data = await fetcher(
+      const response = await fetcher(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/discord/count-message`,
         {
           method: "POST",
@@ -246,7 +250,7 @@ export default function Page() {
           body: JSON.stringify(body),
         }
       );
-      setMessageCount(data);
+      setMessageCount(response?.data);
     } catch (error) {
       console.error(error);
     }

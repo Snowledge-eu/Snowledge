@@ -9,11 +9,11 @@ export function useUserVotes(communitySlug: string, userId?: string) {
     queryKey: ["votes", userId, communitySlug],
     queryFn: async () => {
       if (!userId) return [];
-      const res = await fetcher(
+      const response = await fetcher(
         `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000/api"}/communities/${communitySlug}/votes`,
         { credentials: "include" }
       );
-      return res;
+      return response?.data;
     },
     enabled: !!userId,
   });

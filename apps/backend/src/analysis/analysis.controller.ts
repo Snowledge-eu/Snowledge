@@ -39,6 +39,8 @@ export class AnalysisController {
 			const result = await this.analysisProvider.analyzeDiscord(dto);
 			return result;
 		} catch (error) {
+			this.logger.error('Error in analyzeDiscord:', error);
+			
 			if (error instanceof HttpException) {
 				if (error.getStatus() === HttpStatus.NO_CONTENT) {
 					res.set('X-Reason', 'No messages found for this period.');
@@ -47,7 +49,13 @@ export class AnalysisController {
 				}
 				throw error;
 			}
-			this.logger.error(error);
+			
+			// Pour les autres erreurs, retourner une réponse d'erreur appropriée
+			const errorMessage = error instanceof Error ? error.message : 'Internal server error';
+			throw new HttpException(
+				errorMessage,
+				HttpStatus.INTERNAL_SERVER_ERROR
+			);
 		}
 	}
 	@Get()
