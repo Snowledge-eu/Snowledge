@@ -1,6 +1,6 @@
 # Daemons
 
-Ce dossier contient tous les daemons de l'application backend.
+Ce dossier contient tous le daemon de l'application.
 
 ## Structure
 
@@ -8,7 +8,6 @@ Ce dossier contient tous les daemons de l'application backend.
 src/daemon/
 ├── discord/              # Daemons Discord
 │   ├── harvest-daemon.ts # Daemon principal de récupération
-│   └── harvest-worker.ts # Worker alternatif
 └── README.md            # Ce fichier
 ```
 
@@ -22,30 +21,22 @@ Daemon principal pour la récupération des messages Discord. Il :
 - Sauvegarde les nouveaux messages
 - Met à jour le statut des jobs
 
-### harvest-worker.ts
-Worker alternatif qui utilise le `DiscordHarvestJobHelper` pour une approche plus modulaire.
-
 ## Utilisation
 
-### En développement
+### En Local (sans Docker)
 ```bash
 # Daemon principal
 npm run start:harvest
-
-# Worker alternatif
-npm run start:worker
 ```
 
-### En production (Docker)
+### En Local et sur Serveur (sur Docker)
 Le daemon est configuré pour démarrer automatiquement dans le conteneur `discord-harvester`.
 
 ## Scripts disponibles
 
 - `start:harvest` : Lance le daemon principal
-- `start:worker` : Lance le worker alternatif
 
 ## Logs
 
-Les daemons utilisent des préfixes de logs clairs :
+Le daemon utilisent un préfixe de logs clairs :
 - `[Discord Daemon]` pour le daemon principal
-- `[Discord Worker]` pour le worker 

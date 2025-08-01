@@ -13,7 +13,6 @@
 		"start:debug": "nest start --debug --watch",
 		"start:prod": "node dist/main",
 		"start:harvest": "ts-node -r tsconfig-paths/register src/daemon/discord/harvest-daemon.ts",
-		"start:worker": "ts-node -r tsconfig-paths/register src/daemon/discord/harvest-worker.ts",
 		"lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
 		"test": "jest",
 		"test:watch": "jest --watch",
