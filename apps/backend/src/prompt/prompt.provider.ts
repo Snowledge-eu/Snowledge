@@ -186,18 +186,24 @@ export class PromptProvider {
 
 		// Créer une analyse de test
 		const analysisData = {
+			creator_id: user.id,
 			platform: 'discord',
 			prompt_key: testAnalysisDto.prompt_name,
+			llm_model:
+				testAnalysisDto.model_name &&
+				testAnalysisDto.model_name !== 'default'
+					? testAnalysisDto.model_name
+					: prompt.model_name || 'llama3.1-8b-instruct',
 			scope: {
 				server_id: community.discordServer.guildId,
 				channel_id: 'test',
 			},
-			model_name:
-				testAnalysisDto.model_name ||
-				prompt.model_name ||
-				'llama3.1-8b-instruct',
-			max_tokens: testAnalysisDto.max_tokens || 2000,
-			messages: formattedMessages,
+			result: {
+				message_count: communityMessages.length,
+				formatted_messages: formattedMessages,
+				test_analysis: true,
+				max_tokens: testAnalysisDto.max_tokens || 2000,
+			},
 		};
 
 		// Lancer l'analyse
