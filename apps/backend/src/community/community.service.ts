@@ -23,7 +23,9 @@ export class CommunityService {
 	) {}
 
 	async findAll(): Promise<Community[]> {
-		return this.communityRepository.find();
+		return this.communityRepository.find({
+			relations: ['user', 'discordServer'],
+		});
 	}
 
 	async findAllByUser(userId: number): Promise<Community[]> {
