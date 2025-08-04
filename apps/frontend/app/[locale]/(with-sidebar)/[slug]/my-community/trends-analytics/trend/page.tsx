@@ -29,32 +29,31 @@ const platforms = [
     ],
     type: "channels",
   },
-    {
-      key: 'youtube',
-      name: 'YouTube',
-      url: 'https://youtube.com',
-      color: '#FF0000',
-      options: [
-        { label: 'Intro to Voting', value: 'vid1' },
-        { label: 'Community AMA', value: 'vid2' },
-        { label: 'Feature Update', value: 'vid3' },
-      ],
-      type: 'videos',
-    },
-    {
-      key: 'x',
-      name: 'X',
-      url: 'https://x.com',
-      color: '#000000',
-      options: [
-        { label: 'Post 1', value: 'post1' },
-        { label: 'Post 2', value: 'post2' },
-        { label: 'Post 3', value: 'post3' },
-      ],
-      type: 'posts',
-    },
-    { key: 'instagram', name: 'Instagram', color: '#000000' },
-
+  {
+    key: "youtube",
+    name: "YouTube",
+    url: "https://youtube.com",
+    color: "#FF0000",
+    options: [
+      { label: "Intro to Voting", value: "vid1" },
+      { label: "Community AMA", value: "vid2" },
+      { label: "Feature Update", value: "vid3" },
+    ],
+    type: "videos",
+  },
+  {
+    key: "x",
+    name: "X",
+    url: "https://x.com",
+    color: "#000000",
+    options: [
+      { label: "Post 1", value: "post1" },
+      { label: "Post 2", value: "post2" },
+      { label: "Post 3", value: "post3" },
+    ],
+    type: "posts",
+  },
+  { key: "instagram", name: "Instagram", color: "#000000" },
 ];
 export default function Page() {
   const { user, fetcher } = useAuth();
@@ -112,7 +111,7 @@ export default function Page() {
           body: JSON.stringify(body),
         }
       );
-      if (res.status === 200) {
+      if (res.status === 200 || res.status === 201) {
         const analysisResponse = await fetcher(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/analysis`,
           {
@@ -130,30 +129,36 @@ export default function Page() {
             }),
           }
         ).catch((err) => console.error(err));
-        
+
         const analysis = analysisResponse?.data;
 
         setSelectedResult({
           _id: analysis?._id.toString(),
-          id: analysis?.result?.id ? shortenString(analysis?.result?.id) : "temp", 
+          id: analysis?.result?.id
+            ? shortenString(analysis?.result?.id)
+            : "temp",
           timeframe: `${new Date(analysis?.period.from).toLocaleDateString()} to ${new Date(analysis?.period.to).toLocaleDateString()}`,
           platform: analysis?.platform,
           scope: "Custom", //TODO définir regle All | Custom
-          trends: JSON.parse(analysis?.result?.choices[0].message.content).trends,
+          trends: JSON.parse(analysis?.result?.choices[0].message.content)
+            .trends,
           date: new Date(analysis?.created_at).toLocaleDateString(),
           // dataCount: 1200,
-          score: getRandomByLevel(JSON.parse(analysis?.result?.choices[0].message.content).confidence),
-          notable_users: JSON.parse(analysis?.result?.choices[0].message.content)
-            .notable_users,
+          score: getRandomByLevel(
+            JSON.parse(analysis?.result?.choices[0].message.content).confidence
+          ),
+          notable_users: JSON.parse(
+            analysis?.result?.choices[0].message.content
+          ).notable_users,
           summary: JSON.parse(analysis?.result?.choices[0].message.content)
             .reasoning,
         });
-      }else if(res.status === 204){
-          const reason = res.headers.get("x-reason");
-          console.log(reason);
-          toast.info(reason, {
-            position: "top-center",
-          });
+      } else if (res.status === 204) {
+        const reason = res.headers.get("x-reason");
+        console.log(reason);
+        toast.info(reason, {
+          position: "top-center",
+        });
       }
       setLoading(false);
     }
@@ -164,7 +169,7 @@ export default function Page() {
   };
 
   function getRandomByLevel(level: "Low" | "Medium" | "High"): number | null {
-      if (!level) return null;
+    if (!level) return null;
     let min: number, max: number;
 
     switch (level) {
@@ -185,7 +190,7 @@ export default function Page() {
     }
 
     return Math.floor(Math.random() * (max - min + 1)) + min;
-  };
+  }
   const fetchAnalysis = async () => {
     const body = {
       platform: "discord",
@@ -205,7 +210,7 @@ export default function Page() {
         body: JSON.stringify(body),
       }
     ).catch((err) => console.error(err));
-    
+
     const analysis = analysisResponse?.data;
     if (analysis?.length > 0) {
       deserializeAnalyse(analysis);
@@ -216,14 +221,16 @@ export default function Page() {
     for (const item of analysis) {
       tempArr.push({
         _id: item?._id.toString(),
-        id: item?.result?.id ? shortenString(item?.result?.id) : "temp", 
+        id: item?.result?.id ? shortenString(item?.result?.id) : "temp",
         timeframe: `${new Date(item?.period.from).toLocaleDateString()} to ${new Date(item?.period.to).toLocaleDateString()}`,
         platform: item?.platform,
         scope: "Custom", //TODO définir regle All | Custom
         trends: JSON.parse(item?.result?.choices[0].message.content).trends,
         date: new Date(item?.created_at).toLocaleDateString(),
         // dataCount: 1200,
-        score: getRandomByLevel(JSON.parse(item?.result?.choices[0].message.content).confidence),
+        score: getRandomByLevel(
+          JSON.parse(item?.result?.choices[0].message.content).confidence
+        ),
         notable_users: JSON.parse(item?.result?.choices[0].message.content)
           .notable_users,
         summary: JSON.parse(item?.result?.choices[0].message.content).reasoning,
@@ -247,14 +254,13 @@ export default function Page() {
       //   channels: [{ id: string; name: string, harvested: boolean }];
       // } = await data.json();
 
-      
-      if(meta && meta.listData) {
+      if (meta && meta.listData) {
         const options = meta?.listData?.map((channel) => ({
           label: `#${channel.name}`,
           value: channel.id,
           disabled: !channel.harvested,
         }));
-        const optionSelected = options?.filter(op => !op.disabled);
+        const optionSelected = options?.filter((op) => !op.disabled);
         setDiscordChannels(options);
         setSelectedChannels(optionSelected);
       }
@@ -262,12 +268,12 @@ export default function Page() {
       console.error(error);
     }
   };
-    const fetchMessageCount = async (
+  const fetchMessageCount = async (
     channels: Array<{ label: string; value: string }>,
     interval: string
-  ) =>{
+  ) => {
     const body = {
-      channelId: channels.map(chan => chan.value),
+      channelId: channels.map((chan) => chan.value),
       interval: interval,
     };
     try {
@@ -282,15 +288,15 @@ export default function Page() {
         }
       );
       setMessageCount(response?.data);
-    } catch(error) {
+    } catch (error) {
       console.error(error);
     }
-  }
-useEffect(() => {
-  if (selectedChannels.length > 0 && timeRange) {
-    fetchMessageCount(selectedChannels, timeRange);
-  }
-}, [selectedChannels, timeRange]);
+  };
+  useEffect(() => {
+    if (selectedChannels.length > 0 && timeRange) {
+      fetchMessageCount(selectedChannels, timeRange);
+    }
+  }, [selectedChannels, timeRange]);
   useEffect(() => {
     if (activeCommunity?.discordServerId) {
       fetchChannels(activeCommunity?.discordServerId);

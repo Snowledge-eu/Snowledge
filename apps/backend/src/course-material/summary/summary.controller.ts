@@ -1,4 +1,18 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, BadRequestException, HttpException, HttpStatus, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+	Controller,
+	Get,
+	Post,
+	Body,
+	Patch,
+	Param,
+	Delete,
+	Query,
+	BadRequestException,
+	HttpException,
+	HttpStatus,
+	InternalServerErrorException,
+	NotFoundException,
+} from '@nestjs/common';
 import { SummaryService } from './summary.service';
 import { CreateSummaryDto } from './dto/create-summary.dto';
 import { UpdateSummaryDto } from './dto/update-summary.dto';
@@ -13,12 +27,18 @@ export class SummaryController {
 		private readonly analysisProvider: AnalysisProvider,
 	) {}
 
-  @Get('trend-to-content/:analyseId')
+	@Get('trend-to-content/:analyseId')
 	async trendToContent(
-	@Param('analyseId') analyseId: string,
-	@Query('trend_index') trendIndex = 0,
+		@Param('analyseId') analyseId: string,
+		@Query('trend_index') trendIndex = 0,
 	) {
-		const { response, analysis, trendInput, trendIndex: idx, selectedTrend } = await this.analysisProvider.trendToContent(analyseId, trendIndex);
+		const {
+			response,
+			analysis,
+			trendInput,
+			trendIndex: idx,
+			selectedTrend,
+		} = await this.analysisProvider.trendToContent(analyseId, trendIndex);
 		await this.summaryService.create({
 			creator_id: analysis.creator_id || -1,
 			platform: 'discord',
@@ -36,28 +56,38 @@ export class SummaryController {
 		});
 		return response;
 	}
-  @Post()
-  create(@Body() createSummaryDto: CreateSummaryDto) {
-    return this.summaryService.create(createSummaryDto);
-  }
+	@Post()
+	create(@Body() createSummaryDto: CreateSummaryDto) {
+		return this.summaryService.create(createSummaryDto);
+	}
 
-  @Get()
-  findAll() {
-    return this.summaryService.findAll();
-  }
+	@Get()
+	findAll() {
+		return this.summaryService.findAll();
+	}
 
-  @Get(':analyseId')
-  async findOne(@Param('analyseId') analyseId: string, @Query('trendId') trendId: number, @User() user: UserEntity) {
-    return this.summaryService.findOneByAnalysisIdAndTrendId(analyseId, trendId);
-  }
+	@Get(':analyseId')
+	async findOne(
+		@Param('analyseId') analyseId: string,
+		@Query('trendId') trendId: number,
+		@User() user: UserEntity,
+	) {
+		return this.summaryService.findOneByAnalysisIdAndTrendId(
+			analyseId,
+			trendId,
+		);
+	}
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateSummaryDto: UpdateSummaryDto) {
-    return this.summaryService.update(+id, updateSummaryDto);
-  }
+	@Patch(':id')
+	update(
+		@Param('id') id: string,
+		@Body() updateSummaryDto: UpdateSummaryDto,
+	) {
+		return this.summaryService.update(+id, updateSummaryDto);
+	}
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.summaryService.remove(+id);
-  }
+	@Delete(':id')
+	remove(@Param('id') id: string) {
+		return this.summaryService.remove(+id);
+	}
 }

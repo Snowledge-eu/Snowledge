@@ -6,7 +6,10 @@ import { InjectModel } from '@nestjs/mongoose';
 
 @Injectable()
 export class SummaryService {
-	constructor(@InjectModel(SummaryResult.name) private summaryModel: Model<SummaryResult>) {}
+	constructor(
+		@InjectModel(SummaryResult.name)
+		private summaryModel: Model<SummaryResult>,
+	) {}
 	async create(data: any) {
 		const created = new this.summaryModel(data);
 		return created.save();
@@ -16,17 +19,20 @@ export class SummaryService {
 		return this.summaryModel.find().lean();
 	}
 
-	findOneByAnalysisIdAndTrendId(analyseId: string, trendId: number): Promise<SummaryResult | null> {
-		return this.summaryModel.findOne({          
-			platform: "discord",
-			source_analysis_id: analyseId,
-			"scope.trend_id": { $exists: true, $eq: Number(trendId) },
-			prompt_key: 'trend_to_content',      
-		})
-		.sort({createdAt: -1})
-		.lean()
-		.exec();
-
+	findOneByAnalysisIdAndTrendId(
+		analyseId: string,
+		trendId: number,
+	): Promise<SummaryResult | null> {
+		return this.summaryModel
+			.findOne({
+				platform: 'discord',
+				source_analysis_id: new mongoose.Types.ObjectId(analyseId),
+				'scope.trend_id': { $exists: true, $eq: String(trendId) }, // ← Convertir en string
+				prompt_key: 'trend_to_content',
+			})
+			.sort({ createdAt: -1 })
+			.lean()
+			.exec();
 	}
 
 	update(id: number, updateSummaryDto: UpdateSummaryDto) {
