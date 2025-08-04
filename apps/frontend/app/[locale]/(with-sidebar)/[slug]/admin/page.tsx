@@ -158,7 +158,7 @@ export default function AdminPage() {
   const [testForm, setTestForm] = useState({
     prompt_name: "",
     community_id: "",
-    model_name: "llama3.1-8b-instruct",
+    model_name: "default",
     max_tokens: 2000,
   });
 
@@ -275,7 +275,10 @@ export default function AdminPage() {
             ...testForm,
             prompt_name: selectedPrompt.name,
             community_id: selectedCommunity.id.toString(),
-            model_name: testForm.model_name || undefined, // Envoyer undefined si vide pour utiliser le modèle du prompt
+            model_name:
+              testForm.model_name === "default"
+                ? undefined
+                : testForm.model_name, // Envoyer undefined si "default" pour utiliser le modèle du prompt
           }),
         }
       );
@@ -703,7 +706,7 @@ export default function AdminPage() {
                       <SelectValue placeholder="Choose a model (optional)" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">
+                      <SelectItem value="default">
                         Use prompt's default model
                       </SelectItem>
                       {AVAILABLE_MODELS.map((model) => (
@@ -767,14 +770,17 @@ export default function AdminPage() {
                       </p>
                       <p>
                         <strong>Model used:</strong>{" "}
-                        {testForm.model_name ||
-                          selectedPrompt?.model_name ||
-                          "llama3.1-8b-instruct"}
-                        {!testForm.model_name && selectedPrompt && (
-                          <span className="text-muted-foreground ml-2">
-                            (prompt's default)
-                          </span>
-                        )}
+                        {testForm.model_name === "default" ||
+                        !testForm.model_name
+                          ? selectedPrompt?.model_name || "llama3.1-8b-instruct"
+                          : testForm.model_name}
+                        {(testForm.model_name === "default" ||
+                          !testForm.model_name) &&
+                          selectedPrompt && (
+                            <span className="text-muted-foreground ml-2">
+                              (prompt's default)
+                            </span>
+                          )}
                       </p>
                     </div>
                     {analysisResult.result && (
