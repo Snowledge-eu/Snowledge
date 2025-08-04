@@ -7,11 +7,11 @@ export function useMembersQuery(slug: string) {
   return useQuery({
     queryKey: ["learners", slug],
     queryFn: async () => {
-      const res = await fetcher(
+      const response = await fetcher(
         `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000/api"}/communities/${slug}/learners`,
         { credentials: "include" }
       );
-      return res;
+      return response?.data;
     },
   });
 }

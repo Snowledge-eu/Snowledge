@@ -1,4 +1,5 @@
 "use client";
+import { useChannelSections } from "@/components/manage-integrations/hooks/useChannelSections";
 import { PlatformIconButton } from "@/components/my-community/trendes-analytics/platform-icon-buttons";
 import { SummaryInput } from "@/components/my-community/trendes-analytics/summary/summary-input";
 import {
@@ -14,6 +15,7 @@ import { toast } from "sonner";
 export default function Page() {
   const { user, fetcher } = useAuth();
   const { activeCommunity } = useCurrentCommunity();
+  const { isLoading, meta } = useChannelSections(activeCommunity?.id || 0);
   const [selectedResult, setSelectedResult] = useState<any>();
   const [summaryHistory, setSummaryHistory] = useState<any[]>([]);
   // Demo props (adapter selon besoin réel)
@@ -55,8 +57,8 @@ export default function Page() {
         period: period,
       };
       console.log(body);
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_ANALYSER_URL}/discord/analyze`,
+      const res = await fetcher(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/analysis/discord`,
         {
           method: "POST",
           headers: {
@@ -67,7 +69,7 @@ export default function Page() {
       );
 
       if (res.status === 200) {
-        const analysis = await fetcher(
+        const analysisResponse = await fetcher(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/analysis`,
           {
             method: "POST",
@@ -84,6 +86,8 @@ export default function Page() {
             }),
           }
         ).catch((err) => console.error(err));
+        
+        const analysis = analysisResponse?.data;
         setSelectedResult({
           id: analysis?.result?.id ? shortenString(analysis?.result?.id) : "temp", 
           timeframe: `${new Date(analysis?.period.from).toLocaleDateString()} to ${new Date(analysis?.period.to).toLocaleDateString()}`,
@@ -150,7 +154,7 @@ export default function Page() {
       promptKey: "discord_summary_by_timeframe",
     };
 
-    const analysis = await fetcher(
+    const analysisResponse = await fetcher(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/analysis`,
       {
         method: "POST",
@@ -160,6 +164,8 @@ export default function Page() {
         body: JSON.stringify(body),
       }
     ).catch((err) => console.error(err));
+    
+    const analysis = analysisResponse?.data;
     if (analysis?.length > 0) {
       deserializeAnalyse(analysis);
     }
@@ -193,27 +199,29 @@ export default function Page() {
   const fetchChannels = async (guildId: string) => {
     console.log("fetchChannel");
     try {
-      const data = await fetch(
-        `${process.env.NEXT_PUBLIC_ANALYSER_URL}/discord/channels/${guildId}`,
-        {
-          method: "GET",
-        }
-      );
-      const info: {
-        server_id: string;
-        server_name: string;
-        channels: [{ id: string; name: string, harvested: boolean }];
-      } = await data.json();
-      console.log(info);
+      // const data = await fetch(
+      //   `${process.env.NEXT_PUBLIC_ANALYSER_URL}/discord/channels/${guildId}`,
+      //   {
+      //     method: "GET",
+      //   }
+      // );
+      // const info: {
+      //   server_id: string;
+      //   server_name: string;
+      //   channels: [{ id: string; name: string, harvested: boolean }];
+      // } = await data.json();
+      // console.log(info);
 
-      const options = info.channels.map(channel => ({
-        label: `#${channel.name}`,
-        value: channel.id,
-        disabled: !channel.harvested,
-      }));
-      const optionSelected = options.filter(op => !op.disabled);
-      setDiscordChannels(options);
-      setSelectedChannels(optionSelected);
+      if(meta && meta.listData) {
+        const options = meta?.listData?.map((channel) => ({
+          label: `#${channel.name}`,
+          value: channel.id,
+          disabled: !channel.harvested,
+        }));
+        const optionSelected = options?.filter(op => !op.disabled);
+        setDiscordChannels(options);
+        setSelectedChannels(optionSelected);
+      }
     } catch (error) {
       console.error(error);
     }
@@ -227,7 +235,7 @@ export default function Page() {
       interval: interval,
     };
     try {
-      const data = await fetcher(
+      const response = await fetcher(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/discord/count-message`,
         {
           method: "POST",
@@ -237,7 +245,7 @@ export default function Page() {
           body: JSON.stringify(body),
         }
       );
-      setMessageCount(data);
+      setMessageCount(response?.data);
     } catch(error) {
       console.error(error);
     }
@@ -254,7 +262,7 @@ useEffect(() => {
     }
     console.log(activeCommunity);
     console.log(user);
-  }, []);
+  }, [isLoading]);
   return (
     <main className="grid grid-cols-1 md:grid-cols-[minmax(640px,800px)_1fr] items-stretch gap-8 h-screen min-h-screen bg-background">
       {/* Panneau gauche (formulaire) */}

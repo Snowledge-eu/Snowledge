@@ -1,12 +1,17 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { User } from 'src/user/entities/user.entity';
+import { User } from '../user/entities/user.entity';
 import { DiscordService } from './services/discord.service';
-import { UserService } from 'src/user/user.service';
-import discordConfig from 'src/config/discord.config';
+import { UserService } from '../user/user.service';
+import discordConfig from '../config/discord.config';
 import { ConfigType } from '@nestjs/config';
-import { CommunityService } from 'src/community/community.service';
-import { Community } from 'src/community/entities/community.entity';
-import { DiscordServerService } from 'src/discord-server/discord-server.service';
+import { CommunityService } from '../community/community.service';
+import { Community } from '../community/entities/community.entity';
+import { DiscordServerService } from '../discord-server/discord-server.service';
+import { DiscordClientHelper } from './helpers/discord-client.helper';
+import { DiscordHarvestJobService } from './services/discord-harvest-job.service';
+import { DiscordChannelService } from './services/discord-channel.service';
+import { DiscordMessageService } from './services/discord-message.service';
+import { Types } from 'mongoose';
 
 @Injectable()
 export class DiscordProvider {
@@ -18,6 +23,10 @@ export class DiscordProvider {
 		private readonly userService: UserService,
 		private readonly communityService: CommunityService,
 		private readonly discordServerService: DiscordServerService,
+		private readonly discordClientHelper: DiscordClientHelper, // Ajout injection helper
+		private readonly discordHarvestJobService: DiscordHarvestJobService,
+		private readonly discordChannelService: DiscordChannelService,
+		private readonly discordMessageService: DiscordMessageService,
 	) {}
 
 	async linkDiscord(code: string, user: User, communityId?: number) {
@@ -103,13 +112,13 @@ export class DiscordProvider {
 				});
 			}
 		} else {
-			this.logger.error('Error client information', data.error);
+			this.logger.error('Error client information', data && data.error ? data.error : data);
 		}
 		return community;
 	}
 	async disconnectDiscord(user: User) {
 		const findUser = await this.userService.findOneByEmail(user.email);
-		console.log(findUser)
+
 		await this.userService.update(user.id, {
 			discordId: '',
 			discordAccess: null,
@@ -118,5 +127,91 @@ export class DiscordProvider {
 			await this.discordService.delete(findUser.discordAccess.id);
 		}
 		// TODO enelver le bot discord du serveur si c'est le créateur 
+	}
+
+	async listDiscordServers(): Promise<Array<{ id: string; name: string }>> {
+		const client = this.discordClientHelper.getClient();
+		const guilds = client.guilds.cache.map(guild => ({
+			id: guild.id,
+			name: guild.name,
+		}));
+		return guilds;
+	}
+
+	async getHarvestJobStatus(jobId: string): Promise<any> {
+		let job;
+		try {
+			job = await this.discordHarvestJobService['harvestJobModel'].findById(new Types.ObjectId(jobId)).lean();
+		} catch (e) {
+			throw new Error('Invalid job_id format');
+		}
+		if (!job) {
+			throw new Error('Job not found');
+		}
+		return {
+			job_id: job._id.toString(),
+			status: job.status,
+			inserted: job.inserted,
+			finished_at: job.finished_at,
+			error: job.error,
+		};
+	}
+
+	async getLastHarvest(guildId: string): Promise<any> {
+		const last = await this.discordHarvestJobService.findLastHarvestJobByDiscordServerId(guildId);
+		if (!last) {
+			return null;
+		}
+		const arrInfo: Array<{ name: string; qty: number }> = [];
+		for (const channel of last.channels) {
+			const channelInfo = await this.discordChannelService.findOne(channel.toString());
+			const countMess = await this.discordMessageService.countMessageForDate(channel, last.created_at);
+			arrInfo.push({
+				name: channelInfo.name,
+				qty: countMess,
+			});
+		}
+		const lastFetched = {
+			date: last.created_at,
+			channels: arrInfo,
+		};
+		return { ...last, lastFetched };
+	}
+
+	async countMessageInterval(info: { channelId: string[]; interval: 'last_day' | 'last_week' | 'last_month' }): Promise<number> {
+		const now = new Date();
+		let startDate: Date;
+		let count = 0;
+		switch (info.interval) {
+			case 'last_day':
+				startDate = new Date(now);
+				startDate.setDate(now.getDate() - 1);
+				break;
+			case 'last_week':
+				startDate = new Date(now);
+				startDate.setDate(now.getDate() - 7);
+				break;
+			case 'last_month':
+				startDate = new Date(now);
+				startDate.setMonth(now.getMonth() - 1);
+				break;
+			default:
+				throw new Error(`Invalid interval: ${info.interval}`);
+		}
+		for (const id of info.channelId) {
+			const tmpcount = await this.discordMessageService.countMessageForPeriod(id, startDate);
+			count += tmpcount;
+		}
+		return count;
+	}
+
+	async harvestDiscord(dto: any): Promise<{ job_id: string, status: string } | undefined> {
+		try {
+			this.logger.verbose(JSON.stringify(dto));
+			const jobId = await this.discordHarvestJobService.addJob(dto);
+			return { job_id: jobId, status: 'queued' };
+		} catch (error) {
+			this.logger.error(error);
+		}
 	}
 }

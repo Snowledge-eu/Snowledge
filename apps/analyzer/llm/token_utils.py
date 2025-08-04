@@ -36,6 +36,7 @@ def estimate_token_count(messages: List[dict], model_name: str = "") -> int:
         tokenizer = _tokenizer_cache[tokenizer_name]
     except Exception as e:
         print(f"[Token Estimation] Failed to load tokenizer for {model_name}: {e}")
+        print(f"[Token Estimation] Using fallback estimation for {model_name}")
         return naive_token_estimate(messages)
 
     total_tokens = 0

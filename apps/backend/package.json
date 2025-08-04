@@ -12,6 +12,7 @@
 		"dev": "nest start --watch",
 		"start:debug": "nest start --debug --watch",
 		"start:prod": "node dist/main",
+		"start:harvest": "ts-node -r tsconfig-paths/register src/daemon/discord/harvest-daemon.ts",
 		"lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
 		"test": "jest",
 		"test:watch": "jest --watch",
@@ -32,6 +33,7 @@
 		"@nestjs/typeorm": "^11.0.0",
 		"@repo/logger": "*",
 		"@sqltools/formatter": "^1.2.5",
+		"@xenova/transformers": "^2.17.2",
 		"app-root-path": "^3.1.0",
 		"bcrypt": "^5.1.1",
 		"class-transformer": "^0.5.1",
@@ -49,7 +51,8 @@
 		"slugify": "^1.6.6",
 		"sql-highlight": "^6.0.0",
 		"typeorm": "^0.3.24",
-		"xrpl": "^3.0.0"
+		"xrpl": "^3.0.0",
+		"yaml": "^2.8.0"
 	},
 	"devDependencies": {
 		"@discordjs/rest": "^2.3.0",
@@ -87,12 +90,19 @@
 		"rootDir": "src",
 		"testRegex": ".*\\.spec\\.ts$",
 		"transform": {
-			"^.+\\.(t|j)s$": "ts-jest"
+			"^.+\\.(t|j)s$": ["ts-jest", {
+				"tsconfig": "tsconfig.json",
+				"isolatedModules": true
+			}]
 		},
 		"collectCoverageFrom": [
 			"**/*.(t|j)s"
 		],
 		"coverageDirectory": "../coverage",
-		"testEnvironment": "node"
+		"testEnvironment": "node",
+		"moduleNameMapper": {
+			"^src/(.*)$": "<rootDir>/$1"
+		},
+		"setupFilesAfterEnv": ["<rootDir>/../test/jest-setup.ts"]
 	}
 }

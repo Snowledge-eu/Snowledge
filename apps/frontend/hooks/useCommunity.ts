@@ -8,14 +8,14 @@ export function useCommunity(slug: string) {
   return useQuery<Community>({
     queryKey: ["community", slug],
     queryFn: async () => {
-      const res = await fetcher(
+      const response = await fetcher(
         `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000/api"}/communities/${slug}`,
         {
           method: "GET",
           credentials: "include",
         }
       );
-      return res;
+      return response?.data;
     },
     enabled: !!slug,
   });

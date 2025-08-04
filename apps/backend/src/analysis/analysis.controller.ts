@@ -1,59 +1,113 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, HttpException, HttpStatus, Logger, HttpCode, Header, Res, NotFoundException, BadRequestException } from '@nestjs/common';
 import { AnalysisService } from './analysis.service';
 import { CreateAnalysisDto } from './dto/create-analysis.dto';
 import { UpdateAnalysisDto } from './dto/update-analysis.dto';
 import { FindAnalysisDto } from './dto/find-analysis.dto';
-import { TransformLongToStringInterceptor } from 'src/shared/interceptors/transform-long-to-string.pipe';
-
+import { TransformLongToStringInterceptor } from '../shared/interceptors/transform-long-to-string.pipe';
+import { AnalyzePeriod, DiscordAnalyzeDto } from './dto/discord-analyse.dto';
+import { DiscordMessageService } from '../discord/services/discord-message.service';
+import { AnalysisHelper } from './analysis.helper';
+import { Response } from 'express';
+import { AnalysisProvider } from './analysis.provider';
 @Controller('analysis')
 export class AnalysisController {
-  constructor(private readonly analysisService: AnalysisService) {}
+	private readonly logger = new Logger(AnalysisController.name);
 
-  // @Post()
-  // create(@Body() createAnalysisDto: CreateAnalysisDto) {
-  //   return this.analysisService.create(createAnalysisDto);
-  // }
-  @Post()
-  @UseInterceptors(TransformLongToStringInterceptor)
-  async findByScope(@Body() findAnalysis: FindAnalysisDto) {
-    console.log(findAnalysis)
-    try {      
-      const all = await this.analysisService.findAll();
-      console.log(all)
-      if(findAnalysis.platform == 'discord') {
-        console.log(findAnalysis.platform)
-        if(!findAnalysis.scope.channelId){
-          console.log(findAnalysis.scope.serverId)
-          const analys = await this.analysisService.findByDiscordServer(findAnalysis.scope.serverId, findAnalysis.promptKey);
-          console.log(analys)
-          return analys;
-        }
-        const analysByScope = await this.analysisService.findByDiscordScope(findAnalysis.scope.serverId, findAnalysis.scope.channelId, findAnalysis.promptKey);
-          console.log(analysByScope)
-  
-        return analysByScope;
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  }
-  @Get()
-  findAll() {
-    return this.analysisService.findAll();
-  }
+	constructor(
+		private readonly analysisService: AnalysisService,
+		private readonly discordMessageService: DiscordMessageService,
+		private readonly analysisHelper: AnalysisHelper,
+		private readonly analysisProvider: AnalysisProvider,
+	) {}
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.analysisService.findOne(+id);
-  }
+	// @Post()
+	// create(@Body() createAnalysisDto: CreateAnalysisDto) {
+	//   return this.analysisService.create(createAnalysisDto);
+	// }
+	@Post()
+	@UseInterceptors(TransformLongToStringInterceptor)
+	async findByScope(@Body() findAnalysis: FindAnalysisDto) {
+		return this.analysisProvider.findByScope(findAnalysis);
+	}
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAnalysisDto: UpdateAnalysisDto) {
-    return this.analysisService.update(+id, updateAnalysisDto);
-  }
+	@Post('discord')
+	async analyzeDiscord(
+		@Body() dto: DiscordAnalyzeDto,
+		@Res({ passthrough: true }) res: Response,
+	) {
+		try {
+			const result = await this.analysisProvider.analyzeDiscord(dto);
+			return result;
+		} catch (error) {
+			this.logger.error('Error in analyzeDiscord:', error);
+			
+			if (error instanceof HttpException) {
+				if (error.getStatus() === HttpStatus.NO_CONTENT) {
+					res.set('X-Reason', 'No messages found for this period.');
+					res.status(HttpStatus.NO_CONTENT);
+					return;
+				}
+				throw error;
+			}
+			
+			// Pour les autres erreurs, retourner une réponse d'erreur appropriée
+			const errorMessage = error instanceof Error ? error.message : 'Internal server error';
+			throw new HttpException(
+				errorMessage,
+				HttpStatus.INTERNAL_SERVER_ERROR
+			);
+		}
+	}
+	@Get()
+	findAll() {
+		return this.analysisService.findAll();
+	}
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.analysisService.remove(+id);
-  }
+	@Get(':id')
+	async findOne(@Param('id') id: string) {
+		try {
+			const analysis = await this.analysisService.findOne(+id);
+			if (!analysis) {
+				throw new NotFoundException('Analysis not found');
+			}
+			return analysis;
+		} catch (error) {
+			if (error instanceof NotFoundException) {
+				throw error;
+			}
+			throw new BadRequestException('Invalid analysis ID format');
+		}
+	}
+
+	@Patch(':id')
+	async update(@Param('id') id: string, @Body() updateAnalysisDto: UpdateAnalysisDto) {
+		try {
+			const updatedAnalysis = await this.analysisService.update(+id, updateAnalysisDto);
+			if (!updatedAnalysis) {
+				throw new NotFoundException('Analysis not found');
+			}
+			return updatedAnalysis;
+		} catch (error) {
+			if (error instanceof NotFoundException) {
+				throw error;
+			}
+			throw new BadRequestException('Invalid analysis ID format');
+		}
+	}
+
+	@Delete(':id')
+	async remove(@Param('id') id: string) {
+		try {
+			const deletedAnalysis = await this.analysisService.remove(+id);
+			if (!deletedAnalysis) {
+				throw new NotFoundException('Analysis not found');
+			}
+			return { message: 'Analysis deleted successfully' };
+		} catch (error) {
+			if (error instanceof NotFoundException) {
+				throw error;
+			}
+			throw new BadRequestException('Invalid analysis ID format');
+		}
+	}
 }

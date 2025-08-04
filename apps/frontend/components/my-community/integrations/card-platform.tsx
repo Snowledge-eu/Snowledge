@@ -63,21 +63,6 @@ export default function CardPlatform({
   const [enabled, setEnabled] = useState(isEnabled);
   const [open, setOpen] = useState<string | null>(null);
   const [manageIntegrationsOpen, setManageIntegrationsOpen] = useState(false);
-
-  useEffect(() => {
-    //Si l'url contient ?connect=true alors on ouvre la modal
-    if (
-      window.location.search.includes("connect=true") &&
-      platform.key === "discord"
-    ) {
-      setOpen("discord");
-    }
-    //Si l'url contient ?manageIntegrations=true alors on ouvre la modal
-    if (window.location.search.includes("manageIntegrations=true")) {
-      setManageIntegrationsOpen(true);
-    }
-  }, []);
-
   return (
     <Card
       key={platform.key}

@@ -56,19 +56,37 @@ services:
       - ORIGIN_CORS=["localhost:3000"]
       - BACK_URL=http://localhost:4000/api
       - FRONT_URL=http://localhost:3000
-  analyzer:
-    build:
+  discord-harvester:
+    build: 
       context: .
-      dockerfile: ./apps/analyzer/Dockerfile.dev
+      dockerfile: ./apps/backend/Dockerfile.dev
+    command: npm run start:harvest
+    depends_on:
+      - backend
+      - mongo
+    volumes:
+      # Monter le code source en préservant node_modules
+      - ./apps/backend:/app
+      - /app/node_modules
+      - ./apps/backend/.env:/app/.env
     env_file:
       - .env.dev
     environment:
-      - PYTHONUNBUFFERED=1
-      - PYTHONIOENCODING=UTF-8
-      - OVH_API_BASE_URL=https://oai.endpoints.kepler.ai.cloud.ovh.net/v1/chat/completions
+      - NODE_ENV=development
+      - SMTP_HOST=smtp.exemple.com
+      - SMTP_PORT=587
+      - SMTP_USER=ton_user
+      - SMTP_PASS=ton_mot_de_passe
+      - PGSQL_HOST=postgres
+      - PGSQL_PORT=5432
+      - PGSQL_DB=snowledge
+      - PGSQL_NAME=postgres
+      - PGSQL_PWD=postgres
       - MG_NAME=social_data
       - MG_HOST=mongo
       - MG_PORT=27017
+    networks:
+      - snowledge_network
   # Service PostgreSQL
   postgres:
     image: postgres:16
@@ -102,7 +120,6 @@ services:
       - postgres
     networks:
       - snowledge_network
-
 networks:
   snowledge_network:
     external: true

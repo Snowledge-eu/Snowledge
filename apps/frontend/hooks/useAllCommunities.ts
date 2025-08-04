@@ -14,13 +14,13 @@ export function useAllCommunities() {
   } = useQuery<Community[]>({
     queryKey: ["communities"],
     queryFn: async () => {
-      const res = await fetcher(
+      const response = await fetcher(
         `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000/api"}/communities/all`,
         {
           credentials: "include",
         }
       );
-      return res;
+      return response?.data;
     },
     enabled: true,
   });

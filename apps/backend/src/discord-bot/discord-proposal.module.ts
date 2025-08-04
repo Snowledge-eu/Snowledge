@@ -8,6 +8,7 @@ import { ProposalModule } from 'src/proposal/proposal.module';
 import { UserModule } from 'src/user/user.module';
 import { CommunityModule } from 'src/community/community.module';
 import { DiscordServerModule } from 'src/discord-server/discord-server.module';
+import { DiscordModule } from 'src/discord/discord.module';
 
 @Module({
 	imports: [
@@ -17,6 +18,7 @@ import { DiscordServerModule } from 'src/discord-server/discord-server.module';
 		UserModule,
 		CommunityModule,
 		DiscordServerModule,
+		DiscordModule,
 	],
 	providers: [
 		DiscordProposalService,
