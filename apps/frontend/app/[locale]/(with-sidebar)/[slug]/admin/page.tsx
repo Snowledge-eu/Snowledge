@@ -41,6 +41,40 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+// Liste des modèles disponibles avec leurs coûts
+const AVAILABLE_MODELS = [
+  {
+    name: "Llama-3.1-8B-Instruct",
+    cost: "0,10 €/token",
+    description: "Modèle rapide et économique",
+  },
+  {
+    name: "Mistral-Small-3.2-24B-Instruct-2506",
+    cost: "0,09 €/token (input) - 0,28 €/token (output)",
+    description: "Bon rapport qualité/prix",
+  },
+  {
+    name: "Mistral-Nemo-Instruct-2407",
+    cost: "0,13 €/token",
+    description: "Modèle Mistral optimisé",
+  },
+  {
+    name: "Qwen3-32B",
+    cost: "0,23 €/token (output)",
+    description: "Modèle Alibaba performant",
+  },
+  {
+    name: "Meta-Llama-3_3-70B-Instruct",
+    cost: "0,67 €/token",
+    description: "Modèle Meta haute performance",
+  },
+  {
+    name: "DeepSeek-R1-Distill-Llama-70B",
+    cost: "0,67 €/token",
+    description: "Modèle DeepSeek haute performance",
+  },
+];
+
 interface Prompt {
   id: number;
   name: string;
@@ -241,7 +275,7 @@ export default function AdminPage() {
             ...testForm,
             prompt_name: selectedPrompt.name,
             community_id: selectedCommunity.id.toString(),
-            model_name: testForm.model_name || selectedPrompt.model_name,
+            model_name: testForm.model_name || undefined, // Envoyer undefined si vide pour utiliser le modèle du prompt
           }),
         }
       );
@@ -432,17 +466,28 @@ export default function AdminPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="model_name">Model</Label>
-                    <Input
-                      id="model_name"
+                    <Select
                       value={promptForm.model_name}
-                      onChange={(e) =>
-                        setPromptForm({
-                          ...promptForm,
-                          model_name: e.target.value,
-                        })
+                      onValueChange={(value) =>
+                        setPromptForm({ ...promptForm, model_name: value })
                       }
-                      placeholder="llama3.1-8b-instruct"
-                    />
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Choose a model" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {AVAILABLE_MODELS.map((model) => (
+                          <SelectItem key={model.name} value={model.name}>
+                            <div className="flex flex-col">
+                              <span className="font-medium">{model.name}</span>
+                              <span className="text-xs text-muted-foreground">
+                                {model.cost} - {model.description}
+                              </span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="temperature">Temperature</Label>
@@ -648,13 +693,31 @@ export default function AdminPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="model_name">Model</Label>
-                  <Input
-                    id="model_name"
+                  <Select
                     value={testForm.model_name}
-                    onChange={(e) =>
-                      setTestForm({ ...testForm, model_name: e.target.value })
+                    onValueChange={(value) =>
+                      setTestForm({ ...testForm, model_name: value })
                     }
-                  />
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choose a model (optional)" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">
+                        Use prompt's default model
+                      </SelectItem>
+                      {AVAILABLE_MODELS.map((model) => (
+                        <SelectItem key={model.name} value={model.name}>
+                          <div className="flex flex-col">
+                            <span className="font-medium">{model.name}</span>
+                            <span className="text-xs text-muted-foreground">
+                              {model.cost} - {model.description}
+                            </span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="max_tokens">Max Tokens</Label>
@@ -707,6 +770,11 @@ export default function AdminPage() {
                         {testForm.model_name ||
                           selectedPrompt?.model_name ||
                           "llama3.1-8b-instruct"}
+                        {!testForm.model_name && selectedPrompt && (
+                          <span className="text-muted-foreground ml-2">
+                            (prompt's default)
+                          </span>
+                        )}
                       </p>
                     </div>
                     {analysisResult.result && (
