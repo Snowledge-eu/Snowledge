@@ -75,6 +75,9 @@ export class User {
 	@Column({ nullable: true })
 	expertise: string;
 
+	@Column({ nullable: true })
+	isAdmin: boolean;
+
 	@OneToOne(() => DiscordAccess)
 	@JoinColumn()
 	@Type(() => DiscordAccess)

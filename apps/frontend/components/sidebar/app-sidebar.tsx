@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Home } from "lucide-react";
+import { Home, Settings } from "lucide-react";
 import { useNavMyCommunity } from "./hooks/useNavMyCommunity";
 
 import { SidebarNavMain } from "./sidebar-nav";
@@ -75,6 +75,12 @@ function SidebarNavs() {
     icon: Home,
   };
 
+  const admin = {
+    title: tNavbar("admin"),
+    url: "/admin",
+    icon: Settings,
+  };
+
   // const navLearner = useNavLearner(activeCommunity ?? { name: "" });
   // const navContributeur = useNavContributor(activeCommunity ?? { name: "" });
   const navMyCommunity = useNavMyCommunity(activeCommunity ?? { name: "" });
@@ -94,6 +100,7 @@ function SidebarNavs() {
       )}
       <SidebarNavMain items={[landing]} label="" />
       {/* <NavProjects projects={data.projects} /> */}
+      <SidebarNavMain items={[admin]} label="Admin" />
     </>
   );
 }

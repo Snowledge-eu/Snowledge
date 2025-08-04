@@ -147,7 +147,8 @@
     "validate": "Valider",
     "sentiment-analysis": "Sentiment",
     "summary-analysis": "Summary",
-    "trends-analysis": "Trends"
+    "trends-analysis": "Trends",
+    "admin": "Admin"
   },
   "inviteModal": {
     "title": "Invitez des utilisateurs",
