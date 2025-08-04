@@ -136,13 +136,13 @@ export default function NavUser({
                       title="XRPL Wallet Balance"
                     >
                       <Image
-                        src="/xrp-logo.png"
+                        src="/strk-logo.png"
                         alt="XRP"
                         width={12}
                         height={12}
                         className="inline-block align-middle mr-0.5"
                       />
-                      {balance} <span className="ml-0.5">XRP</span>
+                      {balance} <span className="ml-0.5">STRK</span>
                     </span>
                   )}
                 </span>
@@ -182,13 +182,13 @@ export default function NavUser({
                         title="XRPL Wallet Balance"
                       >
                         <Image
-                          src="/xrp-logo.png"
+                          src="/strk-logo.png"
                           alt="XRP"
                           width={16}
                           height={16}
                           className="inline-block align-middle mr-0.5"
                         />
-                        {balance} <span className="ml-0.5">XRP</span>
+                        {balance} <span className="ml-0.5">STRK</span>
                       </span>
                     )}
                   </span>
