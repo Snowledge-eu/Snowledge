@@ -727,5 +727,28 @@
     "transactionError": "Erreur lors de la transaction",
     "retry": "Réessayer",
     "returnDashboard": "Retour au tableau de bord"
+  },
+  "admin": {
+    "title": "Administration",
+    "prompts": "Prompts",
+    "communities": "Communautés",
+    "test-analysis": "Tester les analyses",
+    "create-prompt": "Créer un prompt",
+    "edit-prompt": "Modifier le prompt",
+    "delete-prompt": "Supprimer le prompt",
+    "public": "Public",
+    "private": "Privé",
+    "platform": "Plateforme",
+    "temperature": "Température",
+    "top-p": "Top P",
+    "system-message": "Message système",
+    "make-public": "Rendre ce prompt public",
+    "cancel": "Annuler",
+    "select": "Sélectionner",
+    "run-analysis": "Lancer l'analyse",
+    "analysis-result": "Résultat de l'analyse",
+    "messages-analyzed": "Messages analysés",
+    "analysis-id": "ID d'analyse",
+    "access-denied": "Accès refusé. Privilèges d'administrateur requis."
   }
 }

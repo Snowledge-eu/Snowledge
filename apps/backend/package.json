@@ -90,10 +90,13 @@
 		"rootDir": "src",
 		"testRegex": ".*\\.spec\\.ts$",
 		"transform": {
-			"^.+\\.(t|j)s$": ["ts-jest", {
-				"tsconfig": "tsconfig.json",
-				"isolatedModules": true
-			}]
+			"^.+\\.(t|j)s$": [
+				"ts-jest",
+				{
+					"tsconfig": "tsconfig.json",
+					"isolatedModules": true
+				}
+			]
 		},
 		"collectCoverageFrom": [
 			"**/*.(t|j)s"
@@ -103,6 +106,8 @@
 		"moduleNameMapper": {
 			"^src/(.*)$": "<rootDir>/$1"
 		},
-		"setupFilesAfterEnv": ["<rootDir>/../test/jest-setup.ts"]
+		"setupFilesAfterEnv": [
+			"<rootDir>/../test/jest-setup.ts"
+		]
 	}
 }

@@ -49,19 +49,19 @@ const AVAILABLE_MODELS = [
     description: "Modèle rapide et économique",
   },
   {
-    name: "Mistral-Small-3.2-24B-Instruct-2506",
-    cost: "0,09 €/token (input) - 0,28 €/token (output)",
-    description: "Bon rapport qualité/prix",
-  },
-  {
     name: "Mistral-Nemo-Instruct-2407",
     cost: "0,13 €/token",
     description: "Modèle Mistral optimisé",
   },
   {
-    name: "Qwen3-32B",
-    cost: "0,23 €/token (output)",
-    description: "Modèle Alibaba performant",
+    name: "Mistral-Small-3.2-24B-Instruct-2506",
+    cost: "0,09 €/token input, 0,28 €/token output",
+    description: "Modèle Mistral Small haute performance",
+  },
+  {
+    name: "Meta-Llama-3_1-70B-Instruct",
+    cost: "0,67 €/token",
+    description: "Modèle Meta haute performance",
   },
   {
     name: "Meta-Llama-3_3-70B-Instruct",
@@ -72,6 +72,16 @@ const AVAILABLE_MODELS = [
     name: "DeepSeek-R1-Distill-Llama-70B",
     cost: "0,67 €/token",
     description: "Modèle DeepSeek haute performance",
+  },
+  {
+    name: "Mixtral-8x7B-Instruct-v0.1",
+    cost: "0,63 €/token",
+    description: "Modèle Mixtral haute performance",
+  },
+  {
+    name: "Qwen3-32B",
+    cost: "0,23 €/token output",
+    description: "Modèle Qwen haute performance",
   },
 ];
 
@@ -138,6 +148,7 @@ export default function AdminPage() {
   );
   const [isCreatingPrompt, setIsCreatingPrompt] = useState(false);
   const [isEditingPrompt, setIsEditingPrompt] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   // Form states
   const [promptForm, setPromptForm] = useState({
@@ -152,15 +163,16 @@ export default function AdminPage() {
     ],
     response_format: { type: "json_schema", json_schema: {} },
     is_public: false,
-    model_name: "llama3.1-8b-instruct",
+    model_name: "Llama-3.1-8B-Instruct",
   });
 
   const [testForm, setTestForm] = useState({
     prompt_name: "",
     community_id: "",
     model_name: "default",
-    max_tokens: 2000,
   });
+
+  const [responseFormatText, setResponseFormatText] = useState("");
 
   useEffect(() => {
     if (user && !user.isAdmin) {
@@ -196,12 +208,33 @@ export default function AdminPage() {
 
   const handleCreatePrompt = async () => {
     try {
+      // Parser le response_format si il y en a un
+      let finalPromptForm: any = { ...promptForm };
+
+      if (responseFormatText.trim()) {
+        try {
+          const parsedResponseFormat = JSON.parse(responseFormatText);
+          finalPromptForm.response_format = parsedResponseFormat;
+        } catch (error) {
+          console.error("Invalid response format JSON:", error);
+          // Continuer sans response_format si le JSON est invalide
+          const { response_format, ...formWithoutResponseFormat } =
+            finalPromptForm;
+          finalPromptForm = formWithoutResponseFormat;
+        }
+      } else {
+        // Si le champ est vide, ne pas inclure response_format
+        const { response_format, ...formWithoutResponseFormat } =
+          finalPromptForm;
+        finalPromptForm = formWithoutResponseFormat;
+      }
+
       const response = await fetcher(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/prompts`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(promptForm),
+          body: JSON.stringify(finalPromptForm),
         }
       );
 
@@ -220,12 +253,33 @@ export default function AdminPage() {
     if (!selectedPrompt) return;
 
     try {
+      // Parser le response_format si il y en a un
+      let finalPromptForm: any = { ...promptForm };
+
+      if (responseFormatText.trim()) {
+        try {
+          const parsedResponseFormat = JSON.parse(responseFormatText);
+          finalPromptForm.response_format = parsedResponseFormat;
+        } catch (error) {
+          console.error("Invalid response format JSON:", error);
+          // Continuer sans response_format si le JSON est invalide
+          const { response_format, ...formWithoutResponseFormat } =
+            finalPromptForm;
+          finalPromptForm = formWithoutResponseFormat;
+        }
+      } else {
+        // Si le champ est vide, ne pas inclure response_format
+        const { response_format, ...formWithoutResponseFormat } =
+          finalPromptForm;
+        finalPromptForm = formWithoutResponseFormat;
+      }
+
       const response = await fetcher(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/prompts/${selectedPrompt.id}`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(promptForm),
+          body: JSON.stringify(finalPromptForm),
         }
       );
 
@@ -265,21 +319,27 @@ export default function AdminPage() {
   const handleTestAnalysis = async () => {
     if (!selectedPrompt || !selectedCommunity) return;
 
+    setIsAnalyzing(true);
+    setAnalysisResult(null);
+
     try {
+      const requestBody = {
+        ...testForm,
+        prompt_name: selectedPrompt.name,
+        community_id: selectedCommunity.id.toString(),
+      };
+
+      // Ne pas inclure model_name si c'est "default"
+      if (testForm.model_name !== "default") {
+        requestBody.model_name = testForm.model_name;
+      }
+
       const response = await fetcher(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/prompts/test-analysis`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ...testForm,
-            prompt_name: selectedPrompt.name,
-            community_id: selectedCommunity.id.toString(),
-            model_name:
-              testForm.model_name === "default"
-                ? undefined
-                : testForm.model_name, // Envoyer undefined si "default" pour utiliser le modèle du prompt
-          }),
+          body: JSON.stringify(requestBody),
         }
       );
 
@@ -289,6 +349,8 @@ export default function AdminPage() {
       }
     } catch (error) {
       console.error("Error testing analysis:", error);
+    } finally {
+      setIsAnalyzing(false);
     }
   };
 
@@ -300,13 +362,30 @@ export default function AdminPage() {
       temperature: 0.3,
       top_p: 0.8,
       messages: [
-        { role: "system", content: "" },
+        {
+          role: "system",
+          content: "",
+        },
         { role: "user", content: "{{messages}}" },
       ],
-      response_format: { type: "json_schema", json_schema: {} },
+      response_format: {
+        type: "json_schema",
+        json_schema: {},
+      },
       is_public: false,
-      model_name: "llama3.1-8b-instruct",
+      model_name: "Llama-3.1-8B-Instruct",
     });
+
+    setResponseFormatText(
+      JSON.stringify(
+        {
+          type: "json_schema",
+          json_schema: {},
+        },
+        null,
+        2
+      )
+    );
   };
 
   const editPrompt = (prompt: Prompt) => {
@@ -322,7 +401,16 @@ export default function AdminPage() {
       is_public: prompt.is_public,
       model_name: prompt.model_name,
     });
+    setResponseFormatText(JSON.stringify(prompt.response_format, null, 2));
     setIsEditingPrompt(true);
+
+    // Scroll vers le formulaire après un court délai
+    setTimeout(() => {
+      const formElement = document.getElementById("edit-prompt-form");
+      if (formElement) {
+        formElement.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }, 100);
   };
 
   if (!user?.isAdmin) {
@@ -375,7 +463,23 @@ export default function AdminPage() {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle>Prompt Management</CardTitle>
-                <Button onClick={() => setIsCreatingPrompt(true)}>
+                <Button
+                  onClick={() => {
+                    setIsCreatingPrompt(true);
+                    resetPromptForm();
+                    // Scroll vers le formulaire après un court délai
+                    setTimeout(() => {
+                      const formElement =
+                        document.getElementById("edit-prompt-form");
+                      if (formElement) {
+                        formElement.scrollIntoView({
+                          behavior: "smooth",
+                          block: "start",
+                        });
+                      }
+                    }, 100);
+                  }}
+                >
                   <Plus className="h-4 w-4 mr-2" />
                   Create Prompt
                 </Button>
@@ -429,10 +533,13 @@ export default function AdminPage() {
           </Card>
 
           {(isCreatingPrompt || isEditingPrompt) && (
-            <Card>
+            <Card
+              id="edit-prompt-form"
+              className="border-2 border-primary/20 bg-primary/5"
+            >
               <CardHeader>
-                <CardTitle>
-                  {isCreatingPrompt ? "Create New Prompt" : "Edit Prompt"}
+                <CardTitle className="flex items-center gap-2">
+                  {isCreatingPrompt ? "➕ Create New Prompt" : "✏️ Edit Prompt"}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -561,6 +668,36 @@ export default function AdminPage() {
                   />
                 </div>
 
+                <div className="space-y-2">
+                  <Label htmlFor="response-format">
+                    Response Format (JSON Schema)
+                  </Label>
+                  <Textarea
+                    id="response-format"
+                    value={responseFormatText}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setResponseFormatText(value);
+                      try {
+                        const responseFormat = JSON.parse(value);
+                        setPromptForm({
+                          ...promptForm,
+                          response_format: responseFormat,
+                        });
+                      } catch (error) {
+                        // Garder la valeur même si le JSON n'est pas valide pendant la saisie
+                        // Ne pas mettre à jour le state pour éviter les erreurs
+                      }
+                    }}
+                    placeholder='{"type": "json_schema", "json_schema": {...}}'
+                    className="font-mono text-sm"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Définit la structure de la réponse JSON. Laissez vide pour
+                    une réponse libre.
+                  </p>
+                </div>
+
                 <div className="flex items-center space-x-2">
                   <Switch
                     id="is_public"
@@ -577,6 +714,7 @@ export default function AdminPage() {
                     onClick={
                       isCreatingPrompt ? handleCreatePrompt : handleUpdatePrompt
                     }
+                    className="flex-1"
                   >
                     {isCreatingPrompt ? "Create Prompt" : "Update Prompt"}
                   </Button>
@@ -722,30 +860,37 @@ export default function AdminPage() {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="max_tokens">Max Tokens</Label>
-                  <Input
-                    id="max_tokens"
-                    type="number"
-                    value={testForm.max_tokens}
-                    onChange={(e) =>
-                      setTestForm({
-                        ...testForm,
-                        max_tokens: parseInt(e.target.value),
-                      })
-                    }
-                  />
-                </div>
               </div>
 
               <Button
                 onClick={handleTestAnalysis}
-                disabled={!selectedPrompt || !selectedCommunity}
+                disabled={!selectedPrompt || !selectedCommunity || isAnalyzing}
                 className="w-full"
               >
-                <Play className="h-4 w-4 mr-2" />
-                Run Analysis Test
+                {isAnalyzing ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Play className="h-4 w-4 mr-2" />
+                )}
+                {isAnalyzing ? "Analyzing..." : "Run Analysis Test"}
               </Button>
+
+              {isAnalyzing && (
+                <Card className="mt-4">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Analysis in Progress
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground">
+                      Analyzing {selectedCommunity?.name} with{" "}
+                      {selectedPrompt?.name}... This may take a few moments.
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
 
               {analysisResult && (
                 <Card className="mt-4">
@@ -753,43 +898,120 @@ export default function AdminPage() {
                     <CardTitle>Analysis Result</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-2">
-                      <p>
-                        <strong>Prompt:</strong> {analysisResult.prompt_used}
-                      </p>
-                      <p>
-                        <strong>Community:</strong> {analysisResult.community}
-                      </p>
-                      <p>
-                        <strong>Messages analyzed:</strong>{" "}
-                        {analysisResult.message_count}
-                      </p>
-                      <p>
-                        <strong>Analysis ID:</strong>{" "}
-                        {analysisResult.analysis_id}
-                      </p>
-                      <p>
-                        <strong>Model used:</strong>{" "}
-                        {testForm.model_name === "default" ||
-                        !testForm.model_name
-                          ? selectedPrompt?.model_name || "llama3.1-8b-instruct"
-                          : testForm.model_name}
-                        {(testForm.model_name === "default" ||
-                          !testForm.model_name) &&
-                          selectedPrompt && (
-                            <span className="text-muted-foreground ml-2">
-                              (prompt's default)
-                            </span>
-                          )}
-                      </p>
-                    </div>
-                    {analysisResult.result && (
-                      <div className="mt-4 p-4 bg-muted rounded">
-                        <pre className="text-sm overflow-auto">
-                          {JSON.stringify(analysisResult.result, null, 2)}
-                        </pre>
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <strong>Prompt:</strong> {analysisResult.prompt_used}
+                        </div>
+                        <div>
+                          <strong>Community:</strong> {analysisResult.community}
+                        </div>
+                        <div>
+                          <strong>Messages analyzed:</strong>{" "}
+                          {analysisResult.message_count}
+                        </div>
+                        <div>
+                          <strong>Analysis ID:</strong>{" "}
+                          {analysisResult.analysis_id}
+                        </div>
+                        <div>
+                          <strong>Model used:</strong>{" "}
+                          {testForm.model_name === "default" ||
+                          !testForm.model_name
+                            ? selectedPrompt?.model_name ||
+                              "Llama-3.1-8B-Instruct"
+                            : testForm.model_name}
+                          {(testForm.model_name === "default" ||
+                            !testForm.model_name) &&
+                            selectedPrompt && (
+                              <span className="text-muted-foreground ml-2">
+                                (prompt's default)
+                              </span>
+                            )}
+                        </div>
                       </div>
-                    )}
+
+                      {analysisResult.result && (
+                        <div className="space-y-4">
+                          <div className="p-4 bg-muted rounded">
+                            <h4 className="font-semibold mb-2">
+                              Analysis Summary
+                            </h4>
+                            <div className="text-sm space-y-1">
+                              <p>
+                                <strong>Message Count:</strong>{" "}
+                                {analysisResult.result.message_count}
+                              </p>
+                              <p>
+                                <strong>Test Analysis:</strong>{" "}
+                                {analysisResult.result.test_analysis
+                                  ? "Yes"
+                                  : "No"}
+                              </p>
+                            </div>
+                          </div>
+
+                          {analysisResult.result.analysis_result && (
+                            <div className="space-y-2">
+                              <h4 className="font-semibold">
+                                AI Analysis Result
+                              </h4>
+                              <div className="p-4 bg-muted rounded">
+                                <pre className="text-sm whitespace-pre-wrap">
+                                  {typeof analysisResult.result
+                                    .analysis_result === "string"
+                                    ? analysisResult.result.analysis_result
+                                    : JSON.stringify(
+                                        analysisResult.result.analysis_result,
+                                        null,
+                                        2
+                                      )}
+                                </pre>
+                              </div>
+                            </div>
+                          )}
+
+                          {analysisResult.result.formatted_messages && (
+                            <div className="space-y-2">
+                              <h4 className="font-semibold">
+                                Sample Messages (First 10)
+                              </h4>
+                              <div className="max-h-60 overflow-y-auto p-4 bg-muted rounded text-sm">
+                                {analysisResult.result.formatted_messages
+                                  .split("\n")
+                                  .slice(0, 10)
+                                  .map((message: string, index: number) => (
+                                    <div
+                                      key={index}
+                                      className="mb-2 p-2 bg-background rounded"
+                                    >
+                                      <div className="text-xs text-muted-foreground mb-1">
+                                        {message
+                                          .split("] ")[0]
+                                          ?.replace("[", "")}
+                                      </div>
+                                      <div className="text-sm">
+                                        {message.split("] ")[1] || message}
+                                      </div>
+                                    </div>
+                                  ))}
+                                {analysisResult.result.formatted_messages.split(
+                                  "\n"
+                                ).length > 10 && (
+                                  <div className="text-xs text-muted-foreground mt-2">
+                                    ... and{" "}
+                                    {analysisResult.result.formatted_messages.split(
+                                      "\n"
+                                    ).length - 10}{" "}
+                                    more messages
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </CardContent>
                 </Card>
               )}

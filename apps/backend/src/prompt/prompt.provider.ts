@@ -6,8 +6,9 @@ import {
 } from '@nestjs/common';
 import { PromptService } from './prompt.service';
 import { PromptHelper } from './prompt.helper';
-import { AnalysisService } from '../analysis/analysis.service';
+import { AnalysisHelper } from '../analysis/analysis.helper';
 import { DiscordMessageService } from '../discord/services/discord-message.service';
+import { DiscordChannelService } from '../discord/services/discord-channel.service';
 import { CommunityService } from '../community/community.service';
 import { CreatePromptDto } from './dto/create-prompt.dto';
 import { UpdatePromptDto } from './dto/update-prompt.dto';
@@ -21,8 +22,9 @@ export class PromptProvider {
 	constructor(
 		private readonly promptService: PromptService,
 		private readonly promptHelper: PromptHelper,
-		private readonly analysisService: AnalysisService,
+		private readonly analysisHelper: AnalysisHelper,
 		private readonly discordMessageService: DiscordMessageService,
+		private readonly discordChannelService: DiscordChannelService,
 		private readonly communityService: CommunityService,
 	) {}
 
@@ -162,16 +164,43 @@ export class PromptProvider {
 
 		// Récupérer les messages Discord de la communauté
 		const messages = await this.discordMessageService.findAll();
-		const communityMessages = messages.filter(
-			(msg) =>
-				msg.channel_id &&
-				community.discordServer &&
-				msg.channel_id.toString() === community.discordServer.guildId,
+		this.logger.debug(`Total messages found: ${messages.length}`);
+
+		// Récupérer tous les canaux
+		const channels = await this.discordChannelService.findAll();
+		this.logger.debug(`Total channels found: ${channels.length}`);
+
+		// Filtrer les canaux qui appartiennent au serveur Discord de la communauté
+		const communityChannels = channels.filter((channel) => {
+			if (!community.discordServer) {
+				return false;
+			}
+			return (
+				channel.server_id.toString() === community.discordServer.guildId
+			);
+		});
+
+		this.logger.debug(
+			`Channels for community ${community.name}: ${communityChannels.length}`,
+		);
+
+		// Récupérer les IDs des canaux de la communauté (convertir en string)
+		const communityChannelIds = communityChannels.map((channel) =>
+			channel._id.toString(),
+		);
+
+		// Filtrer les messages par les canaux de la communauté (convertir en string)
+		const communityMessages = messages.filter((msg) => {
+			return communityChannelIds.includes(msg.channel_id.toString());
+		});
+
+		this.logger.debug(
+			`Messages for community ${community.name}: ${communityMessages.length}`,
 		);
 
 		if (!communityMessages || communityMessages.length === 0) {
 			throw new BadRequestException(
-				'No messages found for this community',
+				`No messages found for community "${community.name}". Make sure the community has a Discord server connected and messages have been collected.`,
 			);
 		}
 
@@ -184,37 +213,54 @@ export class PromptProvider {
 			)
 			.join('\n');
 
-		// Créer une analyse de test
-		const analysisData = {
-			creator_id: user.id,
-			platform: 'discord',
-			prompt_key: testAnalysisDto.prompt_name,
-			llm_model:
-				testAnalysisDto.model_name &&
-				testAnalysisDto.model_name !== 'default'
-					? testAnalysisDto.model_name
-					: prompt.model_name || 'llama3.1-8b-instruct',
-			scope: {
-				server_id: community.discordServer.guildId,
-				channel_id: 'test',
-			},
-			result: {
+		// Lancer l'analyse IA
+		const llmModel =
+			testAnalysisDto.model_name &&
+			testAnalysisDto.model_name !== 'default'
+				? testAnalysisDto.model_name
+				: prompt.model_name || 'Llama-3.1-8B-Instruct';
+
+		try {
+			// Appeler l'analyse IA avec le prompt personnalisé
+			const analysisResult =
+				await this.analysisHelper.analyseWithCustomPrompt({
+					modelName: llmModel,
+					customPrompt: prompt,
+					userContent: formattedMessages,
+				});
+
+			// Sauvegarder l'analyse
+			const savedAnalysis = await this.analysisHelper.saveAnalysis({
+				creator_id: user.id,
+				platform: 'discord',
+				prompt_key: testAnalysisDto.prompt_name,
+				llm_model: llmModel,
+				scope: {
+					server_id: community.discordServer.guildId,
+					channel_id: 'test',
+				},
+				result: analysisResult,
+			});
+
+			// Retourner un objet simple sans les objets Mongoose complexes
+			return {
+				analysis_id:
+					(savedAnalysis as any)._id?.toString() || 'unknown',
+				prompt_used: prompt.name,
+				community: community.name,
 				message_count: communityMessages.length,
-				formatted_messages: formattedMessages,
-				test_analysis: true,
-				max_tokens: testAnalysisDto.max_tokens || 2000,
-			},
-		};
-
-		// Lancer l'analyse
-		const result = await this.analysisService.create(analysisData);
-
-		return {
-			analysis_id: result._id,
-			prompt_used: prompt.name,
-			community: community.name,
-			message_count: communityMessages.length,
-			result: result,
-		};
+				result: {
+					message_count: communityMessages.length,
+					test_analysis: true,
+					formatted_messages: formattedMessages,
+					analysis_result: analysisResult,
+				},
+			};
+		} catch (error) {
+			this.logger.error('Error during analysis:', error);
+			throw new BadRequestException(
+				`Analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+			);
+		}
 	}
 }

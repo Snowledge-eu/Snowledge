@@ -26,6 +26,8 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { XrplModule } from './xrpl/xrpl.module';
 import { SummaryModule } from './course-material/summary/summary.module';
 import { ResourceModule } from './resource/resource.module';
+import { PromptModule } from './prompt/prompt.module';
+import { AdminModule } from './admin/admin.module';
 @Module({
 	imports: [
 		EventEmitterModule.forRoot(),
@@ -78,6 +80,8 @@ import { ResourceModule } from './resource/resource.module';
 		XrplModule,
 		SummaryModule,
 		ResourceModule,
+		PromptModule,
+		AdminModule,
 	],
 	controllers: [AppController],
 	providers: [AppService],

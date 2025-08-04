@@ -22,6 +22,7 @@ import NavUser from "./nav-user";
 import { useNavGlobal } from "./hooks/useNavGlobal";
 import { useAuth } from "@/contexts/auth-context";
 import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user } = useAuth();
@@ -53,7 +54,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 function SidebarNavs() {
   const { activeCommunity } = useCurrentCommunity();
   const { user } = useAuth();
-
+  const { slug } = useParams();
   const [isCreator, setIsCreator] = useState(false);
 
   useEffect(() => {
@@ -77,7 +78,7 @@ function SidebarNavs() {
 
   const admin = {
     title: tNavbar("admin"),
-    url: "/admin",
+    url: `/${slug}/admin`,
     icon: Settings,
   };
 

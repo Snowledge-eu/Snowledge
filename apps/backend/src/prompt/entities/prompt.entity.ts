@@ -38,15 +38,12 @@ export class Prompt {
 	@Column({ default: false })
 	is_public: boolean;
 
-	@Column({ length: 100, default: 'llama3.1-8b-instruct' })
+	@Column({ length: 100, default: 'Llama-3.1-8B-Instruct' })
 	model_name: string;
 
 	@ManyToOne(() => User, { nullable: false })
 	@JoinColumn({ name: 'created_by' })
 	created_by: User;
-
-	@Column()
-	created_by_id: number;
 
 	@CreateDateColumn({
 		type: 'timestamp',

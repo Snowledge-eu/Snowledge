@@ -12,7 +12,10 @@ export class PayloadBuilder {
 	}
 
 	getModelConfig(modelName: string): any {
-		const configPath = path.join(process.cwd(), 'src/analysis/llm/llm_models.yaml');
+		const configPath = path.join(
+			process.cwd(),
+			'src/analysis/llm/llm_models.yaml',
+		);
 		const config = this.loadYaml(configPath);
 		for (const section of ['llm_models', 'lrm_models', 'vlm_models']) {
 			for (const model of config[section] || []) {
@@ -25,7 +28,10 @@ export class PayloadBuilder {
 	}
 
 	getPromptConfig(promptName: string): any {
-		const promptPath =  path.join(process.cwd(), 'src/analysis/llm/prompt_models.yaml');
+		const promptPath = path.join(
+			process.cwd(),
+			'src/analysis/llm/prompt_models.yaml',
+		);
 		const config = this.loadYaml(promptPath);
 		if (!config.prompt_models || !config.prompt_models[promptName]) {
 			throw new Error(`Prompt '${promptName}' not found`);
@@ -38,48 +44,58 @@ export class PayloadBuilder {
 		promptName: string,
 		userContent: string[] | string,
 		stream = false,
-		extra: any = {}
+		extra: any = {},
 	): Promise<any> {
 		const modelConfig = this.getModelConfig(modelName);
 		const promptConfig = this.getPromptConfig(promptName);
 
-		const userStr =
-		Array.isArray(userContent) ? userContent.join('\n') : userContent;
+		const userStr = Array.isArray(userContent)
+			? userContent.join('\n')
+			: userContent;
 
 		// Étape 1 : construction brute
 		const rawMessages = promptConfig.messages.map((msg: any) => {
 			let content = msg.content;
-			content = content.replace(/{{(question|messages|trend)}}/g, userStr);
+			content = content.replace(
+				/{{(question|messages|trend)}}/g,
+				userStr,
+			);
 			return {
 				role: msg.role,
-				content
+				content,
 			};
 		});
 
 		// Estimation tokens
 		const promptTokens = await estimateTokenCount(
 			rawMessages,
-			modelConfig.name
+			modelConfig.name,
 		);
 		const contextWindow = modelConfig.context_window || 4096;
 		const reserve = 2048;
-		const availableForCompletion = Math.max(contextWindow - promptTokens, 0);
+		const availableForCompletion = Math.max(
+			contextWindow - promptTokens,
+			0,
+		);
 		const maxTokens = Math.min(availableForCompletion, reserve);
 
 		// Étape 2 : insertion max_tokens dans {{...}}
 		const messages = rawMessages.map((msg) => ({
 			role: msg.role,
-			content: msg.content.replace('{{max_tokens}}', `${maxTokens}`)
+			content: msg.content.replace('{{max_tokens}}', `${maxTokens}`),
 		}));
 
 		// Final payload
 		const payload: any = {
 			model: modelConfig.name,
 			messages,
-			temperature: promptConfig.temperature ?? modelConfig.temperature ?? 0.3,
-			top_p: promptConfig.top_p ?? modelConfig.top_p ?? 0.8,
+			temperature:
+				parseFloat(promptConfig.temperature) ??
+				modelConfig.temperature ??
+				0.3,
+			top_p: parseFloat(promptConfig.top_p) ?? modelConfig.top_p ?? 0.8,
 			stream,
-			max_tokens: maxTokens
+			max_tokens: maxTokens,
 		};
 
 		if (promptConfig.response_format) {
@@ -97,7 +113,7 @@ export class PayloadBuilder {
 		promptName: string,
 		trend: any,
 		stream = false,
-		extra: any = {}
+		extra: any = {},
 	): Promise<any> {
 		const modelConfig = this.getModelConfig(modelName);
 		const promptConfig = this.getPromptConfig(promptName);
@@ -113,13 +129,90 @@ export class PayloadBuilder {
 			max_tokens: modelConfig.context_window || 512,
 			model: modelConfig.name,
 			messages,
-			temperature: promptConfig.temperature ?? modelConfig.temperature ?? 0.3,
-			top_p: promptConfig.top_p ?? modelConfig.top_p ?? 0.8,
+			temperature:
+				parseFloat(promptConfig.temperature) ??
+				modelConfig.temperature ??
+				0.3,
+			top_p: parseFloat(promptConfig.top_p) ?? modelConfig.top_p ?? 0.8,
 			stream,
 		};
 
 		if (promptConfig.response_format) {
 			payload.response_format = promptConfig.response_format;
+		}
+
+		if (extra) {
+			Object.assign(payload, extra);
+		}
+
+		return payload;
+	}
+
+	async buildPayloadWithCustomPrompt(
+		modelName: string,
+		customPrompt: any,
+		userContent: string[] | string,
+		stream = false,
+		extra: any = {},
+	): Promise<any> {
+		const modelConfig = this.getModelConfig(modelName);
+
+		const userStr = Array.isArray(userContent)
+			? userContent.join('\n')
+			: userContent;
+
+		// Étape 1 : construction brute avec le prompt personnalisé
+		const rawMessages = customPrompt.messages.map((msg: any) => {
+			let content = msg.content;
+			content = content.replace(
+				/{{(question|messages|trend)}}/g,
+				userStr,
+			);
+			return {
+				role: msg.role,
+				content,
+			};
+		});
+
+		// Estimation tokens
+		const promptTokens = await estimateTokenCount(
+			rawMessages,
+			modelConfig.name,
+		);
+		const contextWindow = modelConfig.context_window || 4096;
+		const reserve = 2048;
+		const availableForCompletion = Math.max(
+			contextWindow - promptTokens,
+			0,
+		);
+		const maxTokens = Math.min(availableForCompletion, reserve);
+
+		// Étape 2 : insertion max_tokens dans {{...}}
+		const messages = rawMessages.map((msg) => ({
+			role: msg.role,
+			content: msg.content.replace('{{max_tokens}}', `${maxTokens}`),
+		}));
+
+		// Final payload
+		const payload: any = {
+			model: modelConfig.name,
+			messages,
+			temperature:
+				parseFloat(customPrompt.temperature) ??
+				modelConfig.temperature ??
+				0.3,
+			top_p: parseFloat(customPrompt.top_p) ?? modelConfig.top_p ?? 0.8,
+			stream,
+			max_tokens: maxTokens,
+		};
+
+		// Ne pas inclure response_format s'il est vide ou mal formaté
+		if (
+			customPrompt.response_format &&
+			customPrompt.response_format.type &&
+			customPrompt.response_format.json_schema
+		) {
+			payload.response_format = customPrompt.response_format;
 		}
 
 		if (extra) {

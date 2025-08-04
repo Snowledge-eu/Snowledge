@@ -7,10 +7,10 @@ import { Analysis } from './entities/analysis.entity';
 @Injectable()
 export class AnalysisHelper {
 	private readonly logger = new Logger(AnalysisHelper.name);
-		constructor(
+	constructor(
 		private readonly analysisService: AnalysisService,
 		private readonly payloadBuilder: PayloadBuilder,
-		private readonly ovhClient: OvhClient
+		private readonly ovhClient: OvhClient,
 	) {}
 
 	async analyse(input: {
@@ -22,7 +22,7 @@ export class AnalysisHelper {
 			const payload = await this.payloadBuilder.buildPayload(
 				input.modelName,
 				input.promptKey,
-				input.userContent
+				input.userContent,
 			);
 			return this.ovhClient.callOvhApi(payload);
 		} catch (error) {
@@ -34,12 +34,12 @@ export class AnalysisHelper {
 		modelName: string;
 		promptKey: string;
 		trend: any;
-	}){
+	}) {
 		try {
 			const payload = await this.payloadBuilder.buildPayloadForContent(
 				input.modelName,
 				input.promptKey,
-				input.trend
+				input.trend,
 			);
 			return this.ovhClient.callOvhApi(payload);
 		} catch (error) {
@@ -53,6 +53,27 @@ export class AnalysisHelper {
 			...data,
 			created_at: new Date(),
 		});
-		return created.toObject()
+		return created.toObject();
+	}
+	async analyseWithCustomPrompt(input: {
+		modelName: string;
+		customPrompt: any;
+		userContent: string[] | string;
+	}): Promise<any> {
+		try {
+			const payload =
+				await this.payloadBuilder.buildPayloadWithCustomPrompt(
+					input.modelName,
+					input.customPrompt,
+					input.userContent,
+				);
+			return this.ovhClient.callOvhApi(payload);
+		} catch (error) {
+			this.logger.error(
+				'Error in analyseWithCustomPrompt method:',
+				error,
+			);
+			throw error; // Relancer l'erreur
+		}
 	}
 }

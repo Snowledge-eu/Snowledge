@@ -779,5 +779,28 @@
     "transactionError": "Transaction error",
     "retry": "Retry",
     "returnDashboard": "Return to dashboard"
+  },
+  "admin": {
+    "title": "Administration",
+    "prompts": "Prompts",
+    "communities": "Communities",
+    "test-analysis": "Test Analysis",
+    "create-prompt": "Create Prompt",
+    "edit-prompt": "Edit Prompt",
+    "delete-prompt": "Delete Prompt",
+    "public": "Public",
+    "private": "Private",
+    "platform": "Platform",
+    "temperature": "Temperature",
+    "top-p": "Top P",
+    "system-message": "System Message",
+    "make-public": "Make this prompt public",
+    "cancel": "Cancel",
+    "select": "Select",
+    "run-analysis": "Run Analysis",
+    "analysis-result": "Analysis Result",
+    "messages-analyzed": "Messages analyzed",
+    "analysis-id": "Analysis ID",
+    "access-denied": "Access denied. Admin privileges required."
   }
 }

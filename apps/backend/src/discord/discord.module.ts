@@ -55,6 +55,12 @@ import { DiscordHarvestJobHelper } from './helpers/discord-harvest-job.helper';
 		DiscordClientHelper,
 		DiscordHarvestJobHelper,
 	],
-	exports: [DiscordProvider,DiscordHelper, DiscordService, DiscordMessageService],
+	exports: [
+		DiscordProvider,
+		DiscordHelper,
+		DiscordService,
+		DiscordMessageService,
+		DiscordChannelService,
+	],
 })
 export class DiscordModule {}
