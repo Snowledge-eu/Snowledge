@@ -62,11 +62,11 @@ export default function Page() {
         method: "GET",
       }
     );
-    if (resBackEnd) {
-      content = JSON.parse(resBackEnd.result.choices[0].message.content);
+    if (resBackEnd && resBackEnd.data) {
+      content = JSON.parse(resBackEnd.data.result.choices[0].message.content);
     } else {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_ANALYSER_URL}/discord/trend-to-content/${analysisId}?trend_index=${trendId}`,
+      const trendToContentResponse = await fetcher(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/summary/trend-to-content/${analysisId}?trend_index=${trendId}`,
         {
           method: "GET",
           headers: {
@@ -74,10 +74,9 @@ export default function Page() {
           },
         }
       );
+      const trendToContent = trendToContentResponse?.data;
 
-      console.log(res);
-      const data = await res.json();
-      content = JSON.parse(data.choices[0].message.content);
+      content = JSON.parse(trendToContent.choices[0].message.content);
     }
     const requiredExpertise = content.required_expertise;
     const uniqueTitles = [
@@ -101,7 +100,7 @@ export default function Page() {
         body: JSON.stringify(body),
       }
     );
-    setcontributorsData(groupedContributor);
+    setcontributorsData(groupedContributor?.data);
     setOutline(content.outline);
     setLoader(false);
     setResources(content.recommended_resources);

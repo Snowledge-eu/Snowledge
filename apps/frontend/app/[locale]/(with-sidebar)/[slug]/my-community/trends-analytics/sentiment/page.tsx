@@ -71,7 +71,7 @@ export default function Page() {
         }
       );
 
-      if (res.status === 200) {
+      if (res.status === 200 || res.status === 201) {
         const analysisResponse = await fetcher(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/analysis`,
           {
