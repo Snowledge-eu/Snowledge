@@ -38,6 +38,10 @@ import {
   Settings,
   Users,
   MessageSquare,
+  History,
+  Filter,
+  Calendar,
+  X,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -131,6 +135,19 @@ interface AnalysisResult {
   result: any;
 }
 
+interface AnalysisHistory {
+  _id: string;
+  creator_id: number;
+  platform: string;
+  prompt_key: string;
+  llm_model?: string;
+  scope?: Record<string, any>;
+  period?: Record<string, any>;
+  result: Record<string, any>;
+  created_at: string;
+  updated_at: string;
+}
+
 export default function AdminPage() {
   const { user, fetcher } = useAuth();
   const router = useRouter();
@@ -149,6 +166,21 @@ export default function AdminPage() {
   const [isCreatingPrompt, setIsCreatingPrompt] = useState(false);
   const [isEditingPrompt, setIsEditingPrompt] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+
+  // History states
+  const [analysisHistory, setAnalysisHistory] = useState<AnalysisHistory[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [selectedAnalysis, setSelectedAnalysis] =
+    useState<AnalysisHistory | null>(null);
+  const [historyFilters, setHistoryFilters] = useState({
+    platform: "all",
+    prompt_key: "all",
+    community: "all",
+    useDateFilter: false,
+    date_from: "",
+    date_to: "",
+    sortOrder: "desc" as "asc" | "desc", // "desc" = plus récent en premier, "asc" = plus ancien en premier
+  });
 
   // Form states
   const [promptForm, setPromptForm] = useState({
@@ -174,6 +206,108 @@ export default function AdminPage() {
 
   const [responseFormatText, setResponseFormatText] = useState("");
 
+  // Utility function to safely format dates
+  const formatDate = (dateString: string | Date | undefined): string => {
+    if (!dateString) return "N/A";
+
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return "Invalid Date";
+      }
+      return date.toLocaleDateString();
+    } catch (error) {
+      return "Invalid Date";
+    }
+  };
+
+  const formatDateTime = (dateString: string | Date | undefined): string => {
+    if (!dateString) return "N/A";
+
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return "Invalid Date";
+      }
+      return date.toLocaleString();
+    } catch (error) {
+      return "Invalid Date";
+    }
+  };
+
+  // Function to extract important info from MongoDB document
+  const extractAnalysisInfo = (analysis: any) => {
+    // Handle MongoDB document structure
+    const doc = analysis._doc || analysis;
+
+    // Extract ID properly
+    let analysisId = "N/A";
+    if (doc._id) {
+      if (typeof doc._id === "string") {
+        analysisId = doc._id;
+      } else if (doc._id.buffer) {
+        // Convert Buffer to string
+        analysisId = Buffer.from(doc._id.buffer.data).toString("hex");
+      } else if (doc._id.toString) {
+        analysisId = doc._id.toString();
+      }
+    }
+
+    // Extract scope info
+    let scopeInfo = "N/A";
+    if (doc.scope) {
+      if (doc.scope.server_id && doc.scope.channel_id) {
+        const serverId = doc.scope.server_id.low || doc.scope.server_id;
+        const channelId = doc.scope.channel_id.low || doc.scope.channel_id;
+        scopeInfo = `Server: ${serverId}, Channel: ${channelId}`;
+      }
+    }
+
+    // Extract period info
+    let periodInfo = "N/A";
+    if (doc.period) {
+      const from = formatDate(doc.period.from);
+      const to = formatDate(doc.period.to);
+      periodInfo = `${from} → ${to}`;
+    }
+
+    // Extract result summary
+    let resultSummary = "N/A";
+    if (doc.result && doc.result.choices && doc.result.choices[0]) {
+      try {
+        const content = doc.result.choices[0].message.content;
+        const parsed = JSON.parse(content);
+        if (parsed.trends && parsed.trends[0]) {
+          resultSummary = parsed.trends[0].title || "Analysis completed";
+        } else {
+          resultSummary = "Analysis completed";
+        }
+      } catch (error) {
+        resultSummary = "Analysis completed";
+      }
+    }
+
+    return {
+      id: analysisId,
+      creator_id: doc.creator_id || "N/A",
+      platform: doc.platform || "N/A",
+      prompt_key: doc.prompt_key || "N/A",
+      llm_model: doc.llm_model || "N/A",
+      scope: scopeInfo,
+      period: periodInfo,
+      result_summary: resultSummary,
+      created_at: doc.created_at || analysis.created_at,
+      updated_at: doc.updated_at || analysis.updated_at,
+      full_data: analysis, // Keep full data for detailed view
+    };
+  };
+
+  // Function to safely get MongoDB document data
+  const getMongoDocData = (analysis: any, field: string) => {
+    const doc = (analysis as any)._doc || analysis;
+    return doc[field] || analysis[field];
+  };
+
   useEffect(() => {
     if (user && !user.isAdmin) {
       router.push("/");
@@ -184,6 +318,13 @@ export default function AdminPage() {
       fetchData();
     }
   }, [user, router]);
+
+  // Auto-load analysis history when data is available
+  useEffect(() => {
+    if (user?.isAdmin && prompts.length > 0 && communities.length > 0) {
+      fetchAnalysisHistory();
+    }
+  }, [user, prompts.length, communities.length]);
 
   const fetchData = async () => {
     try {
@@ -203,6 +344,36 @@ export default function AdminPage() {
       console.error("Error fetching data:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchAnalysisHistory = async (filters = historyFilters) => {
+    setHistoryLoading(true);
+    try {
+      const queryParams = new URLSearchParams();
+      if (filters.platform !== "all")
+        queryParams.append("platform", filters.platform);
+      if (filters.prompt_key !== "all")
+        queryParams.append("prompt_key", filters.prompt_key);
+      if (filters.community !== "all")
+        queryParams.append("community", filters.community);
+      if (filters.useDateFilter && filters.date_from)
+        queryParams.append("date_from", filters.date_from);
+      if (filters.useDateFilter && filters.date_to)
+        queryParams.append("date_to", filters.date_to);
+      if (filters.sortOrder === "asc") queryParams.append("sort_order", "asc");
+
+      const response = await fetcher(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/analysis-history?${queryParams.toString()}`
+      );
+
+      if (response.ok && response.data) {
+        setAnalysisHistory(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching analysis history:", error);
+    } finally {
+      setHistoryLoading(false);
     }
   };
 
@@ -443,7 +614,7 @@ export default function AdminPage() {
       </div>
 
       <Tabs defaultValue="prompts" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="prompts" className="flex items-center gap-2">
             <Settings className="h-4 w-4" />
             Prompts
@@ -455,6 +626,10 @@ export default function AdminPage() {
           <TabsTrigger value="testing" className="flex items-center gap-2">
             <Play className="h-4 w-4" />
             Test Analysis
+          </TabsTrigger>
+          <TabsTrigger value="history" className="flex items-center gap-2">
+            <History className="h-4 w-4" />
+            Analysis History
           </TabsTrigger>
         </TabsList>
 
@@ -1018,7 +1193,399 @@ export default function AdminPage() {
             </CardContent>
           </Card>
         </TabsContent>
+
+        <TabsContent value="history" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <History className="h-4 w-4" />
+                  Analysis History
+                </CardTitle>
+                <Button
+                  onClick={() => fetchAnalysisHistory()}
+                  disabled={historyLoading}
+                >
+                  {historyLoading ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Filter className="h-4 w-4 mr-2" />
+                  )}
+                  Refresh
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {/* Filters */}
+              <div className="mb-6 p-4 bg-muted rounded-lg">
+                <h3 className="font-semibold mb-4 flex items-center gap-2">
+                  <Filter className="h-4 w-4" />
+                  Filters & Sort
+                </h3>
+                <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="platform-filter">Platform</Label>
+                    <Select
+                      value={historyFilters.platform}
+                      onValueChange={(value) =>
+                        setHistoryFilters({
+                          ...historyFilters,
+                          platform: value,
+                        })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Platforms</SelectItem>
+                        <SelectItem value="discord">Discord</SelectItem>
+                        <SelectItem value="youtube">YouTube</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="prompt-filter">Prompt</Label>
+                    <Select
+                      value={historyFilters.prompt_key}
+                      onValueChange={(value) =>
+                        setHistoryFilters({
+                          ...historyFilters,
+                          prompt_key: value,
+                        })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Prompts</SelectItem>
+                        {prompts.map((prompt) => (
+                          <SelectItem key={prompt.id} value={prompt.name}>
+                            {prompt.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="community-filter">Community</Label>
+                    <Select
+                      value={historyFilters.community}
+                      onValueChange={(value) =>
+                        setHistoryFilters({
+                          ...historyFilters,
+                          community: value,
+                        })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Communities</SelectItem>
+                        {communities.map((community) => (
+                          <SelectItem key={community.id} value={community.name}>
+                            {community.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="sort-order">Sort Order</Label>
+                    <Select
+                      value={historyFilters.sortOrder}
+                      onValueChange={(value: "asc" | "desc") =>
+                        setHistoryFilters({
+                          ...historyFilters,
+                          sortOrder: value,
+                        })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="desc">Newest First</SelectItem>
+                        <SelectItem value="asc">Oldest First</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        id="use-date-filter"
+                        checked={historyFilters.useDateFilter}
+                        onCheckedChange={(checked) =>
+                          setHistoryFilters({
+                            ...historyFilters,
+                            useDateFilter: checked,
+                          })
+                        }
+                      />
+                      <Label htmlFor="use-date-filter">Filter by Date</Label>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Date Filters - Only show if useDateFilter is true */}
+                {historyFilters.useDateFilter && (
+                  <div className="grid grid-cols-2 gap-4 mt-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="date-from">From Date</Label>
+                      <Input
+                        id="date-from"
+                        type="date"
+                        value={historyFilters.date_from}
+                        onChange={(e) =>
+                          setHistoryFilters({
+                            ...historyFilters,
+                            date_from: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="date-to">To Date</Label>
+                      <Input
+                        id="date-to"
+                        type="date"
+                        value={historyFilters.date_to}
+                        onChange={(e) =>
+                          setHistoryFilters({
+                            ...historyFilters,
+                            date_to: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex gap-2 mt-4">
+                  <Button
+                    onClick={() => fetchAnalysisHistory()}
+                    disabled={historyLoading}
+                  >
+                    {historyLoading ? (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <Filter className="h-4 w-4 mr-2" />
+                    )}
+                    Apply Filters
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setHistoryFilters({
+                        platform: "all",
+                        prompt_key: "all",
+                        community: "all",
+                        useDateFilter: false,
+                        date_from: "",
+                        date_to: "",
+                        sortOrder: "desc",
+                      });
+                      fetchAnalysisHistory({
+                        platform: "all",
+                        prompt_key: "all",
+                        community: "all",
+                        useDateFilter: false,
+                        date_from: "",
+                        date_to: "",
+                        sortOrder: "desc",
+                      });
+                    }}
+                  >
+                    Clear Filters
+                  </Button>
+                </div>
+              </div>
+
+              {/* History List */}
+              <div className="space-y-4">
+                {historyLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-8 w-8 animate-spin" />
+                  </div>
+                ) : analysisHistory.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <History className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <p>No analysis history found</p>
+                    <p className="text-sm">
+                      Try adjusting your filters or run some analyses
+                    </p>
+                  </div>
+                ) : (
+                  analysisHistory.map((analysis, index) => {
+                    const analysisInfo = extractAnalysisInfo(analysis);
+                    return (
+                      <Card
+                        key={analysis._id || `analysis-${index}`}
+                        className="p-4 cursor-pointer hover:bg-muted/50 transition-colors"
+                        onClick={() => setSelectedAnalysis(analysis)}
+                      >
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <Badge variant="outline">
+                                {analysisInfo.platform}
+                              </Badge>
+                              <Badge variant="secondary">
+                                {analysisInfo.prompt_key}
+                              </Badge>
+                              {analysisInfo.llm_model !== "N/A" && (
+                                <Badge variant="outline">
+                                  {analysisInfo.llm_model}
+                                </Badge>
+                              )}
+                            </div>
+                            <div className="text-sm text-muted-foreground">
+                              {formatDateTime(analysisInfo.created_at)}
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                            <div>
+                              <span className="font-medium">Analysis ID:</span>
+                              <p className="text-muted-foreground font-mono text-xs">
+                                {analysisInfo.id}
+                              </p>
+                            </div>
+                            <div>
+                              <span className="font-medium">Creator ID:</span>
+                              <p className="text-muted-foreground">
+                                {analysisInfo.creator_id}
+                              </p>
+                            </div>
+                            <div>
+                              <span className="font-medium">Created:</span>
+                              <p className="text-muted-foreground">
+                                {formatDate(analysisInfo.created_at)}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                            <div>
+                              <span className="font-medium">Scope:</span>
+                              <p className="text-muted-foreground text-xs">
+                                {analysisInfo.scope}
+                              </p>
+                            </div>
+                            <div>
+                              <span className="font-medium">Result:</span>
+                              <p className="text-muted-foreground text-xs">
+                                {analysisInfo.result_summary}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="text-xs text-muted-foreground text-center">
+                            Click to view details
+                          </div>
+                        </div>
+                      </Card>
+                    );
+                  })
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
+
+      {/* Analysis Details Modal */}
+      {selectedAnalysis && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-background rounded-lg p-6 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold">Analysis Details</h2>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSelectedAnalysis(null)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
+                  <span className="font-medium">Analysis ID:</span>
+                  <p className="text-sm text-muted-foreground font-mono">
+                    {extractAnalysisInfo(selectedAnalysis).id}
+                  </p>
+                </div>
+                <div>
+                  <span className="font-medium">Creator ID:</span>
+                  <p className="text-sm text-muted-foreground">
+                    {extractAnalysisInfo(selectedAnalysis).creator_id}
+                  </p>
+                </div>
+                <div>
+                  <span className="font-medium">Platform:</span>
+                  <p className="text-sm text-muted-foreground">
+                    {extractAnalysisInfo(selectedAnalysis).platform}
+                  </p>
+                </div>
+                <div>
+                  <span className="font-medium">Prompt:</span>
+                  <p className="text-sm text-muted-foreground">
+                    {extractAnalysisInfo(selectedAnalysis).prompt_key}
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <span className="font-medium">LLM Model:</span>
+                  <p className="text-sm text-muted-foreground">
+                    {extractAnalysisInfo(selectedAnalysis).llm_model}
+                  </p>
+                </div>
+                <div>
+                  <span className="font-medium">Created:</span>
+                  <p className="text-sm text-muted-foreground">
+                    {formatDateTime(
+                      extractAnalysisInfo(selectedAnalysis).created_at
+                    )}
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <span className="font-medium">Scope:</span>
+                <pre className="text-xs bg-muted p-2 rounded mt-1 overflow-x-auto">
+                  {JSON.stringify(
+                    getMongoDocData(selectedAnalysis, "scope"),
+                    null,
+                    2
+                  )}
+                </pre>
+              </div>
+
+              <div>
+                <span className="font-medium">Result:</span>
+                <pre className="text-xs bg-muted p-2 rounded mt-1 overflow-x-auto max-h-60">
+                  {JSON.stringify(
+                    getMongoDocData(selectedAnalysis, "result"),
+                    null,
+                    2
+                  )}
+                </pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -4,10 +4,18 @@ import { AdminProvider } from './admin.provider';
 import { CommunityModule } from '../community/community.module';
 import { DiscordModule } from '../discord/discord.module';
 import { UserModule } from '../user/user.module';
+import { AnalysisModule } from '../analysis/analysis.module';
+import { PromptModule } from '../prompt/prompt.module';
 import { AdminGuard } from '../auth/admin.guard';
 
 @Module({
-	imports: [CommunityModule, DiscordModule, UserModule],
+	imports: [
+		CommunityModule,
+		DiscordModule,
+		UserModule,
+		AnalysisModule,
+		PromptModule,
+	],
 	controllers: [AdminController],
 	providers: [AdminProvider, AdminGuard],
 	exports: [AdminProvider],
