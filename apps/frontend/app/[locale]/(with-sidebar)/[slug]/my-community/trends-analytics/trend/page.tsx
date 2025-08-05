@@ -198,6 +198,7 @@ export default function Page() {
         serverId: activeCommunity?.discordServerId,
       },
       promptKey: "discord_trends",
+      creator_id: Number(user?.id), // Filtrer par utilisateur connecté
     };
 
     const analysisResponse = await fetcher(
@@ -218,22 +219,41 @@ export default function Page() {
   };
   const deserializeAnalyse = (analysis: any[]) => {
     const tempArr = [];
-    for (const item of analysis) {
+    for (let index = 0; index < analysis.length; index++) {
+      const item = analysis[index];
+      // Vérifier si period existe et a les propriétés from/to
+      const periodFrom = item?.period?.from
+        ? new Date(item.period.from).toLocaleDateString()
+        : "N/A";
+      const periodTo = item?.period?.to
+        ? new Date(item.period.to).toLocaleDateString()
+        : "N/A";
+
       tempArr.push({
-        _id: item?._id.toString(),
-        id: item?.result?.id ? shortenString(item?.result?.id) : "temp",
-        timeframe: `${new Date(item?.period.from).toLocaleDateString()} to ${new Date(item?.period.to).toLocaleDateString()}`,
-        platform: item?.platform,
+        _id: item?._id?.toString() || `temp-${index}`,
+        id: item?.result?.id
+          ? shortenString(item?.result?.id)
+          : `temp-${index}`,
+        timeframe: `${periodFrom} to ${periodTo}`,
+        platform: item?.platform || "N/A",
         scope: "Custom", //TODO définir regle All | Custom
-        trends: JSON.parse(item?.result?.choices[0].message.content).trends,
-        date: new Date(item?.created_at).toLocaleDateString(),
+        trends:
+          JSON.parse(item?.result?.choices?.[0]?.message?.content || "{}")
+            .trends || [],
+        date: item?.created_at
+          ? new Date(item.created_at).toLocaleDateString()
+          : "N/A",
         // dataCount: 1200,
         score: getRandomByLevel(
-          JSON.parse(item?.result?.choices[0].message.content).confidence
+          JSON.parse(item?.result?.choices?.[0]?.message?.content || "{}")
+            .confidence || "Low"
         ),
-        notable_users: JSON.parse(item?.result?.choices[0].message.content)
-          .notable_users,
-        summary: JSON.parse(item?.result?.choices[0].message.content).reasoning,
+        notable_users:
+          JSON.parse(item?.result?.choices?.[0]?.message?.content || "{}")
+            .notable_users || [],
+        summary:
+          JSON.parse(item?.result?.choices?.[0]?.message?.content || "{}")
+            .reasoning || "No reasoning available",
       });
     }
     setTrendHistory(tempArr);

@@ -8,7 +8,10 @@ import { Long } from 'bson';
 @Injectable()
 export class AnalysisService {
 	private readonly logger = new Logger(AnalysisService.name);
-	constructor(@InjectModel(AnalysisResult.name) private analysisModel: Model<AnalysisResult>) {}
+	constructor(
+		@InjectModel(AnalysisResult.name)
+		private analysisModel: Model<AnalysisResult>,
+	) {}
 
 	create(createAnalysisDto: CreateAnalysisDto) {
 		return this.analysisModel.create(createAnalysisDto);
@@ -24,40 +27,63 @@ export class AnalysisService {
 	async findById(id: string) {
 		return this.analysisModel.findById(id).exec();
 	}
-	findByDiscordScope(serverId: string, channelId: string, promptKey: string): Promise<AnalysisResult | null> {
+	findByDiscordScope(
+		serverId: string,
+		channelId: string,
+		promptKey: string,
+		creatorId?: number,
+	): Promise<AnalysisResult | null> {
 		if (typeof promptKey !== 'string') {
-            throw new Error('Invalid promptKey: must be a string');
-        }
-		return this.analysisModel.findOne({
-
-				platform: "discord",
-				"scope": {
-					"server_id": serverId,
-					"channel_id": channelId,
-				},
-				prompt_key: { $eq: promptKey },
-			
-			})
-			.sort({created_at: -1})
-			.lean();
+			throw new Error('Invalid promptKey: must be a string');
 		}
-	findByDiscordServer(serverId: string, promptKey: string): Promise<AnalysisResult[]> {
-		if (typeof promptKey !== 'string') {
-            throw new Error('Invalid promptKey: must be a string');
-        }
+		const filter: any = {
+			platform: 'discord',
+			scope: {
+				server_id: serverId,
+				channel_id: channelId,
+			},
+			prompt_key: { $eq: promptKey },
+		};
+
+		if (creatorId) {
+			filter.creator_id = creatorId;
+		}
+
 		return this.analysisModel
-		.find({
+			.findOne(filter)
+			.sort({ created_at: -1 })
+			.lean();
+	}
+
+	findByDiscordServer(
+		serverId: string,
+		promptKey: string,
+		creatorId?: number,
+	): Promise<AnalysisResult[]> {
+		if (typeof promptKey !== 'string') {
+			throw new Error('Invalid promptKey: must be a string');
+		}
+		const filter: any = {
 			platform: 'discord',
 			'scope.server_id': serverId,
 			prompt_key: { $eq: promptKey },
-		})
-		.sort({ created_at: -1 })
-		.limit(10)
-		.lean()
-		.exec();
+		};
+
+		if (creatorId) {
+			filter.creator_id = creatorId;
+		}
+
+		return this.analysisModel
+			.find(filter)
+			.sort({ created_at: -1 })
+			.limit(10)
+			.lean()
+			.exec();
 	}
 	update(id: number, updateAnalysisDto: UpdateAnalysisDto) {
-		return this.analysisModel.findByIdAndUpdate(id, updateAnalysisDto, { new: true }).exec();
+		return this.analysisModel
+			.findByIdAndUpdate(id, updateAnalysisDto, { new: true })
+			.exec();
 	}
 
 	remove(id: number) {

@@ -159,6 +159,7 @@ export default function Page() {
         serverId: activeCommunity?.discordServerId,
       },
       promptKey: "discord_summary_by_timeframe",
+      creator_id: Number(user?.id), // Filtrer par utilisateur connecté
     };
 
     const analysisResponse = await fetcher(
@@ -179,27 +180,45 @@ export default function Page() {
   };
   const deserializeAnalyse = (analysis: any[]) => {
     const tempArr = [];
-    for (const item of analysis) {
+    for (let index = 0; index < analysis.length; index++) {
+      const item = analysis[index];
+      // Vérifier si period existe et a les propriétés from/to
+      const periodFrom = item?.period?.from
+        ? new Date(item.period.from).toLocaleDateString()
+        : "N/A";
+      const periodTo = item?.period?.to
+        ? new Date(item.period.to).toLocaleDateString()
+        : "N/A";
+
       tempArr.push({
-        id: item?.result?.id ? shortenString(item?.result?.id) : "temp",
-        timeframe: `${new Date(item?.period.from).toLocaleDateString()} to ${new Date(item?.period.to).toLocaleDateString()}`,
-        platform: item?.platform,
+        id: item?.result?.id
+          ? shortenString(item?.result?.id)
+          : `temp-${index}`,
+        timeframe: `${periodFrom} to ${periodTo}`,
+        platform: item?.platform || "N/A",
         scope: "Custom", //TODO définir regle All | Custom
         topics: [
           { title: "Bot Downtime" },
           { title: "New Voting Feature" },
           { title: "AMA with Founders" },
         ],
-        notable_users: JSON.parse(item?.result?.choices[0].message.content)
-          .notable_users,
-        action_points: JSON.parse(item?.result?.choices[0].message.content)
-          .action_points,
-        date: new Date(item?.created_at).toLocaleDateString(),
+        notable_users:
+          JSON.parse(item?.result?.choices?.[0]?.message?.content || "{}")
+            .notable_users || [],
+        action_points:
+          JSON.parse(item?.result?.choices?.[0]?.message?.content || "{}")
+            .action_points || [],
+        date: item?.created_at
+          ? new Date(item.created_at).toLocaleDateString()
+          : "N/A",
         // dataCount: 1200,
         score: getRandomByLevel(
-          JSON.parse(item?.result?.choices[0].message.content).confidence
+          JSON.parse(item?.result?.choices?.[0]?.message?.content || "{}")
+            .confidence || "Low"
         ),
-        summary: JSON.parse(item?.result?.choices[0].message.content).summary,
+        summary:
+          JSON.parse(item?.result?.choices?.[0]?.message?.content || "{}")
+            .summary || "No summary available",
       });
     }
     setSummaryHistory(tempArr);

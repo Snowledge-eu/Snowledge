@@ -100,7 +100,9 @@ export default function Page() {
         body: JSON.stringify(body),
       }
     );
-    setcontributorsData(groupedContributor);
+    setcontributorsData(
+      Array.isArray(groupedContributor) ? groupedContributor : []
+    );
     setOutline(content.outline);
     setLoader(false);
     setResources(content.recommended_resources);
@@ -121,8 +123,12 @@ export default function Page() {
 
   const filteredContributors =
     activeExpertise === "all"
-      ? contributorsData
-      : contributorsData.filter((c) => c.expertise === activeExpertise);
+      ? Array.isArray(contributorsData)
+        ? contributorsData
+        : []
+      : Array.isArray(contributorsData)
+        ? contributorsData.filter((c) => c.expertise === activeExpertise)
+        : [];
 
   return (
     <>
