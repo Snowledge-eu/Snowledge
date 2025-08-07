@@ -11,8 +11,6 @@ import { AnalysisHelper } from './analysis.helper';
 import { PayloadBuilder } from './llm/payload-builder';
 import { OvhClient } from './llm/call-ovh-api';
 import { AnalysisProvider } from './analysis.provider';
-import { PromptManagerService } from './llm/prompt-manager.service';
-import { PromptSharedModule } from '../prompt/prompt-shared.module';
 
 @Module({
 	imports: [
@@ -20,7 +18,6 @@ import { PromptSharedModule } from '../prompt/prompt-shared.module';
 			{ name: AnalysisResult.name, schema: AnalysisResultSchema },
 		]),
 		DiscordModule,
-		PromptSharedModule,
 	],
 	controllers: [AnalysisController],
 	providers: [

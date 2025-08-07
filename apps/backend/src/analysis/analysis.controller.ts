@@ -13,6 +13,7 @@ import {
 	HttpCode,
 	Header,
 	Res,
+	Request,
 	NotFoundException,
 	BadRequestException,
 } from '@nestjs/common';
@@ -26,7 +27,9 @@ import { DiscordMessageService } from '../discord/services/discord-message.servi
 import { AnalysisHelper } from './analysis.helper';
 import { Response } from 'express';
 import { AnalysisProvider } from './analysis.provider';
-import { PromptManagerService } from './llm/prompt-manager.service';
+import { PromptProvider } from '../prompt/prompt.provider';
+import { TestAnalysisDto } from '../prompt/dto/test-analysis.dto';
+import { User } from '../user/entities/user.entity';
 @Controller('analysis')
 export class AnalysisController {
 	private readonly logger = new Logger(AnalysisController.name);
@@ -36,7 +39,7 @@ export class AnalysisController {
 		private readonly discordMessageService: DiscordMessageService,
 		private readonly analysisHelper: AnalysisHelper,
 		private readonly analysisProvider: AnalysisProvider,
-		private readonly promptManager: PromptManagerService,
+		private readonly promptProvider: PromptProvider,
 	) {}
 
 	// @Post()
@@ -88,7 +91,7 @@ export class AnalysisController {
 	@Get('prompts')
 	async getAvailablePrompts() {
 		try {
-			const prompts = await this.promptManager.getPublicPrompts();
+			const prompts = await this.promptProvider.getPublicPrompts();
 			return prompts.map((prompt) => ({
 				name: prompt.name,
 				description: prompt.description,
@@ -103,6 +106,15 @@ export class AnalysisController {
 				HttpStatus.INTERNAL_SERVER_ERROR,
 			);
 		}
+	}
+
+	@Post('test-analysis')
+	async testAnalysis(
+		@Body() testAnalysisDto: TestAnalysisDto,
+		@Request() req: any,
+	) {
+		const user = req.user as User;
+		return this.analysisProvider.testAnalysis(testAnalysisDto, user);
 	}
 
 	@Get(':id')

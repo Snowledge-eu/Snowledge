@@ -3,7 +3,11 @@ import { DiscordAnalyzeDto, AnalyzePeriod } from './dto/discord-analyse.dto';
 import { DiscordMessageService } from '../discord/services/discord-message.service';
 import { AnalysisHelper } from './analysis.helper';
 import { AnalysisService } from './analysis.service';
-import { PromptManagerService } from './llm/prompt-manager.service';
+import { PromptProvider } from '../prompt/prompt.provider';
+import { DiscordChannelService } from '../discord/services/discord-channel.service';
+import { CommunityService } from '../community/community.service';
+import { TestAnalysisDto } from '../prompt/dto/test-analysis.dto';
+import { User } from '../user/entities/user.entity';
 import {
 	NotFoundException,
 	BadRequestException,
@@ -15,9 +19,11 @@ export class AnalysisProvider {
 	private readonly logger = new Logger(AnalysisProvider.name);
 	constructor(
 		private readonly discordMessageService: DiscordMessageService,
+		private readonly discordChannelService: DiscordChannelService,
+		private readonly communityService: CommunityService,
 		private readonly analysisHelper: AnalysisHelper,
 		private readonly analysisService: AnalysisService,
-		private readonly promptManager: PromptManagerService,
+		private readonly promptProvider: PromptProvider,
 	) {}
 
 	async analyzeDiscord(dto: DiscordAnalyzeDto): Promise<any> {
@@ -159,7 +165,7 @@ export class AnalysisProvider {
 	): Promise<any> {
 		try {
 			// Récupérer le prompt depuis la base de données
-			const prompt = await this.promptManager.getPromptByName(
+			const prompt = await this.promptProvider.getPromptByName(
 				dto.prompt_key,
 			);
 
@@ -189,6 +195,135 @@ export class AnalysisProvider {
 			throw new HttpException(
 				`LLM error: ${e}`,
 				HttpStatus.INTERNAL_SERVER_ERROR,
+			);
+		}
+	}
+
+	/**
+	 * Teste un prompt avec une vraie analyse (pour les admins)
+	 */
+	async testAnalysis(
+		testAnalysisDto: TestAnalysisDto,
+		user: User,
+	): Promise<any> {
+		if (!user.isAdmin) {
+			throw new BadRequestException('Only admins can test analyses');
+		}
+
+		// Récupérer le prompt depuis le PromptProvider
+		const prompt = await this.promptProvider.getPromptByName(
+			testAnalysisDto.prompt_name,
+		);
+		if (!prompt) {
+			throw new NotFoundException('Prompt not found');
+		}
+
+		// Récupérer la communauté
+		const community = await this.communityService.findOneById(
+			parseInt(testAnalysisDto.community_id),
+		);
+		if (!community) {
+			throw new NotFoundException('Community not found');
+		}
+
+		// Récupérer les messages Discord de la communauté
+		const messages = await this.discordMessageService.findAll();
+		this.logger.debug(`Total messages found: ${messages.length}`);
+
+		// Récupérer tous les canaux
+		const channels = await this.discordChannelService.findAll();
+		this.logger.debug(`Total channels found: ${channels.length}`);
+
+		// Filtrer les canaux qui appartiennent au serveur Discord de la communauté
+		const communityChannels = channels.filter((channel) => {
+			if (!community.discordServer) {
+				return false;
+			}
+			return (
+				channel.server_id.toString() === community.discordServer.guildId
+			);
+		});
+
+		this.logger.debug(
+			`Channels for community ${community.name}: ${communityChannels.length}`,
+		);
+
+		// Récupérer les IDs des canaux de la communauté (convertir en string)
+		const communityChannelIds = communityChannels.map((channel) =>
+			channel._id.toString(),
+		);
+
+		// Filtrer les messages par les canaux de la communauté (convertir en string)
+		const communityMessages = messages.filter((msg) => {
+			return communityChannelIds.includes(msg.channel_id.toString());
+		});
+
+		this.logger.debug(
+			`Messages for community ${community.name}: ${communityMessages.length}`,
+		);
+
+		if (!communityMessages || communityMessages.length === 0) {
+			throw new BadRequestException(
+				`No messages found for community "${community.name}". Make sure the community has a Discord server connected and messages have been collected.`,
+			);
+		}
+
+		// Préparer les données pour l'analyse
+		const formattedMessages = communityMessages
+			.slice(0, 50) // Limiter à 50 messages pour le test
+			.map(
+				(msg) =>
+					`[${msg.created_at_by_discord}] ${msg.author_name}: ${msg.content}`,
+			)
+			.join('\n');
+
+		// Lancer l'analyse IA
+		const llmModel =
+			testAnalysisDto.model_name &&
+			testAnalysisDto.model_name !== 'default'
+				? testAnalysisDto.model_name
+				: prompt.model_name || 'Llama-3.1-8B-Instruct';
+
+		try {
+			// Appeler l'analyse IA avec le prompt personnalisé
+			const analysisResult =
+				await this.analysisHelper.analyseWithCustomPrompt({
+					modelName: llmModel,
+					customPrompt: prompt,
+					userContent: formattedMessages,
+				});
+
+			// Sauvegarder l'analyse
+			const savedAnalysis = await this.analysisHelper.saveAnalysis({
+				creator_id: user.id,
+				platform: 'discord',
+				prompt_key: testAnalysisDto.prompt_name,
+				llm_model: llmModel,
+				scope: {
+					server_id: community.discordServer.guildId,
+					channel_id: 'test',
+				},
+				result: analysisResult,
+			});
+
+			// Retourner un objet simple sans les objets Mongoose complexes
+			return {
+				analysis_id:
+					(savedAnalysis as any)._id?.toString() || 'unknown',
+				prompt_used: prompt.name,
+				community: community.name,
+				message_count: communityMessages.length,
+				result: {
+					message_count: communityMessages.length,
+					test_analysis: true,
+					formatted_messages: formattedMessages,
+					analysis_result: analysisResult,
+				},
+			};
+		} catch (error) {
+			this.logger.error('Error during analysis:', error);
+			throw new BadRequestException(
+				`Analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
 			);
 		}
 	}

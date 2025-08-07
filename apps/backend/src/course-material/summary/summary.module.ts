@@ -6,7 +6,6 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AnalysisModule } from 'src/analysis/analysis.module';
 import { AnalysisProvider } from 'src/analysis/analysis.provider';
 import { DiscordModule } from 'src/discord/discord.module';
-import { PromptSharedModule } from 'src/prompt/prompt-shared.module';
 
 @Module({
 	imports: [
@@ -15,7 +14,6 @@ import { PromptSharedModule } from 'src/prompt/prompt-shared.module';
 		]),
 		AnalysisModule,
 		DiscordModule,
-		PromptSharedModule,
 	],
 	controllers: [SummaryController],
 	providers: [SummaryService, AnalysisProvider],

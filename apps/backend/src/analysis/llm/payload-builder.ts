@@ -3,11 +3,11 @@ import * as yaml from 'yaml';
 import * as path from 'path';
 import { estimateTokenCount } from './token-utils'; // à créer ou adapter
 import { Injectable } from '@nestjs/common';
-import { PromptManagerService } from './prompt-manager.service';
+import { PromptProvider } from '../../prompt/prompt.provider';
 
 @Injectable()
 export class PayloadBuilder {
-	constructor(private readonly promptManager: PromptManagerService) {}
+	constructor(private readonly promptProvider: PromptProvider) {}
 
 	loadYaml(filePath: string): any {
 		const raw = fs.readFileSync(filePath, 'utf-8');
@@ -31,7 +31,7 @@ export class PayloadBuilder {
 	}
 
 	async getPromptConfig(promptName: string): Promise<any> {
-		return this.promptManager.getPromptByName(promptName);
+		return this.promptProvider.getPromptByName(promptName);
 	}
 
 	async buildPayload(

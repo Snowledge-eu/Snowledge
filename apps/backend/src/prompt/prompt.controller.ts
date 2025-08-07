@@ -62,13 +62,4 @@ export class PromptController {
 		const user = req.user as User;
 		await this.promptProvider.deletePrompt(+id, user);
 	}
-
-	@Post('test-analysis')
-	async testAnalysis(
-		@Body() testAnalysisDto: TestAnalysisDto,
-		@Request() req: any,
-	) {
-		const user = req.user as User;
-		return this.promptProvider.testAnalysis(testAnalysisDto, user);
-	}
 }
