@@ -58,7 +58,7 @@ export default function AdminPage() {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/prompts/test-analysis`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/analysis/test-analysis`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

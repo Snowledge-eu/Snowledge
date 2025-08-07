@@ -3,7 +3,7 @@ import { PromptController } from './prompt.controller';
 import { PromptProvider } from './prompt.provider';
 import { CreatePromptDto } from './dto/create-prompt.dto';
 import { UpdatePromptDto } from './dto/update-prompt.dto';
-import { TestAnalysisDto } from './dto/test-analysis.dto';
+
 import { AuthGuard } from '../auth/auth.guard';
 import { AdminGuard } from '../auth/admin.guard';
 
@@ -168,40 +168,6 @@ describe('PromptController', () => {
 			await controller.remove(promptId, mockRequest);
 
 			expect(provider.deletePrompt).toHaveBeenCalledWith(1, mockUser);
-		});
-	});
-
-	describe('testAnalysis', () => {
-		it('should test analysis with prompt and community', async () => {
-			const testAnalysisDto: TestAnalysisDto = {
-				prompt_name: 'test_prompt',
-				community_id: '1',
-				model_name: 'Llama-3.1-8B-Instruct',
-			};
-			const mockUser = { id: 1, isAdmin: true };
-			const mockRequest = { user: mockUser };
-			const expectedResult = {
-				analysis_id: 'test_analysis_123',
-				prompt_used: 'test_prompt',
-				community: 'Test Community',
-				message_count: 50,
-				result: { analysis: 'Test result' },
-			};
-
-			jest.spyOn(provider, 'testAnalysis').mockResolvedValue(
-				expectedResult,
-			);
-
-			const result = await controller.testAnalysis(
-				testAnalysisDto,
-				mockRequest,
-			);
-
-			expect(provider.testAnalysis).toHaveBeenCalledWith(
-				testAnalysisDto,
-				mockUser,
-			);
-			expect(result).toEqual(expectedResult);
 		});
 	});
 });

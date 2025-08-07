@@ -17,7 +17,7 @@ describe('AnalysisProvider', () => {
   } as any;
 
   const mockAnalysisHelper = {
-    analyse: jest.fn(),
+
     saveAnalysis: jest.fn(),
     trendToContent: jest.fn(),
   } as any;
@@ -79,104 +79,7 @@ describe('AnalysisProvider', () => {
       result: mockLlmResponse,
     };
 
-    it('should successfully analyze Discord messages', async () => {
-      const now = new Date('2024-01-01T12:00:00Z');
-      jest.spyOn(global, 'Date').mockImplementation(() => now as any);
 
-      discordMessageService.findMessagesInRange.mockResolvedValue(mockMessages);
-      analysisHelper.analyse.mockResolvedValue(mockLlmResponse);
-      analysisHelper.saveAnalysis.mockResolvedValue(mockSavedAnalysis);
-
-      const result = await provider.analyzeDiscord(mockDto);
-
-      const calls = discordMessageService.findMessagesInRange.mock.calls[0];
-      expect(calls[0]).toBe(mockDto.channelId);
-      expect(calls[2].toISOString()).toBe(now.toISOString());
-
-      expect(analysisHelper.analyse).toHaveBeenCalledWith({
-        modelName: mockDto.model_name,
-        promptKey: mockDto.prompt_key,
-        userContent: expect.arrayContaining([
-          expect.stringContaining('[2024-01-01 12:00] User1: Hello world'),
-          expect.stringContaining('[2024-01-01 12:00] User2: How are you?'),
-        ]),
-      });
-      expect(analysisHelper.saveAnalysis).toHaveBeenCalledWith({
-        creator_id: mockDto.creator_id,
-        platform: 'discord',
-        prompt_key: mockDto.prompt_key,
-        llm_model: mockDto.model_name,
-        scope: {
-          server_id: mockDto.serverId,
-          channel_id: mockDto.channelId,
-        },
-        period: {
-          from: now,
-          to: now,
-        },
-        result: mockLlmResponse,
-      });
-      expect(result).toEqual(mockSavedAnalysis);
-    });
-
-    it('should throw HttpException when no messages found', async () => {
-      discordMessageService.findMessagesInRange.mockResolvedValue([]);
-
-      await expect(provider.analyzeDiscord(mockDto)).rejects.toThrow(
-        new HttpException('No messages found for this period.', HttpStatus.NO_CONTENT),
-      );
-    });
-
-    it('should throw HttpException when LLM call fails', async () => {
-      discordMessageService.findMessagesInRange.mockResolvedValue(mockMessages);
-      analysisHelper.analyse.mockRejectedValue(new Error('LLM error'));
-
-      await expect(provider.analyzeDiscord(mockDto)).rejects.toThrow(
-        new HttpException('LLM error: Error: LLM error', HttpStatus.INTERNAL_SERVER_ERROR),
-      );
-    });
-
-    it('should handle messages without author_name', async () => {
-      const messagesWithoutAuthor = [
-        {
-          content: 'Test message',
-          user_id: '123',
-          created_at_by_discord: '2024-01-01T10:00:00Z',
-        },
-      ];
-
-      discordMessageService.findMessagesInRange.mockResolvedValue(messagesWithoutAuthor);
-      analysisHelper.analyse.mockResolvedValue(mockLlmResponse);
-      analysisHelper.saveAnalysis.mockResolvedValue(mockSavedAnalysis);
-
-      await provider.analyzeDiscord(mockDto);
-
-      expect(analysisHelper.analyse).toHaveBeenCalledWith({
-        modelName: mockDto.model_name,
-        promptKey: mockDto.prompt_key,
-        userContent: expect.arrayContaining([
-          expect.stringContaining('[2024-01-01 12:00] 123: Test message'),
-        ]),
-      });
-    });
-
-    it('should handle messages without user_id', async () => {
-      const messagesWithoutUserId = [
-        {
-          content: 'Test message',
-          author_name: 'User1',
-          created_at_by_discord: '2024-01-01T10:00:00Z',
-        },
-      ];
-
-      discordMessageService.findMessagesInRange.mockResolvedValue(messagesWithoutUserId);
-      analysisHelper.analyse.mockResolvedValue(mockLlmResponse);
-      analysisHelper.saveAnalysis.mockResolvedValue(mockSavedAnalysis);
-
-      await provider.analyzeDiscord(mockDto);
-
-      expect(analysisHelper.analyse).toHaveBeenCalledWith({
-        modelName: mockDto.model_name,
         promptKey: mockDto.prompt_key,
         userContent: expect.arrayContaining([
           expect.stringContaining('[2024-01-01 12:00] User1: Test message'),
@@ -192,19 +95,7 @@ describe('AnalysisProvider', () => {
         },
       ];
 
-      discordMessageService.findMessagesInRange.mockResolvedValue(messagesWithoutUser);
-      analysisHelper.analyse.mockResolvedValue(mockLlmResponse);
-      analysisHelper.saveAnalysis.mockResolvedValue(mockSavedAnalysis);
 
-      await provider.analyzeDiscord(mockDto);
-
-      expect(analysisHelper.analyse).toHaveBeenCalledWith({
-        modelName: mockDto.model_name,
-        promptKey: mockDto.prompt_key,
-        userContent: expect.arrayContaining([
-          expect.stringContaining('[2024-01-01 12:00] ?: Test message'),
-        ]),
-      });
     });
   });
 

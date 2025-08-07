@@ -13,33 +13,21 @@ export class AnalysisHelper {
 		private readonly ovhClient: OvhClient,
 	) {}
 
-	async analyse(input: {
-		modelName: string;
-		promptKey: string;
-		userContent: string[] | string;
-	}): Promise<any> {
-		try {
-			const payload = await this.payloadBuilder.buildPayload(
-				input.modelName,
-				input.promptKey,
-				input.userContent,
-			);
-			return this.ovhClient.callOvhApi(payload);
-		} catch (error) {
-			this.logger.error('Error in analyse method:', error);
-			throw error; // Relancer l'erreur
-		}
-	}
 	async trendToContent(input: {
 		modelName: string;
 		promptKey: string;
 		trend: any;
 	}) {
 		try {
+			// Récupérer le prompt depuis la BD
+			const prompt = await this.payloadBuilder.getPromptConfig(
+				input.promptKey,
+			);
+
 			const payload = await this.payloadBuilder.buildPayloadForContent(
 				input.modelName,
-				input.promptKey,
-				input.trend,
+				prompt,
+				input.trend, // Passer l'objet trend directement
 			);
 			return this.ovhClient.callOvhApi(payload);
 		} catch (error) {

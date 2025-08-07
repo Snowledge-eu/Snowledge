@@ -6,7 +6,7 @@ import { AnalysisService } from './analysis.service';
 import { PromptProvider } from '../prompt/prompt.provider';
 import { DiscordChannelService } from '../discord/services/discord-channel.service';
 import { CommunityService } from '../community/community.service';
-import { TestAnalysisDto } from '../prompt/dto/test-analysis.dto';
+import { TestAnalysisDto } from './dto/test-analysis.dto';
 import { User } from '../user/entities/user.entity';
 import {
 	NotFoundException,

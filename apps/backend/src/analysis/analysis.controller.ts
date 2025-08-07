@@ -10,25 +10,20 @@ import {
 	HttpException,
 	HttpStatus,
 	Logger,
-	HttpCode,
-	Header,
 	Res,
 	Request,
 	NotFoundException,
 	BadRequestException,
 } from '@nestjs/common';
 import { AnalysisService } from './analysis.service';
-import { CreateAnalysisDto } from './dto/create-analysis.dto';
 import { UpdateAnalysisDto } from './dto/update-analysis.dto';
 import { FindAnalysisDto } from './dto/find-analysis.dto';
 import { TransformLongToStringInterceptor } from '../shared/interceptors/transform-long-to-string.pipe';
-import { AnalyzePeriod, DiscordAnalyzeDto } from './dto/discord-analyse.dto';
-import { DiscordMessageService } from '../discord/services/discord-message.service';
-import { AnalysisHelper } from './analysis.helper';
+import { DiscordAnalyzeDto } from './dto/discord-analyse.dto';
 import { Response } from 'express';
 import { AnalysisProvider } from './analysis.provider';
 import { PromptProvider } from '../prompt/prompt.provider';
-import { TestAnalysisDto } from '../prompt/dto/test-analysis.dto';
+import { TestAnalysisDto } from './dto/test-analysis.dto';
 import { User } from '../user/entities/user.entity';
 @Controller('analysis')
 export class AnalysisController {
@@ -36,8 +31,6 @@ export class AnalysisController {
 
 	constructor(
 		private readonly analysisService: AnalysisService,
-		private readonly discordMessageService: DiscordMessageService,
-		private readonly analysisHelper: AnalysisHelper,
 		private readonly analysisProvider: AnalysisProvider,
 		private readonly promptProvider: PromptProvider,
 	) {}

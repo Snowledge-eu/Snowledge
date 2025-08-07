@@ -15,7 +15,7 @@ src/prompt/
 ├── dto/
 │   ├── create-prompt.dto.ts      # DTO création
 │   ├── update-prompt.dto.ts      # DTO mise à jour
-│   └── test-analysis.dto.ts      # DTO test d'analyse
+
 ├── prompt.controller.ts           # Contrôleur HTTP
 ├── prompt.provider.ts            # Logique métier
 ├── prompt.service.ts             # Accès aux données
@@ -65,7 +65,7 @@ GET    /admin/prompts/:id          # Détails d'un prompt
 PATCH  /admin/prompts/:id          # Modifier un prompt
 DELETE /admin/prompts/:id          # Supprimer un prompt
 POST   /admin/prompts/migrate-yaml # Migrer depuis YAML
-POST   /admin/prompts/test-analysis # Tester une analyse
+POST   /analysis/test-analysis # Tester une analyse
 ```
 
 ### Administration
