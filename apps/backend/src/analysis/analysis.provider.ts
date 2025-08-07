@@ -3,6 +3,7 @@ import { DiscordAnalyzeDto, AnalyzePeriod } from './dto/discord-analyse.dto';
 import { DiscordMessageService } from '../discord/services/discord-message.service';
 import { AnalysisHelper } from './analysis.helper';
 import { AnalysisService } from './analysis.service';
+import { PromptManagerService } from './llm/prompt-manager.service';
 import {
 	NotFoundException,
 	BadRequestException,
@@ -16,6 +17,7 @@ export class AnalysisProvider {
 		private readonly discordMessageService: DiscordMessageService,
 		private readonly analysisHelper: AnalysisHelper,
 		private readonly analysisService: AnalysisService,
+		private readonly promptManager: PromptManagerService,
 	) {}
 
 	async analyzeDiscord(dto: DiscordAnalyzeDto): Promise<any> {
@@ -156,11 +158,17 @@ export class AnalysisProvider {
 		now: Date,
 	): Promise<any> {
 		try {
-			const ovhResponse = await this.analysisHelper.analyse({
-				modelName: dto.model_name,
-				promptKey: dto.prompt_key,
-				userContent: formatted,
-			});
+			// Récupérer le prompt depuis la base de données
+			const prompt = await this.promptManager.getPromptByName(
+				dto.prompt_key,
+			);
+
+			const ovhResponse =
+				await this.analysisHelper.analyseWithCustomPrompt({
+					modelName: dto.model_name,
+					customPrompt: prompt,
+					userContent: formatted,
+				});
 			const newAnalysis = await this.analysisHelper.saveAnalysis({
 				creator_id: dto.creator_id,
 				platform: 'discord',

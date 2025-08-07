@@ -64,6 +64,10 @@ export function TrendInputCard({
   onCustomDateChange,
   mode,
   onModeChange,
+  selectedPrompt,
+  onPromptChange,
+  prompts,
+  promptsLoading,
   messageCount,
   canLaunch,
   loading,
@@ -86,6 +90,10 @@ export function TrendInputCard({
   onModeChange: (
     v: "Meta-Llama-3_3-70B-Instruct" | "DeepSeek-R1-Distill-Llama-70B"
   ) => void;
+  selectedPrompt: string;
+  onPromptChange: (v: string) => void;
+  prompts: any[];
+  promptsLoading: boolean;
   messageCount: number;
   canLaunch: boolean;
   loading: boolean;
@@ -268,6 +276,41 @@ export function TrendInputCard({
             <Label htmlFor="reasoning">Reasoning</Label>
           </div>
         </RadioGroup>
+      </Card>
+      {/* 5. Prompt selection */}
+      <Card className="w-full max-w-[90%] md:max-w-[95%] self-center py-5 px-4 bg-gray-50 shadow-md">
+        <Label className="block mb-3 text-base font-semibold">
+          Analysis Type
+        </Label>
+        {promptsLoading ? (
+          <div className="flex items-center gap-2">
+            <Loader2Icon className="h-4 w-4 animate-spin" />
+            <span className="text-sm text-muted-foreground">
+              Loading prompts...
+            </span>
+          </div>
+        ) : (
+          <Select value={selectedPrompt} onValueChange={onPromptChange}>
+            <SelectTrigger className="w-64">
+              <SelectValue placeholder="Select analysis type" />
+            </SelectTrigger>
+            <SelectContent>
+              {Array.isArray(prompts) &&
+                prompts.map((prompt) => (
+                  <SelectItem key={prompt.name} value={prompt.name}>
+                    <div className="flex flex-col">
+                      <span className="font-medium">
+                        {prompt.name.replace(/_/g, " ")}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {prompt.description}
+                      </span>
+                    </div>
+                  </SelectItem>
+                ))}
+            </SelectContent>
+          </Select>
+        )}
       </Card>
       <AnalysisDescription type="trend" />
       {/* 6. Launch button */}

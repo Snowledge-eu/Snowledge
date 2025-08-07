@@ -1,4 +1,21 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, HttpException, HttpStatus, Logger, HttpCode, Header, Res, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+	Controller,
+	Get,
+	Post,
+	Body,
+	Patch,
+	Param,
+	Delete,
+	UseInterceptors,
+	HttpException,
+	HttpStatus,
+	Logger,
+	HttpCode,
+	Header,
+	Res,
+	NotFoundException,
+	BadRequestException,
+} from '@nestjs/common';
 import { AnalysisService } from './analysis.service';
 import { CreateAnalysisDto } from './dto/create-analysis.dto';
 import { UpdateAnalysisDto } from './dto/update-analysis.dto';
@@ -9,6 +26,7 @@ import { DiscordMessageService } from '../discord/services/discord-message.servi
 import { AnalysisHelper } from './analysis.helper';
 import { Response } from 'express';
 import { AnalysisProvider } from './analysis.provider';
+import { PromptManagerService } from './llm/prompt-manager.service';
 @Controller('analysis')
 export class AnalysisController {
 	private readonly logger = new Logger(AnalysisController.name);
@@ -18,6 +36,7 @@ export class AnalysisController {
 		private readonly discordMessageService: DiscordMessageService,
 		private readonly analysisHelper: AnalysisHelper,
 		private readonly analysisProvider: AnalysisProvider,
+		private readonly promptManager: PromptManagerService,
 	) {}
 
 	// @Post()
@@ -40,7 +59,7 @@ export class AnalysisController {
 			return result;
 		} catch (error) {
 			this.logger.error('Error in analyzeDiscord:', error);
-			
+
 			if (error instanceof HttpException) {
 				if (error.getStatus() === HttpStatus.NO_CONTENT) {
 					res.set('X-Reason', 'No messages found for this period.');
@@ -49,18 +68,41 @@ export class AnalysisController {
 				}
 				throw error;
 			}
-			
+
 			// Pour les autres erreurs, retourner une réponse d'erreur appropriée
-			const errorMessage = error instanceof Error ? error.message : 'Internal server error';
+			const errorMessage =
+				error instanceof Error
+					? error.message
+					: 'Internal server error';
 			throw new HttpException(
 				errorMessage,
-				HttpStatus.INTERNAL_SERVER_ERROR
+				HttpStatus.INTERNAL_SERVER_ERROR,
 			);
 		}
 	}
 	@Get()
 	findAll() {
 		return this.analysisService.findAll();
+	}
+
+	@Get('prompts')
+	async getAvailablePrompts() {
+		try {
+			const prompts = await this.promptManager.getPublicPrompts();
+			return prompts.map((prompt) => ({
+				name: prompt.name,
+				description: prompt.description,
+				platform: prompt.platform,
+				temperature: prompt.temperature,
+				top_p: prompt.top_p,
+			}));
+		} catch (error) {
+			this.logger.error('Error fetching prompts:', error);
+			throw new HttpException(
+				'Failed to fetch available prompts',
+				HttpStatus.INTERNAL_SERVER_ERROR,
+			);
+		}
 	}
 
 	@Get(':id')
@@ -80,9 +122,15 @@ export class AnalysisController {
 	}
 
 	@Patch(':id')
-	async update(@Param('id') id: string, @Body() updateAnalysisDto: UpdateAnalysisDto) {
+	async update(
+		@Param('id') id: string,
+		@Body() updateAnalysisDto: UpdateAnalysisDto,
+	) {
 		try {
-			const updatedAnalysis = await this.analysisService.update(+id, updateAnalysisDto);
+			const updatedAnalysis = await this.analysisService.update(
+				+id,
+				updateAnalysisDto,
+			);
 			if (!updatedAnalysis) {
 				throw new NotFoundException('Analysis not found');
 			}

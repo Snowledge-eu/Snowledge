@@ -5,7 +5,7 @@ import {
 	BadRequestException,
 } from '@nestjs/common';
 import { PromptService } from './prompt.service';
-import { PromptHelper } from './prompt.helper';
+
 import { AnalysisHelper } from '../analysis/analysis.helper';
 import { DiscordMessageService } from '../discord/services/discord-message.service';
 import { DiscordChannelService } from '../discord/services/discord-channel.service';
@@ -21,7 +21,6 @@ export class PromptProvider {
 
 	constructor(
 		private readonly promptService: PromptService,
-		private readonly promptHelper: PromptHelper,
 		private readonly analysisHelper: AnalysisHelper,
 		private readonly discordMessageService: DiscordMessageService,
 		private readonly discordChannelService: DiscordChannelService,
@@ -45,7 +44,15 @@ export class PromptProvider {
 			);
 		}
 
-		if (!this.promptHelper.validatePromptStructure(createPromptDto)) {
+		// Validation basique de la structure du prompt
+		if (
+			!createPromptDto.name ||
+			!createPromptDto.description ||
+			!createPromptDto.platform ||
+			createPromptDto.temperature === undefined ||
+			createPromptDto.top_p === undefined ||
+			!createPromptDto.messages
+		) {
 			throw new BadRequestException('Invalid prompt structure');
 		}
 
@@ -100,44 +107,6 @@ export class PromptProvider {
 		}
 
 		await this.promptService.remove(id);
-	}
-
-	async migrateYamlPrompts(user: User): Promise<any> {
-		if (!user.isAdmin) {
-			throw new BadRequestException('Only admins can migrate prompts');
-		}
-
-		const yamlData = await this.promptHelper.loadYamlPrompts();
-		const prompts = yamlData.prompt_models;
-		const migratedPrompts = [];
-
-		for (const [name, promptData] of Object.entries(prompts)) {
-			const prompt = promptData as any;
-			const formattedPrompt =
-				this.promptHelper.formatPromptForAnalysis(prompt);
-
-			try {
-				const existingPrompt =
-					await this.promptService.findByName(name);
-				if (!existingPrompt) {
-					const createdPrompt = await this.promptService.create(
-						{
-							...formattedPrompt,
-							name,
-							is_public: true,
-						},
-						user.id,
-					);
-					migratedPrompts.push(createdPrompt);
-				}
-			} catch (error) {
-				this.logger.error(
-					`Failed to migrate prompt ${name}: ${error instanceof Error ? error.message : 'Unknown error'}`,
-				);
-			}
-		}
-
-		return { migrated: migratedPrompts.length, prompts: migratedPrompts };
 	}
 
 	async testAnalysis(

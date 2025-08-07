@@ -13,6 +13,7 @@ import { PlatformIconButton } from "@/components/my-community/trendes-analytics/
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/auth-context";
 import { useCurrentCommunity } from "@/hooks/useCurrentCommunity";
+import { usePrompts } from "@/hooks/usePrompts";
 import { toast } from "sonner";
 import { useChannelSections } from "@/components/manage-integrations/hooks/useChannelSections";
 const platforms = [
@@ -59,6 +60,8 @@ export default function Page() {
   const { user, fetcher } = useAuth();
   const { activeCommunity } = useCurrentCommunity();
   const { isLoading, meta } = useChannelSections(activeCommunity?.id || 0);
+  const { data: prompts, isLoading: promptsLoading } = usePrompts();
+
   const [selectedPlatform, setSelectedPlatform] = useState("discord");
   const [scope, setScope] = useState<"all" | "custom">("all");
   const [discordChannels, setDiscordChannels] = useState<
@@ -70,6 +73,8 @@ export default function Page() {
   >([]);
   const [timeRange, setTimeRange] = useState("last_week");
   const [customDate, setCustomDate] = useState<Date | undefined>(undefined);
+  const [selectedPrompt, setSelectedPrompt] =
+    useState<string>("discord_trends");
   const [mode, setMode] = useState<
     "Meta-Llama-3_3-70B-Instruct" | "DeepSeek-R1-Distill-Llama-70B"
   >("Meta-Llama-3_3-70B-Instruct");
@@ -97,7 +102,7 @@ export default function Page() {
         serverId: activeCommunity?.discordServerId,
         channelId: channel,
         model_name: model,
-        prompt_key: "discord_trends",
+        prompt_key: selectedPrompt,
         period: period,
       };
       console.log(body);
@@ -125,7 +130,7 @@ export default function Page() {
                 serverId: activeCommunity?.discordServerId,
                 channelId: channel,
               },
-              promptKey: "discord_trends",
+              promptKey: selectedPrompt,
             }),
           }
         ).catch((err) => console.error(err));
@@ -197,7 +202,7 @@ export default function Page() {
       scope: {
         serverId: activeCommunity?.discordServerId,
       },
-      promptKey: "discord_trends",
+      promptKey: selectedPrompt,
       creator_id: Number(user?.id), // Filtrer par utilisateur connecté
     };
 
@@ -229,6 +234,31 @@ export default function Page() {
         ? new Date(item.period.to).toLocaleDateString()
         : "N/A";
 
+      // Parser le contenu de la réponse LLM
+      const parsedContent = JSON.parse(
+        item?.result?.choices?.[0]?.message?.content || "{}"
+      );
+
+      // Adapter le format selon la structure reçue
+      let trends = [];
+      let notable_users = [];
+      let summary = "No reasoning available";
+
+      // Nouveau format (trending_topics + analysis)
+      if (parsedContent.trending_topics) {
+        trends = parsedContent.trending_topics.map((topic: any) => ({
+          title: topic.topic,
+          summary: `Frequency: ${topic.frequency}, Engagement: ${topic.engagement}`,
+        }));
+        summary = parsedContent.analysis || "No analysis available";
+      }
+      // Ancien format (trends + notable_users + reasoning)
+      else if (parsedContent.trends) {
+        trends = parsedContent.trends;
+        notable_users = parsedContent.notable_users || [];
+        summary = parsedContent.reasoning || "No reasoning available";
+      }
+
       tempArr.push({
         _id: item?._id?.toString() || `temp-${index}`,
         id: item?.result?.id
@@ -237,23 +267,14 @@ export default function Page() {
         timeframe: `${periodFrom} to ${periodTo}`,
         platform: item?.platform || "N/A",
         scope: "Custom", //TODO définir regle All | Custom
-        trends:
-          JSON.parse(item?.result?.choices?.[0]?.message?.content || "{}")
-            .trends || [],
+        trends: trends,
         date: item?.created_at
           ? new Date(item.created_at).toLocaleDateString()
           : "N/A",
         // dataCount: 1200,
-        score: getRandomByLevel(
-          JSON.parse(item?.result?.choices?.[0]?.message?.content || "{}")
-            .confidence || "Low"
-        ),
-        notable_users:
-          JSON.parse(item?.result?.choices?.[0]?.message?.content || "{}")
-            .notable_users || [],
-        summary:
-          JSON.parse(item?.result?.choices?.[0]?.message?.content || "{}")
-            .reasoning || "No reasoning available",
+        score: getRandomByLevel(parsedContent.confidence || "Low"),
+        notable_users: notable_users,
+        summary: summary,
       });
     }
     setTrendHistory(tempArr);
@@ -344,6 +365,10 @@ export default function Page() {
           onCustomDateChange={setCustomDate}
           mode={mode}
           onModeChange={setMode}
+          selectedPrompt={selectedPrompt}
+          onPromptChange={setSelectedPrompt}
+          prompts={prompts || []}
+          promptsLoading={promptsLoading}
           messageCount={messageCount}
           canLaunch={canLaunch}
           loading={loading}

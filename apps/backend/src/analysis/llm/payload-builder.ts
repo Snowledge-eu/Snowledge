@@ -3,9 +3,12 @@ import * as yaml from 'yaml';
 import * as path from 'path';
 import { estimateTokenCount } from './token-utils'; // à créer ou adapter
 import { Injectable } from '@nestjs/common';
+import { PromptManagerService } from './prompt-manager.service';
 
 @Injectable()
 export class PayloadBuilder {
+	constructor(private readonly promptManager: PromptManagerService) {}
+
 	loadYaml(filePath: string): any {
 		const raw = fs.readFileSync(filePath, 'utf-8');
 		return yaml.parse(raw);
@@ -27,16 +30,8 @@ export class PayloadBuilder {
 		throw new Error(`Model '${modelName}' not found`);
 	}
 
-	getPromptConfig(promptName: string): any {
-		const promptPath = path.join(
-			process.cwd(),
-			'src/analysis/llm/prompt_models.yaml',
-		);
-		const config = this.loadYaml(promptPath);
-		if (!config.prompt_models || !config.prompt_models[promptName]) {
-			throw new Error(`Prompt '${promptName}' not found`);
-		}
-		return config.prompt_models[promptName];
+	async getPromptConfig(promptName: string): Promise<any> {
+		return this.promptManager.getPromptByName(promptName);
 	}
 
 	async buildPayload(
@@ -47,7 +42,7 @@ export class PayloadBuilder {
 		extra: any = {},
 	): Promise<any> {
 		const modelConfig = this.getModelConfig(modelName);
-		const promptConfig = this.getPromptConfig(promptName);
+		const promptConfig = await this.getPromptConfig(promptName);
 
 		const userStr = Array.isArray(userContent)
 			? userContent.join('\n')
@@ -116,7 +111,7 @@ export class PayloadBuilder {
 		extra: any = {},
 	): Promise<any> {
 		const modelConfig = this.getModelConfig(modelName);
-		const promptConfig = this.getPromptConfig(promptName);
+		const promptConfig = await this.getPromptConfig(promptName);
 
 		const trendJson = JSON.stringify(trend, null, 2);
 

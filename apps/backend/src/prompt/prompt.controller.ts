@@ -63,12 +63,6 @@ export class PromptController {
 		await this.promptProvider.deletePrompt(+id, user);
 	}
 
-	@Post('migrate-yaml')
-	async migrateYamlPrompts(@Request() req: any) {
-		const user = req.user as User;
-		return this.promptProvider.migrateYamlPrompts(user);
-	}
-
 	@Post('test-analysis')
 	async testAnalysis(
 		@Body() testAnalysisDto: TestAnalysisDto,
