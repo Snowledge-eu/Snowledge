@@ -35,7 +35,7 @@ export interface SummaryResultProps {
 // RETURNS: JSX.Element
 // ============
 export function SummaryInput(props: SummaryInputProps) {
-  return <AnalysisInputBase {...props} analysisType="summary" />;
+  return <AnalysisInputBase {...props} />;
 }
 
 // ============

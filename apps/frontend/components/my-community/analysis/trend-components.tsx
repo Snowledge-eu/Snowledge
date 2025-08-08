@@ -41,7 +41,7 @@ export interface TrendResultProps {
 // RETURNS: JSX.Element
 // ============
 export function TrendInput(props: TrendInputProps) {
-  return <AnalysisInputBase {...props} analysisType="trend" />;
+  return <AnalysisInputBase {...props} />;
 }
 
 // ============

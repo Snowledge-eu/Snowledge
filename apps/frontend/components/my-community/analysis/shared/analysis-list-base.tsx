@@ -41,26 +41,17 @@ export function AnalysisListBase({
       : "Past Analyses";
   };
 
-  const getDataKey = () => {
-    return analysisType === "summary" ? "topics" : "trends";
-  };
-
   return (
     <>
       <div className="font-semibold text-base mb-4">{getTitle()}</div>
       <Table className="w-full text-xs">
         <TableHeader>
           <TableRow>
-            <TableHead className="px-2 text-left w-[110px]">ID</TableHead>
             <TableHead className="px-2 text-left w-[160px]">
               Timeframe
             </TableHead>
             <TableHead className="px-2 text-center w-[56px]">
               Platform
-            </TableHead>
-            <TableHead className="px-2 text-center w-[60px]">Scope</TableHead>
-            <TableHead className="px-2 text-center w-[60px]">
-              {analysisType === "summary" ? "Topics" : "Trends"}
             </TableHead>
             <TableHead className="px-2 text-center w-[90px]">Date</TableHead>
             <TableHead className="px-2 w-[50px]"></TableHead>
@@ -69,15 +60,6 @@ export function AnalysisListBase({
         <TableBody>
           {history?.map((item, idx) => (
             <TableRow key={item?.id || idx}>
-              <TableCell className="px-2 text-left font-medium max-w-[110px] whitespace-nowrap">
-                <Button
-                  variant="link"
-                  className="p-0 h-auto min-w-0"
-                  onClick={() => onSelect(item)}
-                >
-                  {item?.id}
-                </Button>
-              </TableCell>
               <TableCell className="px-2 text-left max-w-[160px] whitespace-nowrap">
                 <TimeframeBadge timeframe={item?.timeframe} />
               </TableCell>
@@ -93,12 +75,6 @@ export function AnalysisListBase({
                     style={{ height: 24, width: 24 }}
                   />
                 </span>
-              </TableCell>
-              <TableCell className="px-2 text-center max-w-[60px] truncate">
-                {item?.scope === "all" ? "All" : "Custom"}
-              </TableCell>
-              <TableCell className="px-2 text-center max-w-[60px] truncate">
-                {item?.[getDataKey()]?.length ?? 0}
               </TableCell>
               <TableCell className="px-2 text-center max-w-[90px] whitespace-nowrap">
                 {item?.date}

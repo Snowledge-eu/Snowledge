@@ -15,9 +15,25 @@ import {
   PopoverTrigger,
   PopoverContent,
   Calendar,
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
 } from "@repo/ui";
-
-import { CalendarIcon, Loader2Icon } from "lucide-react";
+import {
+  CalendarIcon,
+  Loader2Icon,
+  SparklesIcon,
+  BrainIcon,
+  TrendingUpIcon,
+  HelpCircle,
+} from "lucide-react";
 import { PlatformIconButtons } from "./platform-icon-buttons";
 import { AnalysisDescription } from "./analysis-description";
 import { cn } from "@workspace/ui/lib/utils";
@@ -48,8 +64,7 @@ export interface AnalysisInputBaseProps {
   canLaunch: boolean;
   loading: boolean;
   onStart: (channels: Array<string>, model: string, period: string) => void;
-  analysisType: "summary" | "trend";
-  // Props spécifiques aux trends
+  // Nouvelle approche : sélection directe de prompts
   selectedPrompt?: string;
   onPromptChange?: (v: string) => void;
   prompts?: any[];
@@ -59,7 +74,7 @@ export interface AnalysisInputBaseProps {
 // ============
 // Function: AnalysisInputBase
 // ------------
-// DESCRIPTION: Composant de base réutilisable pour les inputs d'analyse (summary et trends)
+// DESCRIPTION: Composant de base réutilisable pour les inputs d'analyse avec sélection de prompts
 // PARAMS: AnalysisInputBaseProps
 // RETURNS: JSX.Element
 // ============
@@ -82,7 +97,6 @@ export function AnalysisInputBase({
   canLaunch,
   loading,
   onStart,
-  analysisType,
   selectedPrompt,
   onPromptChange,
   prompts,
@@ -110,8 +124,33 @@ export function AnalysisInputBase({
   };
 
   const getButtonText = () => {
-    return analysisType === "summary" ? "Start Summary" : "Start Analysis";
+    return "Start Analysis";
   };
+
+  // Fonction pour obtenir l'icône et la couleur selon le type de prompt
+  const getPromptIcon = (promptName: string) => {
+    const name = promptName.toLowerCase();
+    if (name.includes("summary") || name.includes("résumé")) {
+      return { icon: BrainIcon, color: "text-blue-600", bgColor: "bg-blue-50" };
+    } else if (name.includes("trend") || name.includes("tendance")) {
+      return {
+        icon: TrendingUpIcon,
+        color: "text-green-600",
+        bgColor: "bg-green-50",
+      };
+    } else {
+      return {
+        icon: SparklesIcon,
+        color: "text-purple-600",
+        bgColor: "bg-purple-50",
+      };
+    }
+  };
+
+  // Filtrer et préparer les prompts
+  const availablePrompts = prompts
+    ? prompts.filter((p) => !p.name.toLowerCase().includes("trend_to_content"))
+    : [];
 
   return (
     <div className="bg-muted rounded-xl shadow p-6 flex flex-col gap-10">
@@ -122,7 +161,149 @@ export function AnalysisInputBase({
         onSelectPlatform={onSelectPlatform}
       />
 
-      {/* 2. Scope of analysis */}
+      {/* 2. Analysis Type Selection - Deuxième étape */}
+      {selectedPrompt !== undefined &&
+        onPromptChange &&
+        prompts &&
+        promptsLoading !== undefined && (
+          <Card className="w-full max-w-[90%] md:max-w-[95%] self-center py-5 px-4 bg-gray-50 shadow-md">
+            <div className="flex items-center gap-2 mb-3">
+              <Label className="text-base font-semibold">Analysis Type</Label>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-[300px] p-3">
+                    <div className="space-y-2">
+                      <h4 className="font-medium text-sm">
+                        What does the AI do?
+                      </h4>
+                      <ul className="text-xs space-y-1">
+                        <li>• Extracts key topics and their summaries</li>
+                        <li>• Highlights most active/influential users</li>
+                        <li>• Identifies trending discussions and patterns</li>
+                        <li>
+                          • Provides actionable insights for community
+                          management
+                        </li>
+                      </ul>
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+            {promptsLoading ? (
+              <div className="flex items-center gap-2">
+                <Loader2Icon className="h-4 w-4 animate-spin" />
+                <span className="text-sm text-muted-foreground">
+                  Loading prompts...
+                </span>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      className="w-full justify-between"
+                    >
+                      {selectedPrompt ? (
+                        <div className="flex items-center gap-2">
+                          {(() => {
+                            const {
+                              icon: Icon,
+                              color,
+                              bgColor,
+                            } = getPromptIcon(selectedPrompt);
+                            return (
+                              <div className={cn("p-1 rounded", bgColor)}>
+                                <Icon className={cn("h-3 w-3", color)} />
+                              </div>
+                            );
+                          })()}
+                          <span className="truncate">
+                            {availablePrompts
+                              .find((p) => p.name === selectedPrompt)
+                              ?.name.replace(/_/g, " ") ||
+                              "Select analysis type"}
+                          </span>
+                        </div>
+                      ) : (
+                        "Select analysis type"
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[500px] p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder="Search analysis types..." />
+                      <CommandList className="max-h-[400px]">
+                        <CommandEmpty>No analysis type found.</CommandEmpty>
+                        {availablePrompts.map((prompt: any) => {
+                          const {
+                            icon: Icon,
+                            color,
+                            bgColor,
+                          } = getPromptIcon(prompt.name);
+                          return (
+                            <CommandItem
+                              key={prompt.name}
+                              value={prompt.name}
+                              onSelect={() => onPromptChange(prompt.name)}
+                              className="flex items-start gap-3 p-3 cursor-pointer"
+                            >
+                              <div
+                                className={cn("p-2 rounded-md mt-0.5", bgColor)}
+                              >
+                                <Icon className={cn("h-4 w-4", color)} />
+                              </div>
+                              <div className="flex flex-col flex-1 min-h-0">
+                                <span className="font-medium text-sm leading-tight">
+                                  {prompt.name.replace(/_/g, " ")}
+                                </span>
+                                <span className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                                  {prompt.description}
+                                </span>
+                              </div>
+                            </CommandItem>
+                          );
+                        })}
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+
+                {/* Affichage du prompt sélectionné */}
+                {selectedPrompt &&
+                  prompts.find((p) => p.name === selectedPrompt) && (
+                    <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                      <div className="flex items-start gap-3">
+                        <div className="p-2 rounded-md bg-blue-100">
+                          <SparklesIcon className="h-4 w-4 text-blue-600" />
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="font-medium text-sm text-blue-900">
+                            {prompts
+                              .find((p) => p.name === selectedPrompt)
+                              ?.name.replace(/_/g, " ")}
+                          </h4>
+                          <p className="text-xs text-blue-700 mt-1">
+                            {
+                              prompts.find((p) => p.name === selectedPrompt)
+                                ?.description
+                            }
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+              </div>
+            )}
+          </Card>
+        )}
+
+      {/* 3. Scope of analysis */}
       <Card className="w-full max-w-[90%] md:max-w-[95%] self-center py-5 px-4 bg-gray-50 shadow-md">
         <Label className="block mb-3 text-base font-semibold">
           Scope of analysis
@@ -244,7 +425,7 @@ export function AnalysisInputBase({
       </Card>
 
       {/* 4. Mode selection */}
-      <Card className="w-full max-w-[90%] md:max-w-[95%] self-center py-5 px-4 bg-gray-50 shadow-md">
+      {/* <Card className="w-full max-w-[90%] md:max-w-[95%] self-center py-5 px-4 bg-gray-50 shadow-md">
         <Label className="block mb-3 text-base font-semibold">Mode</Label>
         <RadioGroup
           value={mode}
@@ -269,57 +450,13 @@ export function AnalysisInputBase({
             <Label htmlFor="reasoning">Reasoning</Label>
           </div>
         </RadioGroup>
-      </Card>
-
-      {/* 5. Prompt selection (uniquement pour trends) */}
-      {analysisType === "trend" &&
-        selectedPrompt !== undefined &&
-        onPromptChange &&
-        prompts &&
-        promptsLoading !== undefined && (
-          <Card className="w-full max-w-[90%] md:max-w-[95%] self-center py-5 px-4 bg-gray-50 shadow-md">
-            <Label className="block mb-3 text-base font-semibold">
-              Analysis Type
-            </Label>
-            {promptsLoading ? (
-              <div className="flex items-center gap-2">
-                <Loader2Icon className="h-4 w-4 animate-spin" />
-                <span className="text-sm text-muted-foreground">
-                  Loading prompts...
-                </span>
-              </div>
-            ) : (
-              <Select value={selectedPrompt} onValueChange={onPromptChange}>
-                <SelectTrigger className="w-64">
-                  <SelectValue placeholder="Select analysis type" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Array.isArray(prompts) &&
-                    prompts.map((prompt) => (
-                      <SelectItem key={prompt.name} value={prompt.name}>
-                        <div className="flex flex-col">
-                          <span className="font-medium">
-                            {prompt.name.replace(/_/g, " ")}
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            {prompt.description}
-                          </span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
-            )}
-          </Card>
-        )}
-
-      <AnalysisDescription type={analysisType} />
+      </Card> */}
 
       {/* 6. Launch button */}
       <div className="pt-2">
         <Button
           className="w-full px-8"
-          aria-label={`Start ${analysisType} analysis`}
+          aria-label="Start analysis"
           size="lg"
           disabled={!canLaunch || loading}
           onClick={() =>
