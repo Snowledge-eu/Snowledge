@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui";
 import { Avatar, AvatarFallback } from "@repo/ui";
-import { TimeframeBadge } from "../timeframe-badge";
-import { PlatformAndScopeRow } from "../platform-and-scope-row";
+import { TimeframeBadge } from "./timeframe-badge";
+import { PlatformAndScopeRow } from "./platform-and-scope-row";
 
 // ============
 // Types communs
@@ -55,36 +55,6 @@ export function AnalysisResultBase({
       <CardContent className="space-y-8">
         {/* Contenu spécifique injecté par les composants enfants */}
         {children}
-
-        {/* Section Notable Users commune */}
-        {result.notable_users && result.notable_users.length > 0 && (
-          <div className="mt-10">
-            <h3 className="font-semibold text-lg md:text-xl text-muted-foreground mb-3">
-              Notable Users
-            </h3>
-            <div className="flex flex-wrap justify-start gap-x-8 gap-y-6 mb-2">
-              {result.notable_users.map((user: string, idx: number) => (
-                <div
-                  key={idx}
-                  className="flex flex-col items-center"
-                  title={user}
-                  tabIndex={0}
-                  aria-label={user}
-                >
-                  <Avatar className="size-12">
-                    <AvatarFallback>{user[0]}</AvatarFallback>
-                  </Avatar>
-                  <span
-                    className="text-xs mt-2 text-foreground max-w-[80px] truncate"
-                    title={user}
-                  >
-                    {user}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </CardContent>
     </Card>
   );

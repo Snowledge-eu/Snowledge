@@ -9,7 +9,7 @@ import {
   Separator,
 } from "@repo/ui";
 import React from "react";
-import { AnalysisResultBase } from "./analysis-result-base";
+import { AnalysisResultBase } from "./shared/analysis-result-base";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 
@@ -20,7 +20,7 @@ import { useParams } from "next/navigation";
 // PARAMS: result: object formatted per discord_trends_v2 schema
 // RETURNS: JSX.Element
 // ============
-export function TrendResultBase({ result }: { result: any }) {
+export function TrendResult({ result }: { result: any }) {
   if (!result) return null;
   const { slug } = useParams();
 
@@ -125,13 +125,13 @@ export function TrendResultBase({ result }: { result: any }) {
                   </div>
                   <ul className="list-disc ml-5 text-sm space-y-1">
                     {trend?.representative_messages?.map(
-                      (msg: string, idx: number) => (
-                        <li key={idx}>{msg}</li>
-                      )
+                      (msg: string, idx: number) => <li key={idx}>{msg}</li>
                     )}
                   </ul>
                 </div>
-                <Link href={`/${slug}/summary?analysisId=${result._id}&trendId=${index}`}>
+                <Link
+                  href={`/${slug}/summary?analysisId=${result._id}&trendId=${index}`}
+                >
                   <Button
                     className="w-24 justify-self-end"
                     aria-label="Start support"

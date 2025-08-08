@@ -7,11 +7,11 @@ import {
 import {
   SummaryList,
   SummaryResult,
-} from "@/components/my-community/analysis/shared/summary-components";
+} from "@/components/my-community/analysis/summary-components";
 import {
   TrendList,
   TrendResult,
-} from "@/components/my-community/analysis/shared/trend-components";
+} from "@/components/my-community/analysis/trend-components";
 import { useAuth } from "@/contexts/auth-context";
 import { useCurrentCommunity } from "@/hooks/useCurrentCommunity";
 import { usePrompts } from "@/hooks/usePrompts";

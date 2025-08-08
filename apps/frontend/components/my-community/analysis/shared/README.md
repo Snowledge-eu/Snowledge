@@ -1,8 +1,8 @@
-# Composants d'Analyse - Architecture Cohérente
+# Composants d'Analyse - Organisation par Type
 
 ## 🎯 **Vue d'ensemble**
 
-Cette structure a été refactorisée pour éliminer la duplication de code entre les composants Summary et Trends. L'architecture suit maintenant un pattern cohérent avec une vraie séparation entre base et spécialisations.
+Cette structure organise les composants par type d'analyse (Summary et Trends) avec des composants spécialisés qui contiennent toute la logique spécifique. Les composants de base fournissent la structure commune.
 
 ## 📁 **Structure des fichiers**
 
@@ -12,11 +12,13 @@ shared/
 ├── README.md                   # Documentation
 ├── analysis-input-base.tsx     # Base pour tous les inputs d'analyse
 ├── analysis-list-base.tsx      # Base pour toutes les listes d'analyses
-├── analysis-result-base.tsx    # Base commune pour les résultats (structure pure)
-├── summary-result-base.tsx     # Spécialisé pour les résultats de summaries
-├── trend-result-base.tsx       # Spécialisé pour les résultats de trends
-├── summary-components.tsx      # Composants spécialisés pour Summary
-└── trend-components.tsx        # Composants spécialisés pour Trends
+├── analysis-result-base.tsx    # Base commune pour les résultats
+├── summary-components.tsx      # Composants spécialisés Summary (Input, List, Result)
+├── trend-components.tsx        # Composants spécialisés Trends (Input, List, Result)
+├── analysis-description.tsx    # Description des types d'analyse
+├── platform-icon-buttons.tsx   # Sélection de plateformes
+├── platform-and-scope-row.tsx  # Affichage plateforme/scope
+└── timeframe-badge.tsx         # Badge de période
 ```
 
 ## 🧩 **Composants de base**
@@ -37,36 +39,31 @@ shared/
 
 ### `AnalysisResultBase`
 
-- **Rôle** : Composant de base pour les résultats d'analyses (structure commune pure)
-- **Fonctionnalités** : Card, header, footer, notable users (pas de logique métier)
+- **Rôle** : Composant de base pour les résultats d'analyses
+- **Fonctionnalités** : Structure commune (Card, header, footer, notable users)
 - **Props** : `AnalysisResultBaseProps`
 - **Pattern** : Utilise `children` pour injecter le contenu spécifique
 
 ## 🎨 **Composants spécialisés**
 
-### `SummaryResultBase`
-
-- **Rôle** : Composant spécialisé pour les résultats de summaries
-- **Fonctionnalités** : Summary text + action points
-- **Architecture** : Utilise `AnalysisResultBase` + contenu spécifique
-
-### `TrendResultBase`
-
-- **Rôle** : Composant spécialisé pour les résultats de trends
-- **Fonctionnalités** : Podium utilisateurs + accordéon des tendances
-- **Architecture** : Utilise `AnalysisResultBase` + contenu spécifique
-
 ### Summary Components (`summary-components.tsx`)
 
-- `SummaryInput` - Wrapper pour les inputs de summary
-- `SummaryList` - Wrapper pour les listes de summary
-- `SummaryResult` - Wrapper pour les résultats de summary
+- **`SummaryInput`** - Input spécialisé pour les summaries
+- **`SummaryList`** - Liste spécialisée pour les summaries
+- **`SummaryResult`** - Résultat spécialisé avec summary + action points
 
 ### Trend Components (`trend-components.tsx`)
 
-- `TrendInput` - Wrapper pour les inputs de trends
-- `TrendList` - Wrapper pour les listes de trends
-- `TrendResult` - Wrapper pour les résultats de trends
+- **`TrendInput`** - Input spécialisé pour les trends
+- **`TrendList`** - Liste spécialisée pour les trends
+- **`TrendResult`** - Résultat spécialisé avec podium + accordéon
+
+### Composants communs
+
+- **`AnalysisDescription`** - Description des types d'analyse
+- **`PlatformIconButtons`** - Sélection de plateformes avec icônes
+- **`PlatformAndScopeRow`** - Affichage plateforme et scope
+- **`TimeframeBadge`** - Badge pour afficher la période
 
 ## 📦 **Exports**
 
@@ -78,15 +75,24 @@ import {
   AnalysisInputBase,
   AnalysisListBase,
   AnalysisResultBase,
-  SummaryResultBase,
-  TrendResultBase,
-} from "./shared";
+  type AnalysisInputBaseProps,
+  type AnalysisListBaseProps,
+  type AnalysisResultBaseProps,
+} from "@/components/my-community/analysis/shared";
 
 // Composants spécialisés Summary
-import { SummaryInput, SummaryList, SummaryResult } from "./shared";
+import { SummaryInput, SummaryList, SummaryResult } from "@/components/my-community/analysis/shared";
 
 // Composants spécialisés Trends
-import { TrendInput, TrendList, TrendResult } from "./shared";
+import { TrendInput, TrendList, TrendResult } from "@/components/my-community/analysis/shared";
+
+// Composants communs
+import {
+  AnalysisDescription,
+  PlatformIconButtons,
+  PlatformAndScopeRow,
+  TimeframeBadge,
+} from "@/components/my-community/analysis/shared";
 ```
 
 ## 🚀 **Utilisation**
@@ -121,38 +127,30 @@ import { TrendInput, TrendList, TrendResult } from '@/components/my-community/an
 <TrendResult result={result} />
 ```
 
-## ✅ **Avantages de cette architecture**
+## ✅ **Avantages de cette organisation**
 
-1. **DRY (Don't Repeat Yourself)** - Élimination de ~800 lignes de code dupliqué
-2. **Cohérence architecturale** - Vraie séparation base/spécialisations
-3. **Maintenabilité** - Un seul endroit pour modifier la logique commune
-4. **Extensibilité** - Facile d'ajouter de nouveaux types d'analyses
-5. **Tests** - Moins de code à tester, plus de réutilisabilité
-6. **Organisation** - Structure claire et logique
+1. **Organisation par type** - Logique regroupée par type d'analyse
+2. **Spécialisation** - Chaque composant contient sa logique spécifique
+3. **Réutilisabilité** - Composants de base partagés
+4. **Maintenabilité** - Structure claire et organisée
+5. **Extensibilité** - Facile d'ajouter de nouveaux types
 
-## 🏗️ **Pattern architectural**
-
-```
-AnalysisResultBase (structure commune)
-├── SummaryResultBase (contenu spécifique)
-└── TrendResultBase (contenu spécifique)
-```
-
-Cette architecture garantit :
-- **Pas de duplication** de structure commune
-- **Séparation claire** entre base et spécialisations
-- **Cohérence** entre tous les types de résultats
-- **Extensibilité** pour de nouveaux types d'analyses
-
-## 🔄 **Migration**
-
-Les anciens imports peuvent être remplacés par les nouveaux :
+## 🎯 **Pattern d'utilisation**
 
 ```typescript
-// Avant
-import { SummaryInput } from "./summary/summary-input";
-import { TrendInputCard } from "./trend/trend-input";
+// Pour summaries
+import { SummaryInput, SummaryList, SummaryResult } from './shared';
 
-// Après
-import { SummaryInput, TrendInput } from "./shared";
+// Pour trends
+import { TrendInput, TrendList, TrendResult } from './shared';
+
+// Utilisation simple et directe
+<SummaryInput {...props} />
+<TrendInput {...props} />
 ```
+
+Cette organisation garantit :
+- **Simplicité** - Imports directs par type
+- **Spécialisation** - Logique spécifique dans chaque composant
+- **Cohérence** - Interface uniforme par type
+- **Flexibilité** - Réutilisation des composants de base

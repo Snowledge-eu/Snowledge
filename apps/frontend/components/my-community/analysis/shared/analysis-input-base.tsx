@@ -18,8 +18,8 @@ import {
 } from "@repo/ui";
 
 import { CalendarIcon, Loader2Icon } from "lucide-react";
-import { PlatformIconButtons } from "../platform-icon-buttons";
-import { AnalysisDescription } from "../analysis-description";
+import { PlatformIconButtons } from "./platform-icon-buttons";
+import { AnalysisDescription } from "./analysis-description";
 import { cn } from "@workspace/ui/lib/utils";
 import { format } from "date-fns";
 import { MultiSelect } from "@/components/shared/community/ui/MultiSelect";

@@ -9,7 +9,7 @@ import {
   Button,
 } from "@repo/ui";
 import { SocialIcon } from "react-social-icons";
-import { TimeframeBadge } from "../timeframe-badge";
+import { TimeframeBadge } from "./timeframe-badge";
 
 // ============
 // Types communs

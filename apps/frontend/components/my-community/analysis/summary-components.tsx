@@ -1,10 +1,9 @@
 import {
   AnalysisInputBase,
   AnalysisListBase,
-  AnalysisResultBase,
+  SummaryResultBase,
   type AnalysisInputBaseProps,
-} from "./index";
-import { CheckCircle2 } from "lucide-react";
+} from "./shared/index";
 
 // ============
 // Types pour les summaries
@@ -81,32 +80,5 @@ export function SummaryResult({
     scope,
   };
 
-  return (
-    <AnalysisResultBase result={result} title="Summary Analysis">
-      <div>
-        <h3 className="font-semibold text-lg md:text-xl text-muted-foreground mb-3">
-          Summary
-        </h3>
-        <p className="text-base md:text-lg text-foreground leading-relaxed font-medium">
-          {result.summary}
-        </p>
-      </div>
-      <div>
-        <h3 className="font-semibold text-lg md:text-xl text-muted-foreground mb-3">
-          Action Points
-        </h3>
-        <ul className="list-disc list-inside space-y-3">
-          {result.action_points?.map((point: string, idx: number) => (
-            <li
-              key={idx}
-              className="text-base md:text-lg flex items-start gap-3 font-medium"
-            >
-              <CheckCircle2 size={20} className="text-primary mt-0.5" />
-              <span>{point}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </AnalysisResultBase>
-  );
+  return <SummaryResultBase result={result} />;
 }

@@ -1,5 +1,5 @@
 import { CheckCircle2 } from "lucide-react";
-import { AnalysisResultBase } from "./analysis-result-base";
+import { AnalysisResultBase } from "./shared/analysis-result-base";
 
 // ============
 // Function: SummaryResultBase
