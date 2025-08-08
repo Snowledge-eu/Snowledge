@@ -10,46 +10,60 @@ import {
   RadioGroup,
   RadioGroupItem,
   Badge,
-  PopoverContent,
-  Popover,
-  Calendar,
   Button,
+  Popover,
   PopoverTrigger,
+  PopoverContent,
+  Calendar,
 } from "@repo/ui";
+
 import { CalendarIcon, Loader2Icon } from "lucide-react";
 import { PlatformIconButtons } from "../platform-icon-buttons";
-import { format } from "date-fns";
-import { cn } from "@workspace/ui/lib/utils";
 import { AnalysisDescription } from "../analysis-description";
+import { cn } from "@workspace/ui/lib/utils";
+import { format } from "date-fns";
 import { MultiSelect } from "@/components/shared/community/ui/MultiSelect";
 
 // ============
-// Function: TrendInputCard
+// Types communs
+// ============
+export interface AnalysisInputBaseProps {
+  platforms: any[];
+  selectedPlatform: string;
+  onSelectPlatform: (v: string) => void;
+  scope: "all" | "custom";
+  onScopeChange: (v: "all" | "custom") => void;
+  discordChannels: { label: string; value: string }[];
+  selectedChannels: Array<{ label: string; value: string }>;
+  onChannelsChange: (v: Array<{ label: string; value: string }>) => void;
+  timeRange: string;
+  onTimeRangeChange: (v: string) => void;
+  customDate: Date | undefined;
+  onCustomDateChange: (date: Date | undefined) => void;
+  mode: "Meta-Llama-3_3-70B-Instruct" | "DeepSeek-R1-Distill-Llama-70B";
+  onModeChange: (
+    v: "Meta-Llama-3_3-70B-Instruct" | "DeepSeek-R1-Distill-Llama-70B"
+  ) => void;
+  messageCount: number;
+  canLaunch: boolean;
+  loading: boolean;
+  onStart: (channels: Array<string>, model: string, period: string) => void;
+  analysisType: "summary" | "trend";
+  // Props spécifiques aux trends
+  selectedPrompt?: string;
+  onPromptChange?: (v: string) => void;
+  prompts?: any[];
+  promptsLoading?: boolean;
+}
+
+// ============
+// Function: AnalysisInputBase
 // ------------
-// DESCRIPTION: Card de configuration d'analyse de tendances multi-plateformes, réutilisable, avec tous les champs et contrôles nécessaires.
-// PARAMS:
-//   platforms: array des plateformes disponibles
-//   selectedPlatform: string, plateforme sélectionnée
-//   onSelectPlatform: (string) => void, handler sélection plateforme
-//   scope: 'all' | 'custom', scope sélectionné
-//   onScopeChange: (val: 'all' | 'custom') => void
-//   discordChannels: array des channels Discord
-//   selectedChannels: string[], channels sélectionnés
-//   onChannelsChange: (string[]) => void
-//   timeRange: string, time range sélectionné
-//   onTimeRangeChange: (string) => void
-//   customDate: Date | undefined, date custom
-//   onCustomDateChange: (Date | undefined) => void
-//   mode: 'standard' | 'reasoning', mode sélectionné
-//   onModeChange: (val: 'standard' | 'reasoning') => void
-//   messageCount: number, nombre de messages à analyser
-//   canLaunch: boolean, bouton activable
-//   loading: boolean, loading state
-//   onStart: () => void, handler lancement analyse
-//   PlatformIconButton: composant pour les icônes plateformes
+// DESCRIPTION: Composant de base réutilisable pour les inputs d'analyse (summary et trends)
+// PARAMS: AnalysisInputBaseProps
 // RETURNS: JSX.Element
 // ============
-export function TrendInputCard({
+export function AnalysisInputBase({
   platforms,
   selectedPlatform,
   onSelectPlatform,
@@ -64,42 +78,16 @@ export function TrendInputCard({
   onCustomDateChange,
   mode,
   onModeChange,
-  selectedPrompt,
-  onPromptChange,
-  prompts,
-  promptsLoading,
   messageCount,
   canLaunch,
   loading,
   onStart,
-  PlatformIconButton,
-}: {
-  platforms: any[];
-  selectedPlatform: string;
-  onSelectPlatform: (v: string) => void;
-  scope: "all" | "custom";
-  onScopeChange: (v: "all" | "custom") => void;
-  discordChannels: { label: string; value: string }[];
-  selectedChannels: Array<{ label: string; value: string }>;
-  onChannelsChange: (v: Array<{ label: string; value: string }>) => void;
-  timeRange: string;
-  onTimeRangeChange: (v: string) => void;
-  customDate: Date | undefined;
-  onCustomDateChange: (v: Date | undefined) => void;
-  mode: "Meta-Llama-3_3-70B-Instruct" | "DeepSeek-R1-Distill-Llama-70B";
-  onModeChange: (
-    v: "Meta-Llama-3_3-70B-Instruct" | "DeepSeek-R1-Distill-Llama-70B"
-  ) => void;
-  selectedPrompt: string;
-  onPromptChange: (v: string) => void;
-  prompts: any[];
-  promptsLoading: boolean;
-  messageCount: number;
-  canLaunch: boolean;
-  loading: boolean;
-  onStart: (channels: Array<string>, model: string, period: string) => void;
-  PlatformIconButton: React.FC<any>;
-}) {
+  analysisType,
+  selectedPrompt,
+  onPromptChange,
+  prompts,
+  promptsLoading,
+}: AnalysisInputBaseProps) {
   // Fake videos for YouTube select
   const fakeYoutubeVideos = [
     { label: "Intro to Voting", value: "vid1" },
@@ -110,6 +98,21 @@ export function TrendInputCard({
     Array<{ label: string; value: string }>
   >([]);
 
+  const getMessageCountText = () => {
+    if (selectedPlatform === "youtube") {
+      return messageCount > 0
+        ? `${messageCount.toLocaleString()} comments to be analyzed`
+        : "No comments to analyze";
+    }
+    return messageCount > 0
+      ? `${messageCount.toLocaleString()} messages to be analyzed`
+      : "No messages to analyze";
+  };
+
+  const getButtonText = () => {
+    return analysisType === "summary" ? "Start Summary" : "Start Analysis";
+  };
+
   return (
     <div className="bg-muted rounded-xl shadow p-6 flex flex-col gap-10">
       {/* 1. Platform selection with icons */}
@@ -118,6 +121,7 @@ export function TrendInputCard({
         selectedPlatform={selectedPlatform}
         onSelectPlatform={onSelectPlatform}
       />
+
       {/* 2. Scope of analysis */}
       <Card className="w-full max-w-[90%] md:max-w-[95%] self-center py-5 px-4 bg-gray-50 shadow-md">
         <Label className="block mb-3 text-base font-semibold">
@@ -145,7 +149,6 @@ export function TrendInputCard({
                       value={selectedChannels}
                       onChange={onChannelsChange}
                       placeholder="Select channels..."
-                      //   label={undefined}
                     />
                   </div>
                 </div>
@@ -175,7 +178,6 @@ export function TrendInputCard({
                       value={selectedYoutubeVideos}
                       onChange={setSelectedYoutubeVideos}
                       placeholder="Select videos..."
-                      //   label={undefined}
                     />
                   </div>
                 </div>
@@ -189,21 +191,12 @@ export function TrendInputCard({
           </div>
         )}
         <div className="mt-4">
-          {selectedPlatform === "discord" ? (
-            <Badge variant={messageCount > 0 ? "default" : "destructive"}>
-              {messageCount > 0
-                ? `${messageCount.toLocaleString()} messages to be analyzed`
-                : "No messages to analyze"}
-            </Badge>
-          ) : selectedPlatform === "youtube" ? (
-            <Badge variant={messageCount > 0 ? "default" : "destructive"}>
-              {messageCount > 0
-                ? `${messageCount.toLocaleString()} comments to be analyzed`
-                : "No comments to analyze"}
-            </Badge>
-          ) : null}
+          <Badge variant={messageCount > 0 ? "default" : "destructive"}>
+            {getMessageCountText()}
+          </Badge>
         </div>
       </Card>
+
       {/* 3. Time range */}
       <Card className="w-full max-w-[90%] md:max-w-[95%] self-center py-5 px-4 bg-gray-50 shadow-md">
         <Label className="block mb-3 text-base font-semibold">Time range</Label>
@@ -220,7 +213,6 @@ export function TrendInputCard({
         </Select>
         {timeRange === "custom" && (
           <div className="mt-2">
-            {/* <DatePickerDemo date={customDate} setDate={onCustomDateChange} /> */}
             <Popover>
               <PopoverTrigger asChild>
                 <Button
@@ -250,6 +242,7 @@ export function TrendInputCard({
           </div>
         )}
       </Card>
+
       {/* 4. Mode selection */}
       <Card className="w-full max-w-[90%] md:max-w-[95%] self-center py-5 px-4 bg-gray-50 shadow-md">
         <Label className="block mb-3 text-base font-semibold">Mode</Label>
@@ -277,47 +270,56 @@ export function TrendInputCard({
           </div>
         </RadioGroup>
       </Card>
-      {/* 5. Prompt selection */}
-      <Card className="w-full max-w-[90%] md:max-w-[95%] self-center py-5 px-4 bg-gray-50 shadow-md">
-        <Label className="block mb-3 text-base font-semibold">
-          Analysis Type
-        </Label>
-        {promptsLoading ? (
-          <div className="flex items-center gap-2">
-            <Loader2Icon className="h-4 w-4 animate-spin" />
-            <span className="text-sm text-muted-foreground">
-              Loading prompts...
-            </span>
-          </div>
-        ) : (
-          <Select value={selectedPrompt} onValueChange={onPromptChange}>
-            <SelectTrigger className="w-64">
-              <SelectValue placeholder="Select analysis type" />
-            </SelectTrigger>
-            <SelectContent>
-              {Array.isArray(prompts) &&
-                prompts.map((prompt) => (
-                  <SelectItem key={prompt.name} value={prompt.name}>
-                    <div className="flex flex-col">
-                      <span className="font-medium">
-                        {prompt.name.replace(/_/g, " ")}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {prompt.description}
-                      </span>
-                    </div>
-                  </SelectItem>
-                ))}
-            </SelectContent>
-          </Select>
+
+      {/* 5. Prompt selection (uniquement pour trends) */}
+      {analysisType === "trend" &&
+        selectedPrompt !== undefined &&
+        onPromptChange &&
+        prompts &&
+        promptsLoading !== undefined && (
+          <Card className="w-full max-w-[90%] md:max-w-[95%] self-center py-5 px-4 bg-gray-50 shadow-md">
+            <Label className="block mb-3 text-base font-semibold">
+              Analysis Type
+            </Label>
+            {promptsLoading ? (
+              <div className="flex items-center gap-2">
+                <Loader2Icon className="h-4 w-4 animate-spin" />
+                <span className="text-sm text-muted-foreground">
+                  Loading prompts...
+                </span>
+              </div>
+            ) : (
+              <Select value={selectedPrompt} onValueChange={onPromptChange}>
+                <SelectTrigger className="w-64">
+                  <SelectValue placeholder="Select analysis type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Array.isArray(prompts) &&
+                    prompts.map((prompt) => (
+                      <SelectItem key={prompt.name} value={prompt.name}>
+                        <div className="flex flex-col">
+                          <span className="font-medium">
+                            {prompt.name.replace(/_/g, " ")}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            {prompt.description}
+                          </span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            )}
+          </Card>
         )}
-      </Card>
-      <AnalysisDescription type="trend" />
+
+      <AnalysisDescription type={analysisType} />
+
       {/* 6. Launch button */}
       <div className="pt-2">
         <Button
           className="w-full px-8"
-          aria-label="Start analysis"
+          aria-label={`Start ${analysisType} analysis`}
           size="lg"
           disabled={!canLaunch || loading}
           onClick={() =>
@@ -334,7 +336,7 @@ export function TrendInputCard({
               Please wait
             </>
           ) : (
-            "Start Analysis"
+            getButtonText()
           )}
         </Button>
       </div>

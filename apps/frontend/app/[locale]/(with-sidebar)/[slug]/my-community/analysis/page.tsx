@@ -1,12 +1,17 @@
 "use client";
 import { useChannelSections } from "@/components/manage-integrations/hooks/useChannelSections";
-import { PlatformIconButtons } from "@/components/my-community/trendes-analytics/platform-icon-buttons";
-import { SummaryInput } from "@/components/my-community/trendes-analytics/summary/summary-input";
-import { TrendInputCard } from "@/components/my-community/trendes-analytics/trend/trend-input";
-import { SummaryList } from "@/components/my-community/trendes-analytics/summary/summary-list";
-import SummaryResult from "@/components/my-community/trendes-analytics/summary/summary-result";
-import { TrendResultCard } from "@/components/my-community/trendes-analytics/trend/trend-result";
-import { TrendListCard } from "@/components/my-community/trendes-analytics/trend/trend-list";
+import {
+  SummaryInput,
+  TrendInput,
+} from "@/components/my-community/analysis/shared";
+import {
+  SummaryList,
+  SummaryResult,
+} from "@/components/my-community/analysis/shared/summary-components";
+import {
+  TrendList,
+  TrendResult,
+} from "@/components/my-community/analysis/shared/trend-components";
 import { useAuth } from "@/contexts/auth-context";
 import { useCurrentCommunity } from "@/hooks/useCurrentCommunity";
 import { usePrompts } from "@/hooks/usePrompts";
@@ -520,7 +525,7 @@ export default function Page() {
           </TabsContent>
 
           <TabsContent value="trend" className="mt-0">
-            <TrendInputCard
+            <TrendInput
               platforms={platforms}
               selectedPlatform={selectedPlatform}
               onSelectPlatform={setSelectedPlatform}
@@ -535,15 +540,14 @@ export default function Page() {
               onCustomDateChange={setCustomDate}
               mode={mode}
               onModeChange={setMode}
-              selectedPrompt={selectedPrompt}
-              onPromptChange={setSelectedPrompt}
-              prompts={prompts || []}
-              promptsLoading={promptsLoading}
               messageCount={messageCount}
               canLaunch={canLaunch}
               loading={loading}
               onStart={startTrendAnalysis}
-              PlatformIconButton={PlatformIconButtons}
+              selectedPrompt={selectedPrompt}
+              onPromptChange={setSelectedPrompt}
+              prompts={prompts || []}
+              promptsLoading={promptsLoading}
             />
           </TabsContent>
         </Tabs>
@@ -568,12 +572,9 @@ export default function Page() {
           </>
         ) : (
           <>
-            <TrendResultCard result={selectedResult} />
+            <TrendResult result={selectedResult} />
             <Card className="w-full max-w-5xl mx-auto p-6 md:p-8 shadow-lg border bg-white space-y-6 mt-8">
-              <TrendListCard
-                history={trendHistory}
-                onSelect={setSelectedResult}
-              />
+              <TrendList history={trendHistory} onSelect={setSelectedResult} />
             </Card>
           </>
         )}
