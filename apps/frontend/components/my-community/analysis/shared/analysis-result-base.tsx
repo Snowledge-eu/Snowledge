@@ -1,5 +1,4 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui";
-import { CheckCircle2 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@repo/ui";
 import { TimeframeBadge } from "../timeframe-badge";
 import { PlatformAndScopeRow } from "../platform-and-scope-row";
@@ -9,28 +8,23 @@ import { PlatformAndScopeRow } from "../platform-and-scope-row";
 // ============
 export interface AnalysisResultBaseProps {
   result: any;
-  analysisType: "summary" | "trend";
   title?: string;
+  children?: React.ReactNode;
 }
 
 // ============
 // Function: AnalysisResultBase
 // ------------
-// DESCRIPTION: Composant de base réutilisable pour les résultats d'analyses (summary et trends)
+// DESCRIPTION: Composant de base réutilisable pour les résultats d'analyses (structure commune pure)
 // PARAMS: AnalysisResultBaseProps
 // RETURNS: JSX.Element
 // ============
 export function AnalysisResultBase({
   result,
-  analysisType,
   title,
+  children,
 }: AnalysisResultBaseProps) {
   if (!result) return null;
-
-  const getTitle = () => {
-    if (title) return title;
-    return analysisType === "summary" ? "Summary Analysis" : "Trend Analysis";
-  };
 
   const platform = result?.platform || "discord";
   const scope = result?.scope || "all";
@@ -39,7 +33,7 @@ export function AnalysisResultBase({
     <Card className="w-full max-w-5xl mx-auto p-6 md:p-8 shadow-lg border bg-white space-y-6">
       <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-2">
         <CardTitle className="flex items-center gap-2 text-lg font-semibold">
-          {getTitle()}
+          {title || "Analysis"}
         </CardTitle>
         {result?.timeframe && (
           <TimeframeBadge
@@ -59,35 +53,8 @@ export function AnalysisResultBase({
       />
 
       <CardContent className="space-y-8">
-        {/* Contenu spécifique à chaque type d'analyse sera géré par les composants enfants */}
-        {analysisType === "summary" && (
-          <>
-            <div>
-              <h3 className="font-semibold text-lg md:text-xl text-muted-foreground mb-3">
-                Summary
-              </h3>
-              <p className="text-base md:text-lg text-foreground leading-relaxed font-medium">
-                {result.summary}
-              </p>
-            </div>
-            <div>
-              <h3 className="font-semibold text-lg md:text-xl text-muted-foreground mb-3">
-                Action Points
-              </h3>
-              <ul className="list-disc list-inside space-y-3">
-                {result.action_points?.map((point: string, idx: number) => (
-                  <li
-                    key={idx}
-                    className="text-base md:text-lg flex items-start gap-3 font-medium"
-                  >
-                    <CheckCircle2 size={20} className="text-primary mt-0.5" />
-                    <span>{point}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </>
-        )}
+        {/* Contenu spécifique injecté par les composants enfants */}
+        {children}
 
         {/* Section Notable Users commune */}
         {result.notable_users && result.notable_users.length > 0 && (

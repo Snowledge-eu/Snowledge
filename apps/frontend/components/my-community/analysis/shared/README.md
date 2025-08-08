@@ -1,8 +1,8 @@
-# Composants d'Analyse - Structure Refactorisée
+# Composants d'Analyse - Architecture Cohérente
 
 ## 🎯 **Vue d'ensemble**
 
-Cette structure a été refactorisée pour éliminer la duplication de code entre les composants Summary et Trends. Tous les composants partagent maintenant une base commune tout en conservant leurs spécificités.
+Cette structure a été refactorisée pour éliminer la duplication de code entre les composants Summary et Trends. L'architecture suit maintenant un pattern cohérent avec une vraie séparation entre base et spécialisations.
 
 ## 📁 **Structure des fichiers**
 
@@ -12,7 +12,8 @@ shared/
 ├── README.md                   # Documentation
 ├── analysis-input-base.tsx     # Base pour tous les inputs d'analyse
 ├── analysis-list-base.tsx      # Base pour toutes les listes d'analyses
-├── analysis-result-base.tsx    # Base pour les résultats d'analyses
+├── analysis-result-base.tsx    # Base commune pour les résultats (structure pure)
+├── summary-result-base.tsx     # Spécialisé pour les résultats de summaries
 ├── trend-result-base.tsx       # Spécialisé pour les résultats de trends
 ├── summary-components.tsx      # Composants spécialisés pour Summary
 └── trend-components.tsx        # Composants spécialisés pour Trends
@@ -36,19 +37,24 @@ shared/
 
 ### `AnalysisResultBase`
 
-- **Rôle** : Composant de base pour les résultats d'analyses
-- **Fonctionnalités** : Structure commune (notable users, timeframe, platform)
+- **Rôle** : Composant de base pour les résultats d'analyses (structure commune pure)
+- **Fonctionnalités** : Card, header, footer, notable users (pas de logique métier)
 - **Props** : `AnalysisResultBaseProps`
-- **Spécialisations** : Contenu spécifique selon le type d'analyse
+- **Pattern** : Utilise `children` pour injecter le contenu spécifique
+
+## 🎨 **Composants spécialisés**
+
+### `SummaryResultBase`
+
+- **Rôle** : Composant spécialisé pour les résultats de summaries
+- **Fonctionnalités** : Summary text + action points
+- **Architecture** : Utilise `AnalysisResultBase` + contenu spécifique
 
 ### `TrendResultBase`
 
 - **Rôle** : Composant spécialisé pour les résultats de trends
-- **Fonctionnalités** : Podium utilisateurs, accordéon des tendances
-- **Props** : `{ result: any }`
-- **Spécialisations** : Logique spécifique aux trends
-
-## 🎨 **Composants spécialisés**
+- **Fonctionnalités** : Podium utilisateurs + accordéon des tendances
+- **Architecture** : Utilise `AnalysisResultBase` + contenu spécifique
 
 ### Summary Components (`summary-components.tsx`)
 
@@ -72,6 +78,7 @@ import {
   AnalysisInputBase,
   AnalysisListBase,
   AnalysisResultBase,
+  SummaryResultBase,
   TrendResultBase,
 } from "./shared";
 
@@ -114,14 +121,28 @@ import { TrendInput, TrendList, TrendResult } from '@/components/my-community/an
 <TrendResult result={result} />
 ```
 
-## ✅ **Avantages de cette structure**
+## ✅ **Avantages de cette architecture**
 
 1. **DRY (Don't Repeat Yourself)** - Élimination de ~800 lignes de code dupliqué
-2. **Maintenabilité** - Un seul endroit pour modifier la logique commune
-3. **Cohérence** - Interface uniforme entre summary et trends
+2. **Cohérence architecturale** - Vraie séparation base/spécialisations
+3. **Maintenabilité** - Un seul endroit pour modifier la logique commune
 4. **Extensibilité** - Facile d'ajouter de nouveaux types d'analyses
 5. **Tests** - Moins de code à tester, plus de réutilisabilité
 6. **Organisation** - Structure claire et logique
+
+## 🏗️ **Pattern architectural**
+
+```
+AnalysisResultBase (structure commune)
+├── SummaryResultBase (contenu spécifique)
+└── TrendResultBase (contenu spécifique)
+```
+
+Cette architecture garantit :
+- **Pas de duplication** de structure commune
+- **Séparation claire** entre base et spécialisations
+- **Cohérence** entre tous les types de résultats
+- **Extensibilité** pour de nouveaux types d'analyses
 
 ## 🔄 **Migration**
 

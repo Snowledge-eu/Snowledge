@@ -16,6 +16,7 @@ export {
   type AnalysisResultBaseProps,
 } from "./analysis-result-base";
 export { TrendResultBase } from "./trend-result-base";
+export { SummaryResultBase } from "./summary-result-base";
 
 // Composants spécialisés pour Summary
 export {

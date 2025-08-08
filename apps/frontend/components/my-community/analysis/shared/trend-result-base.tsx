@@ -6,19 +6,17 @@ import {
   Avatar,
   AvatarFallback,
   Button,
-  Card,
   Separator,
 } from "@repo/ui";
 import React from "react";
-import { TimeframeBadge } from "../timeframe-badge";
-import { PlatformAndScopeRow } from "../platform-and-scope-row";
+import { AnalysisResultBase } from "./analysis-result-base";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 
 // ============
 // Function: TrendResultBase
 // ------------
-// DESCRIPTION: Composant de base pour les résultats de trends avec la logique spécifique aux trends
+// DESCRIPTION: Composant spécialisé pour les résultats de trends
 // PARAMS: result: object formatted per discord_trends_v2 schema
 // RETURNS: JSX.Element
 // ============
@@ -39,24 +37,8 @@ export function TrendResultBase({ result }: { result: any }) {
     }
   };
 
-  const platform = result?.platform || "discord";
-  const scope = result?.scope || "all";
-
   return (
-    <Card className="w-full max-w-5xl mx-auto p-6 md:p-8 shadow-lg border bg-white space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2">
-        <div className="text-lg font-semibold flex items-center gap-2">
-          Trend Analysis
-        </div>
-        {result?.timeframe && <TimeframeBadge timeframe={result?.timeframe} />}
-      </div>
-
-      <PlatformAndScopeRow
-        platform={platform}
-        scope={scope}
-        label={platform.charAt(0).toUpperCase() + platform.slice(1)}
-      />
-
+    <AnalysisResultBase result={result} title="Trend Analysis">
       {/* Top 3 Influential Users Podium */}
       <div className="flex flex-col items-center my-4">
         <div className="text-base font-semibold mb-2">
@@ -125,7 +107,9 @@ export function TrendResultBase({ result }: { result: any }) {
                 <div className="flex w-full justify-between items-center">
                   <span className="text-lg font-semibold">{trend?.title}</span>
                   <span
-                    className={`px-2 py-0.5 text-xs rounded ${activityColor(trend?.activity_level)}`}
+                    className={`px-2 py-0.5 text-xs rounded ${activityColor(
+                      trend?.activity_level
+                    )}`}
                   >
                     {trend?.activity_level}
                   </span>
@@ -141,13 +125,13 @@ export function TrendResultBase({ result }: { result: any }) {
                   </div>
                   <ul className="list-disc ml-5 text-sm space-y-1">
                     {trend?.representative_messages?.map(
-                      (msg: string, idx: number) => <li key={idx}>{msg}</li>
+                      (msg: string, idx: number) => (
+                        <li key={idx}>{msg}</li>
+                      )
                     )}
                   </ul>
                 </div>
-                <Link
-                  href={`/${slug}/summary?analysisId=${result._id}&trendId=${index}`}
-                >
+                <Link href={`/${slug}/summary?analysisId=${result._id}&trendId=${index}`}>
                   <Button
                     className="w-24 justify-self-end"
                     aria-label="Start support"
@@ -164,6 +148,6 @@ export function TrendResultBase({ result }: { result: any }) {
           </div>
         )}
       </Accordion>
-    </Card>
+    </AnalysisResultBase>
   );
 }

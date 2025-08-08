@@ -1,7 +1,7 @@
 import {
   AnalysisInputBase,
   AnalysisListBase,
-  AnalysisResultBase,
+  SummaryResultBase,
   type AnalysisInputBaseProps,
 } from "./index";
 
@@ -80,5 +80,5 @@ export function SummaryResult({
     scope,
   };
 
-  return <AnalysisResultBase result={result} analysisType="summary" />;
+  return <SummaryResultBase result={result} />;
 }
