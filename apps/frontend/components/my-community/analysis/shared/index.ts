@@ -26,7 +26,7 @@ export {
   type SummaryInputProps,
   type SummaryListProps,
   type SummaryResultProps,
-} from "./summary-components";
+} from "../summary-components";
 
 // Composants spécialisés pour Trends
 export {
@@ -36,7 +36,7 @@ export {
   type TrendInputProps,
   type TrendListProps,
   type TrendResultProps,
-} from "./trend-components";
+} from "../trend-components";
 
 // Composants communs
 export { AnalysisDescription } from "./analysis-description";
