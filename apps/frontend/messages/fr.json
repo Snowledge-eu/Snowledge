@@ -133,7 +133,6 @@
     "landing": "Landing",
     "my-community": "Ma communauté",
     "general-informations": "Informations générales",
-    "trends-analytics": "Tendances & Analytics",
     "rewards": "Récompenses",
     "topics-to-validate": "Thèmes à valider",
     "integrations": "Intégrations",
@@ -148,7 +147,8 @@
     "sentiment-analysis": "Sentiment",
     "summary-analysis": "Summary",
     "trends-analysis": "Trends",
-    "admin": "Admin"
+    "admin": "Admin",
+    "analysis": "Analyse"
   },
   "inviteModal": {
     "title": "Invitez des utilisateurs",

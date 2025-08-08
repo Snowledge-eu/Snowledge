@@ -29,26 +29,9 @@ export function useNavMyCommunity(activeCommunity: { name: string }) {
       icon: Link2,
     },
     features.community.myCommunity.trendsAnalytics && {
-      title: tNavbar("trends-analytics"),
-      // url: `/${slug}/my-community/trends-analytics`,
+      title: tNavbar("analysis"),
+      url: `/${slug}/my-community/analysis`,
       icon: BarChart3,
-      items: [
-        // {
-        //   title: tNavbar("sentiment-analysis"),
-        //   url: `/${slug}/my-community/trends-analytics/sentiment`,
-        //   icon: ChartPie,
-        // },
-        {
-          title: tNavbar("summary-analysis"),
-          url: `/${slug}/my-community/trends-analytics/summary`,
-          icon: ChartPie,
-        },
-        {
-          title: tNavbar("trends-analysis"),
-          url: `/${slug}/my-community/trends-analytics/trend`,
-          icon: ChartPie,
-        },
-      ],
     },
     features.community.myCommunity.rewards && {
       title: tNavbar("rewards"),
