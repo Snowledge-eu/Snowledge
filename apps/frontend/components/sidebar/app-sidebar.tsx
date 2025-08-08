@@ -101,7 +101,7 @@ function SidebarNavs() {
       )}
       <SidebarNavMain items={[landing]} label="" />
       {/* <NavProjects projects={data.projects} /> */}
-      <SidebarNavMain items={[admin]} label="Admin" />
+      {user?.isAdmin && <SidebarNavMain items={[admin]} label="Admin" />}
     </>
   );
 }

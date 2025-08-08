@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@repo/ui/components/button";
 import {
   Card,
@@ -63,6 +63,39 @@ export const PromptForm = ({
       2
     )
   );
+
+  // Réinitialiser l'état du formulaire quand on change de mode ou de prompt sélectionné
+  useEffect(() => {
+    const defaultForm: PromptFormType = {
+      name: selectedPrompt?.name || "",
+      description: selectedPrompt?.description || "",
+      platform: selectedPrompt?.platform || "discord",
+      temperature: selectedPrompt?.temperature || 0.3,
+      top_p: selectedPrompt?.top_p || 0.8,
+      messages: selectedPrompt?.messages || [
+        { role: "system", content: "" },
+        { role: "user", content: "{{messages}}" },
+      ],
+      response_format: selectedPrompt?.response_format || {
+        type: "json_schema",
+        json_schema: {},
+      },
+      is_public: selectedPrompt?.is_public || false,
+      model_name: selectedPrompt?.model_name || "Llama-3.1-8B-Instruct",
+    };
+
+    setPromptForm(defaultForm);
+    setResponseFormatText(
+      JSON.stringify(
+        selectedPrompt?.response_format || {
+          type: "json_schema",
+          json_schema: {},
+        },
+        null,
+        2
+      )
+    );
+  }, [selectedPrompt, isCreating, isEditing]);
 
   const handleSubmit = () => {
     let finalPromptForm: any = { ...promptForm };
