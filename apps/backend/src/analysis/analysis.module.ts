@@ -7,6 +7,8 @@ import {
 } from './schemas/analysis-result.schema';
 import { MongooseModule } from '@nestjs/mongoose';
 import { DiscordModule } from 'src/discord/discord.module';
+import { PromptModule } from 'src/prompt/prompt.module';
+import { CommunityModule } from 'src/community/community.module';
 import { AnalysisHelper } from './analysis.helper';
 import { PayloadBuilder } from './llm/payload-builder';
 import { OvhClient } from './llm/call-ovh-api';
@@ -18,6 +20,8 @@ import { AnalysisProvider } from './analysis.provider';
 			{ name: AnalysisResult.name, schema: AnalysisResultSchema },
 		]),
 		DiscordModule,
+		PromptModule,
+		CommunityModule,
 	],
 	controllers: [AnalysisController],
 	providers: [

@@ -7,11 +7,6 @@ import {
 	Param,
 	Delete,
 	Query,
-	BadRequestException,
-	HttpException,
-	HttpStatus,
-	InternalServerErrorException,
-	NotFoundException,
 } from '@nestjs/common';
 import { SummaryService } from './summary.service';
 import { CreateSummaryDto } from './dto/create-summary.dto';

@@ -4,8 +4,6 @@ import { SummaryController } from './summary.controller';
 import { SummaryResult, SummaryResultSchema } from './schemas/summary.schema';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AnalysisModule } from 'src/analysis/analysis.module';
-import { AnalysisProvider } from 'src/analysis/analysis.provider';
-import { DiscordModule } from 'src/discord/discord.module';
 
 @Module({
 	imports: [
@@ -13,10 +11,9 @@ import { DiscordModule } from 'src/discord/discord.module';
 			{ name: SummaryResult.name, schema: SummaryResultSchema },
 		]),
 		AnalysisModule,
-		DiscordModule,
 	],
 	controllers: [SummaryController],
-	providers: [SummaryService, AnalysisProvider],
-	exports: [SummaryService, AnalysisProvider],
+	providers: [SummaryService],
+	exports: [SummaryService],
 })
 export class SummaryModule {}

@@ -3,7 +3,7 @@ import { PromptProvider } from '../../prompt/prompt.provider';
 import { estimateTokenCount } from './token-utils';
 
 // Constantes pour la configuration des modèles
-const DEFAULT_CONTEXT_WINDOW = 4096;
+const DEFAULT_CONTEXT_WINDOW = 128000;
 const DEFAULT_RESERVE_TOKENS = 2048;
 const DEFAULT_TEMPERATURE = 0.3;
 const DEFAULT_TOP_P = 0.8;
@@ -35,6 +35,7 @@ export class PayloadBuilder {
 
 		// Estimation tokens avec estimateTokenCount
 		const promptTokens = await estimateTokenCount(rawMessages, modelName);
+		console.log('promptTokens', promptTokens);
 		const availableForCompletion = Math.max(
 			DEFAULT_CONTEXT_WINDOW - promptTokens,
 			0,
@@ -43,6 +44,8 @@ export class PayloadBuilder {
 			availableForCompletion,
 			DEFAULT_RESERVE_TOKENS,
 		);
+
+		console.log('maxTokens', maxTokens);
 
 		// Étape 2 : insertion max_tokens dans {{...}}
 		const messages = rawMessages.map((msg) => ({
