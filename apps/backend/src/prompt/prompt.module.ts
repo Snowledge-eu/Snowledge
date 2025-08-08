@@ -5,21 +5,12 @@ import { PromptProvider } from './prompt.provider';
 import { PromptService } from './prompt.service';
 
 import { Prompt } from './entities/prompt.entity';
-import { DiscordModule } from '../discord/discord.module';
-import { CommunityModule } from '../community/community.module';
 import { UserModule } from '../user/user.module';
-import { AdminGuard } from '../auth/admin.guard';
-
 
 @Module({
-	imports: [
-		TypeOrmModule.forFeature([Prompt]),
-		DiscordModule,
-		CommunityModule,
-		UserModule,
-	],
+	imports: [TypeOrmModule.forFeature([Prompt]), UserModule],
 	controllers: [PromptController],
-	providers: [PromptProvider, PromptService, AdminGuard],
+	providers: [PromptProvider, PromptService],
 	exports: [PromptService, PromptProvider],
 })
 export class PromptModule {}

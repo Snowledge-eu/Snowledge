@@ -6,7 +6,6 @@ import { DiscordModule } from '../discord/discord.module';
 import { UserModule } from '../user/user.module';
 import { AnalysisModule } from '../analysis/analysis.module';
 import { PromptModule } from '../prompt/prompt.module';
-import { AdminGuard } from '../auth/admin.guard';
 
 @Module({
 	imports: [
@@ -17,7 +16,7 @@ import { AdminGuard } from '../auth/admin.guard';
 		PromptModule,
 	],
 	controllers: [AdminController],
-	providers: [AdminProvider, AdminGuard],
+	providers: [AdminProvider],
 	exports: [AdminProvider],
 })
 export class AdminModule {}
