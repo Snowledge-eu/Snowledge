@@ -1,11 +1,20 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreateSnowTestRegisterDto } from './dto/create-snow-test-register.dto';
 import { UpdateSnowTestRegisterDto } from './dto/update-snow-test-register.dto';
+import { SnowTestRegister } from './entities/snow-test-register.entity';
 
 @Injectable()
 export class SnowTestRegisterService {
-  create(createSnowTestRegisterDto: CreateSnowTestRegisterDto) {
-    return 'This action adds a new snowTestRegister';
+  constructor(
+    @InjectRepository(SnowTestRegister)
+    private readonly registerRepository: Repository<SnowTestRegister>
+  ) {}
+
+  async create(createSnowTestRegisterDto: CreateSnowTestRegisterDto): Promise<SnowTestRegister> {
+    const saved = await this.registerRepository.create(createSnowTestRegisterDto);
+		return this.registerRepository.save(saved);
   }
 
   findAll() {

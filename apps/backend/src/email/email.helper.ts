@@ -35,6 +35,18 @@ export class EmailHelper {
 
 	}
 
+	async sendGenericEmail(to: string, subject: string, text: string) {
+		try {
+			await this.mailerService.sendMail({
+				to,
+				subject,
+				text,
+			});
+		} catch (error) {
+			this.logger.error(error);
+		}
+	}
+
 	async forgotPassword(email: string, code: string) {
 		try {
 			const subject = `Mot de passe oublié`;
