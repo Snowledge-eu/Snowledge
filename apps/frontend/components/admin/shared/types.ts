@@ -9,6 +9,15 @@ export interface Prompt {
   response_format: any;
   is_public: boolean;
   model_name: string;
+
+  // Nouveaux champs avancés
+  role_id?: string;
+  mode_id?: string;
+  selected_actions?: string[];
+  selected_outputs?: string[];
+  show_reasoning?: boolean;
+  tools_enabled?: boolean;
+
   created_by: {
     id: number;
     firstname: string;
@@ -67,7 +76,49 @@ export interface HistoryFilters {
   sortOrder: "asc" | "desc";
 }
 
+// ============
+// NOUVEAUX TYPES POUR LE SYSTÈME DE PROMPTS AVANCÉ
+// ============
+
+export interface PromptRole {
+  id: string;
+  name: string;
+  description: string;
+  systemPromptAddition: string;
+}
+
+export interface PromptMode {
+  id: string;
+  name: string;
+  description: string;
+  recommendedModels: string[];
+}
+
+export interface PromptAction {
+  id: string;
+  name: string;
+  description: string;
+}
+
+export interface PromptOutput {
+  id: string;
+  name: string;
+  description: string;
+  type: "string" | "number" | "array" | "object" | "boolean";
+  category:
+    | "sentiment"
+    | "users"
+    | "activity"
+    | "topics"
+    | "metrics"
+    | "moderation"
+    | "support"
+    | "network"
+    | "feedback";
+}
+
 export interface PromptForm {
+  // Champs de base
   name: string;
   description: string;
   platform: string;
@@ -77,6 +128,14 @@ export interface PromptForm {
   response_format?: any;
   is_public: boolean;
   model_name: string;
+
+  // Nouveaux champs avancés
+  role_id?: string;
+  mode_id?: string;
+  selected_actions?: string[];
+  selected_outputs?: string[];
+  show_reasoning?: boolean;
+  tools_enabled?: boolean; // Pour plus tard
 }
 
 export interface TestForm {
@@ -89,4 +148,5 @@ export interface AvailableModel {
   name: string;
   cost: string;
   description: string;
+  mode: "standard" | "nlp" | "reasoning";
 }
