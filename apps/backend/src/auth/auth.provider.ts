@@ -191,6 +191,11 @@ export class AuthProvider {
 		return this.userService.updatePassword(user.id, hashPassword)
 
 	}
+  async validateCurrentPassword(userId: number, currentPassword: string): Promise<boolean> {
+    const user = await this.userService.findOneById(userId);
+    if (!user) return false;
+    return bcrypt.compare(currentPassword, user.password);
+  }
 	async forgotPassword(email: string) {
 		const userFind = await this.userService.findOneByEmail(email);
 		if (!userFind) return false;

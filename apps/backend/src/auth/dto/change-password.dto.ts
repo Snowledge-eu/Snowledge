@@ -1,16 +1,32 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class ChangePassword {
-	@ApiProperty({
-		type: String,
-	})
-	@IsString()
-	password: string;
+    // Token-based reset (forgot password)
+    @ApiProperty({ type: String, required: false })
+    @IsString()
+    @IsOptional()
+    token?: string;
 
-	@ApiProperty({
-		type: String,
-	})
-	@IsString()
-	token?: string;
+    // Backward compat: old field name used by forgot-password page
+    @ApiProperty({ type: String, required: false })
+    @IsString()
+    @IsOptional()
+    password?: string;
+
+    // Authenticated change fields
+    @ApiProperty({ type: String, required: false })
+    @IsString()
+    @IsOptional()
+    currentPassword?: string;
+
+    @ApiProperty({ type: String, required: false })
+    @IsString()
+    @IsOptional()
+    newPassword?: string;
+
+    @ApiProperty({ type: String, required: false })
+    @IsString()
+    @IsOptional()
+    confirmPassword?: string;
 }

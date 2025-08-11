@@ -12,6 +12,8 @@ import {
 	Res,
 	Delete,
 	Query,
+	BadRequestException,
+	Patch,
 } from '@nestjs/common';
 import { AuthProvider } from './auth.provider';
 import { Public } from './auth.decorator';
@@ -224,16 +226,37 @@ export class AuthController {
 	@Public()
 	@HttpCode(HttpStatus.OK)
 	@Post('change-password')
-	async changePassword(@Body() changePassword: ChangePassword, @User() user: UserEntity) {
-		console.log(changePassword);
-		if(changePassword.token){
-			const authorizedChange = await this.authProvider.verifyTokenChangePassword(changePassword.token);
-			if(!authorizedChange){
-				throw new UnauthorizedException('Token invalid');
+	async changePassword(@Body() body: ChangePassword) {
+		if (body.token) {
+			const authorizedUser = await this.authProvider.verifyTokenChangePassword(body.token);
+			if (!authorizedUser) {
+				throw new BadRequestException('Token invalid');
 			}
-			console.log(authorizedChange);
-			user = authorizedChange;
+			if (!body.password) {
+				throw new BadRequestException('Missing new password');
+			}
+			return this.authProvider.changePassword(body.password, authorizedUser);
 		}
-		return this.authProvider.changePassword(changePassword.password, user);
+	}
+
+	@HttpCode(HttpStatus.OK)
+	@Patch('change-password')
+	async changePasswordConnected(@Body() body: ChangePassword, @User() user: UserEntity) {
+		if (!user) {
+			throw new BadRequestException('User undefined');
+		}
+		const { currentPassword, newPassword, confirmPassword } = body || ({} as any);
+		if (!currentPassword || !newPassword || !confirmPassword) {
+			throw new BadRequestException('Missing password fields');
+		}
+		if (newPassword !== confirmPassword) {
+			throw new BadRequestException('Passwords do not match');
+		}
+		// Validate current password
+		const isValid = await this.authProvider.validateCurrentPassword(user.id, currentPassword);
+		if (!isValid) {
+			throw new BadRequestException('Current password incorrect');
+		}
+		return this.authProvider.changePassword(newPassword, user);
 	}
 }
