@@ -18,6 +18,12 @@ export class AuthService {
 			expiresIn: '1h', // ou 24h selon ton besoin
 		});
 	}
+	createForgotPasswordToken(payload: { userId: number; email: string }) {
+		return this.jwtService.sign(payload, {
+			secret: process.env.JWT_EMAIL_SECRET,
+			expiresIn: '1h', // ou 24h selon ton besoin
+		});
+	}
 	async validateUser(payload: any): Promise<any> {
 		// Validate the user exists in your database, etc.
 		return { id: payload.id };

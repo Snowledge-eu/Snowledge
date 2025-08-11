@@ -20,6 +20,10 @@ import { SignInDto, SignUpDto, VerifyCodeDto } from './dto';
 import { EmailProvider } from 'src/email/email.provider';
 import { Response, Request } from 'express';
 import { VerifyTokenDto } from './dto/verify-token.dto';
+import { ForgotPassword } from './dto/forgot-password.dto';
+import { ChangePassword } from './dto/change-password.dto';
+import { User } from 'src/user/decorator';
+import { User as UserEntity } from 'src/user/entities/user.entity';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -208,5 +212,28 @@ export class AuthController {
 			domain: process.env.COOKIE_DOMAIN || undefined,
 		});
 		return res.redirect(`${process.env.FRONT_URL}/`);
+	}
+	
+	@Public()
+	@HttpCode(HttpStatus.OK)
+	@Post('forgot-password')
+	forgotPassword(@Body() forgotPassword: ForgotPassword) {
+		return this.authProvider.forgotPassword(forgotPassword.email);
+	}
+
+	@Public()
+	@HttpCode(HttpStatus.OK)
+	@Post('change-password')
+	async changePassword(@Body() changePassword: ChangePassword, @User() user: UserEntity) {
+		console.log(changePassword);
+		if(changePassword.token){
+			const authorizedChange = await this.authProvider.verifyTokenChangePassword(changePassword.token);
+			if(!authorizedChange){
+				throw new UnauthorizedException('Token invalid');
+			}
+			console.log(authorizedChange);
+			user = authorizedChange;
+		}
+		return this.authProvider.changePassword(changePassword.password, user);
 	}
 }

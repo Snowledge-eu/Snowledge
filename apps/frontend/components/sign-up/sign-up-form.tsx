@@ -199,7 +199,7 @@ export default function SignUpForm() {
                   {formData.age ? (
                     format(formData.age, "PPP")
                   ) : (
-                    <span>Pick a date</span>
+                    <span>Date de Naissance</span>
                   )}
                 </Button>
               </PopoverTrigger>

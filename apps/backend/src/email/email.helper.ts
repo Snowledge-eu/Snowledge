@@ -34,4 +34,24 @@ export class EmailHelper {
 		}
 
 	}
+
+	async forgotPassword(email: string, code: string) {
+		try {
+			const subject = `Mot de passe oublié`;
+	
+			const mailSend = await this.mailerService.sendMail({
+				to: email,
+				subject,
+				text: `
+					Veuillez cliquer sur le lien puis suivez les instructions sur la page dédier : ${process.env.FRONT_URL}/forgot-password?token=${code}
+
+					Si vous n'êtes pas à l'initiative de cette demande, contactez le support de Snowledge.
+				`,
+			});
+
+			console.log(mailSend);
+		} catch (error) {
+			this.logger.error(error);
+		}
+	}
 }
