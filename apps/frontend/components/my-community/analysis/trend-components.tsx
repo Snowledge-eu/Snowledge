@@ -1,5 +1,4 @@
 import {
-  AnalysisInputBase,
   AnalysisListBase,
   AnalysisResultBase,
   type AnalysisInputBaseProps,
@@ -31,17 +30,6 @@ export interface TrendListProps {
 
 export interface TrendResultProps {
   result: any;
-}
-
-// ============
-// Function: TrendInput
-// ------------
-// DESCRIPTION: Composant d'input pour les analyses de trends
-// PARAMS: TrendInputProps
-// RETURNS: JSX.Element
-// ============
-export function TrendInput(props: TrendInputProps) {
-  return <AnalysisInputBase {...props} />;
 }
 
 // ============

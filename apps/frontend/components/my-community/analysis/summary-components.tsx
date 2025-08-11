@@ -1,5 +1,5 @@
 import {
-  AnalysisInputBase,
+  AnalysisInput,
   AnalysisListBase,
   AnalysisResultBase,
   type AnalysisInputBaseProps,
@@ -25,17 +25,6 @@ export interface SummaryResultProps {
   notable_users?: string[];
   platform?: string;
   scope?: string;
-}
-
-// ============
-// Function: SummaryInput
-// ------------
-// DESCRIPTION: Composant d'input pour les analyses de summary
-// PARAMS: SummaryInputProps
-// RETURNS: JSX.Element
-// ============
-export function SummaryInput(props: SummaryInputProps) {
-  return <AnalysisInputBase {...props} />;
 }
 
 // ============

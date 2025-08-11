@@ -1,6 +1,6 @@
 "use client";
 import { useChannelSections } from "@/components/manage-integrations/hooks/useChannelSections";
-import { AnalysisInputBase } from "@/components/my-community/analysis/shared";
+import { AnalysisInput } from "@/components/my-community/analysis/shared";
 import {
   SummaryList,
   SummaryResult,
@@ -25,7 +25,7 @@ export default function Page() {
   const { user, fetcher } = useAuth();
   const { activeCommunity } = useCurrentCommunity();
   const { isLoading, meta } = useChannelSections(activeCommunity?.id || 0);
-  const { data: prompts, isLoading: promptsLoading } = usePrompts();
+  const { data: prompts, isLoading: promptsLoading } = usePrompts(user?.id);
   const queryClient = useQueryClient();
 
   // États partagés
@@ -51,10 +51,11 @@ export default function Page() {
   const [topP, setTopP] = useState(0.9);
 
   // Fonction pour gérer la création de nouveaux prompts
+
   const handlePromptCreated = async (promptData: any) => {
     try {
       const response = await fetcher(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/prompts`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/prompts`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -554,7 +555,7 @@ export default function Page() {
     <main className="grid grid-cols-1 md:grid-cols-[minmax(640px,800px)_1fr] items-stretch gap-8 h-screen min-h-screen bg-background">
       {/* Panneau gauche (formulaire) */}
       <aside className="relative flex flex-col items-stretch h-full min-h-0">
-        <AnalysisInputBase
+        <AnalysisInput
           platforms={platforms}
           selectedPlatform={selectedPlatform}
           onSelectPlatform={setSelectedPlatform}

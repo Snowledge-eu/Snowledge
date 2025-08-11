@@ -61,6 +61,20 @@ export class PromptService {
 		});
 	}
 
+	async findUserPrompts(userId: number): Promise<Prompt[]> {
+		// Récupérer les prompts de l'utilisateur + les prompts publics
+		return this.promptRepository.find({
+			where: [
+				// Prompts créés par l'utilisateur (publics ou privés)
+				{ created_by: { id: userId } },
+				// Prompts publics créés par d'autres
+				{ is_public: true },
+			],
+			relations: ['created_by'],
+			order: { created_at: 'DESC' },
+		});
+	}
+
 	async update(
 		id: number,
 		updatePromptDto: UpdatePromptDto,

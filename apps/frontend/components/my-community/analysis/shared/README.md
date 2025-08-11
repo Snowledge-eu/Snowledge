@@ -23,7 +23,7 @@ shared/
 
 ## 🧩 **Composants de base**
 
-### `AnalysisInputBase`
+### `AnalysisInput`
 
 - **Rôle** : Composant de base pour tous les inputs d'analyse
 - **Fonctionnalités** : Sélection plateforme, scope, time range, mode
@@ -72,7 +72,7 @@ Tous les composants sont exportés depuis `index.ts` :
 ```typescript
 // Composants de base
 import {
-  AnalysisInputBase,
+  AnalysisInput,
   AnalysisListBase,
   AnalysisResultBase,
   type AnalysisInputBaseProps,
@@ -81,10 +81,18 @@ import {
 } from "@/components/my-community/analysis/shared";
 
 // Composants spécialisés Summary
-import { SummaryInput, SummaryList, SummaryResult } from "@/components/my-community/analysis/shared";
+import {
+  SummaryInput,
+  SummaryList,
+  SummaryResult,
+} from "@/components/my-community/analysis/shared";
 
 // Composants spécialisés Trends
-import { TrendInput, TrendList, TrendResult } from "@/components/my-community/analysis/shared";
+import {
+  TrendInput,
+  TrendList,
+  TrendResult,
+} from "@/components/my-community/analysis/shared";
 
 // Composants communs
 import {
@@ -150,6 +158,7 @@ import { TrendInput, TrendList, TrendResult } from './shared';
 ```
 
 Cette organisation garantit :
+
 - **Simplicité** - Imports directs par type
 - **Spécialisation** - Logique spécifique dans chaque composant
 - **Cohérence** - Interface uniforme par type

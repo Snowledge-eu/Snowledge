@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+
 import { PromptController, UserPromptController } from './prompt.controller';
 import { PromptProvider } from './prompt.provider';
 import { PromptService } from './prompt.service';

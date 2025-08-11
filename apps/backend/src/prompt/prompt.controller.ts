@@ -67,8 +67,8 @@ export class PromptController {
 // ============
 // ENDPOINTS PUBLICS POUR LES UTILISATEURS NORMAUX
 // ============
-@Controller('prompts')
-@UseGuards(AuthGuard) // Seulement authentification, pas besoin d'être admin
+@Controller('user/prompts')
+@UseGuards(AuthGuard)
 export class UserPromptController {
 	constructor(private readonly promptProvider: PromptProvider) {}
 
@@ -82,10 +82,35 @@ export class UserPromptController {
 		return this.promptProvider.createUserPrompt(createPromptDto, user);
 	}
 
-	@Get()
-	async findUserPrompts(@Request() req: any) {
-		const user = req.user as User;
-		return this.promptProvider.getUserPrompts(user);
+	@Get(':userId')
+	async findUserPromptsByUserId(@Param('userId') userId: string) {
+		const prompts = await this.promptProvider.getUserPrompts(+userId);
+
+		console.log(
+			'DEBUG UserPromptController - Prompts found:',
+			prompts.length,
+		);
+		console.log(
+			'DEBUG UserPromptController - Prompts:',
+			prompts.map((p) => ({
+				name: p.name,
+				is_public: p.is_public,
+				created_by_id: p.created_by?.id,
+			})),
+		);
+
+		// Retourner les prompts avec les propriétés nécessaires pour le frontend
+		return prompts.map((prompt) => ({
+			name: prompt.name,
+			description: prompt.description,
+			platform: prompt.platform,
+			temperature: prompt.temperature,
+			top_p: prompt.top_p,
+			created_by_id: prompt.created_by?.id,
+			is_public: prompt.is_public,
+			// Indique si c'est le prompt de l'utilisateur connecté
+			is_own: prompt.created_by?.id === +userId,
+		}));
 	}
 
 	@Get('public')

@@ -226,18 +226,9 @@ export class PromptProvider {
 	/**
 	 * Récupérer les prompts d'un utilisateur (ses propres prompts + les publics)
 	 */
-	async getUserPrompts(user: User): Promise<any[]> {
-		const userPrompts = await this.promptService.findByUserId(user.id);
-		const publicPrompts = await this.promptService.findPublic();
-
-		// Combiner et dédupliquer
-		const allPrompts = [...userPrompts, ...publicPrompts];
-		const uniquePrompts = allPrompts.filter(
-			(prompt, index, self) =>
-				index === self.findIndex((p) => p.id === prompt.id),
-		);
-
-		return uniquePrompts;
+	async getUserPrompts(userId: number): Promise<any[]> {
+		// Utiliser la nouvelle méthode qui fait tout en une requête
+		return this.promptService.findUserPrompts(userId);
 	}
 
 	/**

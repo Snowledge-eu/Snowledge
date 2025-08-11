@@ -7,16 +7,19 @@ export interface Prompt {
   platform: string;
   temperature: number;
   top_p: number;
+  created_by_id?: number;
+  is_public?: boolean;
+  is_own?: boolean;
 }
 
-export const usePrompts = () => {
+export const usePrompts = (userId: number) => {
   const { fetcher } = useAuth();
 
   return useQuery({
-    queryKey: ["prompts"],
+    queryKey: ["prompts", userId],
     queryFn: async (): Promise<Prompt[]> => {
       const response = await fetcher(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/analysis/prompts`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/prompts/${userId}`,
         {
           method: "GET",
           headers: {

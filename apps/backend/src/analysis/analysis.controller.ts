@@ -7,14 +7,13 @@ import {
 	Param,
 	Delete,
 	UseInterceptors,
-	UseGuards,
-	HttpException,
-	HttpStatus,
 	Logger,
 	Res,
 	Request,
 	NotFoundException,
 	BadRequestException,
+	HttpStatus,
+	HttpException,
 } from '@nestjs/common';
 import { AnalysisService } from './analysis.service';
 import { UpdateAnalysisDto } from './dto/update-analysis.dto';
@@ -23,10 +22,8 @@ import { TransformLongToStringInterceptor } from '../shared/interceptors/transfo
 import { DiscordAnalyzeDto } from './dto/discord-analyse.dto';
 import { Response } from 'express';
 import { AnalysisProvider } from './analysis.provider';
-import { PromptProvider } from '../prompt/prompt.provider';
 import { TestAnalysisDto } from './dto/test-analysis.dto';
 import { User } from '../user/entities/user.entity';
-import { OptionalAuthGuard } from '../auth/optional-auth.guard';
 @Controller('analysis')
 export class AnalysisController {
 	private readonly logger = new Logger(AnalysisController.name);
@@ -34,7 +31,6 @@ export class AnalysisController {
 	constructor(
 		private readonly analysisService: AnalysisService,
 		private readonly analysisProvider: AnalysisProvider,
-		private readonly promptProvider: PromptProvider,
 	) {}
 
 	// @Post()
@@ -81,34 +77,6 @@ export class AnalysisController {
 	@Get()
 	findAll() {
 		return this.analysisService.findAll();
-	}
-
-	@Get('prompts')
-	@UseGuards(OptionalAuthGuard)
-	async getAvailablePrompts(@Request() req: any) {
-		try {
-			const user = req.user as User;
-			
-			// Si l'utilisateur est connecté, récupérer ses prompts + les publics
-			// Sinon, seulement les prompts publics
-			const prompts = user 
-				? await this.promptProvider.getUserPrompts(user)
-				: await this.promptProvider.getPublicPrompts();
-				
-			return prompts.map((prompt) => ({
-				name: prompt.name,
-				description: prompt.description,
-				platform: prompt.platform,
-				temperature: prompt.temperature,
-				top_p: prompt.top_p,
-			}));
-		} catch (error) {
-			this.logger.error('Error fetching prompts:', error);
-			throw new HttpException(
-				'Failed to fetch available prompts',
-				HttpStatus.INTERNAL_SERVER_ERROR,
-			);
-		}
 	}
 
 	@Post('test-analysis')

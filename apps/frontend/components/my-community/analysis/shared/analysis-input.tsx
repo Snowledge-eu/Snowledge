@@ -38,6 +38,8 @@ import {
   TrendingUpIcon,
   HelpCircle,
   PlusIcon,
+  UserIcon,
+  GlobeIcon,
 } from "lucide-react";
 import { PlatformIconButtons } from "./platform-icon-buttons";
 import { AnalysisDescription } from "./analysis-description";
@@ -80,13 +82,13 @@ export interface AnalysisInputBaseProps {
 }
 
 // ============
-// Function: AnalysisInputBase
+// Function: AnalysisInput
 // ------------
 // DESCRIPTION: Composant de base réutilisable pour les inputs d'analyse avec sélection de prompts
 // PARAMS: AnalysisInputBaseProps
 // RETURNS: JSX.Element
 // ============
-export function AnalysisInputBase({
+export function AnalysisInput({
   platforms,
   selectedPlatform,
   onSelectPlatform,
@@ -161,6 +163,15 @@ export function AnalysisInputBase({
   const availablePrompts = prompts
     ? prompts.filter((p) => !p.name.toLowerCase().includes("trend_to_content"))
     : [];
+
+  // Debug pour vérifier les prompts
+  console.log("Debug prompts:", {
+    prompts,
+    availablePrompts,
+    promptsLoading,
+    promptsLength: prompts?.length,
+    availableLength: availablePrompts?.length,
+  });
 
   return (
     <div className="bg-muted rounded-xl shadow p-6 flex flex-col gap-10">
@@ -250,35 +261,130 @@ export function AnalysisInputBase({
                       <CommandInput placeholder="Search analysis types..." />
                       <CommandList className="max-h-[400px]">
                         <CommandEmpty>No analysis type found.</CommandEmpty>
-                        {availablePrompts.map((prompt: any) => {
-                          const {
-                            icon: Icon,
-                            color,
-                            bgColor,
-                          } = getPromptIcon(prompt.name);
-                          return (
-                            <CommandItem
-                              key={prompt.name}
-                              value={prompt.name}
-                              onSelect={() => onPromptChange(prompt.name)}
-                              className="flex items-start gap-3 p-3 cursor-pointer"
-                            >
-                              <div
-                                className={cn("p-2 rounded-md mt-0.5", bgColor)}
-                              >
-                                <Icon className={cn("h-4 w-4", color)} />
-                              </div>
-                              <div className="flex flex-col flex-1 min-h-0">
-                                <span className="font-medium text-sm leading-tight">
-                                  {prompt.name.replace(/_/g, " ")}
-                                </span>
-                                <span className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                                  {prompt.description}
-                                </span>
-                              </div>
-                            </CommandItem>
+
+                        {/* Grouper les prompts par type */}
+                        {(() => {
+                          const ownPrompts = availablePrompts.filter(
+                            (p: any) => p.is_own
                           );
-                        })}
+                          const publicPrompts = availablePrompts.filter(
+                            (p: any) => p.is_public && !p.is_own
+                          );
+
+                          return (
+                            <>
+                              {/* Mes prompts */}
+                              {ownPrompts.length > 0 && (
+                                <>
+                                  <div className="px-2 py-1.5 text-xs font-semibold text-blue-600 bg-blue-50 sticky top-0">
+                                    <div className="flex items-center gap-1">
+                                      <UserIcon className="w-3 h-3" />
+                                      Mes prompts ({ownPrompts.length})
+                                    </div>
+                                  </div>
+                                  {ownPrompts.map((prompt: any) => {
+                                    const {
+                                      icon: Icon,
+                                      color,
+                                      bgColor,
+                                    } = getPromptIcon(prompt.name);
+
+                                    return (
+                                      <CommandItem
+                                        key={prompt.name}
+                                        value={prompt.name}
+                                        onSelect={() =>
+                                          onPromptChange(prompt.name)
+                                        }
+                                        className="flex items-start gap-3 p-3 cursor-pointer bg-blue-50 border-l-4 border-l-blue-500"
+                                      >
+                                        <div
+                                          className={cn(
+                                            "p-2 rounded-md mt-0.5",
+                                            bgColor
+                                          )}
+                                        >
+                                          <Icon
+                                            className={cn("h-4 w-4", color)}
+                                          />
+                                        </div>
+                                        <div className="flex flex-col flex-1 min-h-0">
+                                          <div className="flex items-center gap-2">
+                                            <span className="font-medium text-sm leading-tight">
+                                              {prompt.name.replace(/_/g, " ")}
+                                            </span>
+                                            <div className="flex items-center gap-1 px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                                              <UserIcon className="w-3 h-3" />
+                                              Personnel
+                                            </div>
+                                          </div>
+                                          <span className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                                            {prompt.description}
+                                          </span>
+                                        </div>
+                                      </CommandItem>
+                                    );
+                                  })}
+                                </>
+                              )}
+
+                              {/* Prompts publics */}
+                              {publicPrompts.length > 0 && (
+                                <>
+                                  <div className="px-2 py-1.5 text-xs font-semibold text-green-600 bg-green-50 sticky top-0">
+                                    <div className="flex items-center gap-1">
+                                      <GlobeIcon className="w-3 h-3" />
+                                      Prompts publics ({publicPrompts.length})
+                                    </div>
+                                  </div>
+                                  {publicPrompts.map((prompt: any) => {
+                                    const {
+                                      icon: Icon,
+                                      color,
+                                      bgColor,
+                                    } = getPromptIcon(prompt.name);
+
+                                    return (
+                                      <CommandItem
+                                        key={prompt.name}
+                                        value={prompt.name}
+                                        onSelect={() =>
+                                          onPromptChange(prompt.name)
+                                        }
+                                        className="flex items-start gap-3 p-3 cursor-pointer"
+                                      >
+                                        <div
+                                          className={cn(
+                                            "p-2 rounded-md mt-0.5",
+                                            bgColor
+                                          )}
+                                        >
+                                          <Icon
+                                            className={cn("h-4 w-4", color)}
+                                          />
+                                        </div>
+                                        <div className="flex flex-col flex-1 min-h-0">
+                                          <div className="flex items-center gap-2">
+                                            <span className="font-medium text-sm leading-tight">
+                                              {prompt.name.replace(/_/g, " ")}
+                                            </span>
+                                            <div className="flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                                              <GlobeIcon className="w-3 h-3" />
+                                              Public
+                                            </div>
+                                          </div>
+                                          <span className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                                            {prompt.description}
+                                          </span>
+                                        </div>
+                                      </CommandItem>
+                                    );
+                                  })}
+                                </>
+                              )}
+                            </>
+                          );
+                        })()}
                       </CommandList>
                     </Command>
                   </PopoverContent>
@@ -320,28 +426,70 @@ export function AnalysisInputBase({
 
                 {/* Affichage du prompt sélectionné */}
                 {selectedPrompt &&
-                  prompts.find((p) => p.name === selectedPrompt) && (
-                    <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                      <div className="flex items-start gap-3">
-                        <div className="p-2 rounded-md bg-blue-100">
-                          <SparklesIcon className="h-4 w-4 text-blue-600" />
-                        </div>
-                        <div className="flex-1">
-                          <h4 className="font-medium text-sm text-blue-900">
-                            {prompts
-                              .find((p) => p.name === selectedPrompt)
-                              ?.name.replace(/_/g, " ")}
-                          </h4>
-                          <p className="text-xs text-blue-700 mt-1">
-                            {
-                              prompts.find((p) => p.name === selectedPrompt)
-                                ?.description
-                            }
-                          </p>
+                  prompts.find((p) => p.name === selectedPrompt) &&
+                  (() => {
+                    const selectedPromptData = prompts.find(
+                      (p) => p.name === selectedPrompt
+                    );
+                    const isOwn = selectedPromptData?.is_own;
+                    const isPublic = selectedPromptData?.is_public && !isOwn;
+
+                    return (
+                      <div
+                        className={cn(
+                          "mt-3 p-3 rounded-lg border",
+                          isOwn
+                            ? "bg-blue-50 border-blue-200"
+                            : "bg-green-50 border-green-200"
+                        )}
+                      >
+                        <div className="flex items-start gap-3">
+                          <div
+                            className={cn(
+                              "p-2 rounded-md",
+                              isOwn ? "bg-blue-100" : "bg-green-100"
+                            )}
+                          >
+                            {isOwn ? (
+                              <UserIcon className="h-4 w-4 text-blue-600" />
+                            ) : (
+                              <SparklesIcon className="h-4 w-4 text-green-600" />
+                            )}
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <h4
+                                className={cn(
+                                  "font-medium text-sm",
+                                  isOwn ? "text-blue-900" : "text-green-900"
+                                )}
+                              >
+                                {selectedPromptData?.name.replace(/_/g, " ")}
+                              </h4>
+                              {isOwn && (
+                                <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                                  Mon prompt
+                                </span>
+                              )}
+                              {isPublic && (
+                                <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                                  Public
+                                </span>
+                              )}
+                            </div>
+                            <p
+                              className={cn(
+                                "text-xs mt-1",
+                                isOwn ? "text-blue-700" : "text-green-700"
+                              )}
+                            >
+                              {selectedPromptData?.description}
+                            </p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )}
+                    );
+                  })()}
               </div>
             )}
           </Card>
