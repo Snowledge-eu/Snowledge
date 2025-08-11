@@ -53,6 +53,14 @@ export class PromptService {
 		});
 	}
 
+	async findByUserId(userId: number): Promise<Prompt[]> {
+		return this.promptRepository.find({
+			where: { created_by: { id: userId } },
+			relations: ['created_by'],
+			order: { created_at: 'DESC' },
+		});
+	}
+
 	async update(
 		id: number,
 		updatePromptDto: UpdatePromptDto,

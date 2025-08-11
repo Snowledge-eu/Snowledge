@@ -48,6 +48,33 @@ export default function Page() {
   const [temperature, setTemperature] = useState(0.7);
   const [topP, setTopP] = useState(0.9);
 
+  // Fonction pour gérer la création de nouveaux prompts
+  const handlePromptCreated = async (promptData: any) => {
+    try {
+      const response = await fetcher(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/prompts`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(promptData),
+        }
+      );
+
+      if (response.ok) {
+        toast.success("Prompt créé avec succès !");
+        // Sélectionner automatiquement le nouveau prompt
+        setSelectedPrompt(promptData.name);
+        // Optionnel : recharger la liste des prompts
+        // Vous pourriez avoir besoin d'un mutate() ici si vous utilisez SWR
+      } else {
+        toast.error("Erreur lors de la création du prompt");
+      }
+    } catch (error) {
+      console.error("Error creating prompt:", error);
+      toast.error("Erreur lors de la création du prompt");
+    }
+  };
+
   // États pour les résultats
   const [selectedResult, setSelectedResult] = useState<any>();
   const [analysisHistory, setAnalysisHistory] = useState<any[]>([]);
@@ -548,6 +575,7 @@ export default function Page() {
           onPromptChange={setSelectedPrompt}
           prompts={prompts || []}
           promptsLoading={promptsLoading}
+          onPromptCreated={handlePromptCreated}
         />
       </aside>
 

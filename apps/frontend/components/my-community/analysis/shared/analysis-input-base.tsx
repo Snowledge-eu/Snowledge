@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Card,
   Label,
@@ -25,6 +25,10 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
 } from "@repo/ui";
 import {
   CalendarIcon,
@@ -33,12 +37,14 @@ import {
   BrainIcon,
   TrendingUpIcon,
   HelpCircle,
+  PlusIcon,
 } from "lucide-react";
 import { PlatformIconButtons } from "./platform-icon-buttons";
 import { AnalysisDescription } from "./analysis-description";
 import { cn } from "@workspace/ui/lib/utils";
 import { format } from "date-fns";
 import { MultiSelect } from "@/components/shared/community/ui/MultiSelect";
+import { SimplePromptBuilder } from "../../../admin/prompts/SimplePromptBuilder";
 
 // ============
 // Types communs
@@ -69,6 +75,8 @@ export interface AnalysisInputBaseProps {
   onPromptChange?: (v: string) => void;
   prompts?: any[];
   promptsLoading?: boolean;
+  // Gestion de la création de prompts personnalisés
+  onPromptCreated?: (prompt: any) => void;
 }
 
 // ============
@@ -101,7 +109,9 @@ export function AnalysisInputBase({
   onPromptChange,
   prompts,
   promptsLoading,
+  onPromptCreated,
 }: AnalysisInputBaseProps) {
+  const [showPromptBuilder, setShowPromptBuilder] = useState(false);
   // Fake videos for YouTube select
   const fakeYoutubeVideos = [
     { label: "Intro to Voting", value: "vid1" },
@@ -273,6 +283,40 @@ export function AnalysisInputBase({
                     </Command>
                   </PopoverContent>
                 </Popover>
+
+                {/* Bouton pour créer un prompt personnalisé */}
+                {onPromptCreated && (
+                  <div className="flex items-center justify-center">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full border-dashed border-2 hover:border-primary/50 hover:bg-primary/5"
+                      onClick={() => setShowPromptBuilder(true)}
+                    >
+                      <PlusIcon className="h-4 w-4 mr-2" />
+                      Créer un prompt personnalisé
+                    </Button>
+                    <Dialog
+                      open={showPromptBuilder}
+                      onOpenChange={setShowPromptBuilder}
+                    >
+                      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                        <DialogHeader>
+                          <DialogTitle>
+                            Créer un prompt personnalisé
+                          </DialogTitle>
+                        </DialogHeader>
+                        <SimplePromptBuilder
+                          onSubmit={(promptData: any) => {
+                            onPromptCreated(promptData);
+                            setShowPromptBuilder(false);
+                          }}
+                          onCancel={() => setShowPromptBuilder(false)}
+                        />
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                )}
 
                 {/* Affichage du prompt sélectionné */}
                 {selectedPrompt &&

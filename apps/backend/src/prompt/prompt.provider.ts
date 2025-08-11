@@ -145,23 +145,7 @@ export class PromptProvider {
 		};
 	}
 
-	/**
-	 * Récupère tous les prompts publics de la base de données
-	 */
-	async getPublicPrompts(): Promise<any[]> {
-		try {
-			const prompts = await this.promptService.findPublic();
-			return prompts.map((prompt) =>
-				this.convertDbPromptToConfig(prompt),
-			);
-		} catch (error) {
-			this.logger.error(
-				'Erreur lors de la récupération des prompts publics:',
-				error,
-			);
-			return [];
-		}
-	}
+
 
 	/**
 	 * Vérifie si un prompt existe en base de données
@@ -197,5 +181,133 @@ export class PromptProvider {
 		}
 
 		return cleaned;
+	}
+
+	// ============
+	// MÉTHODES POUR LES UTILISATEURS NORMAUX
+	// ============
+
+	/**
+	 * Créer un prompt pour un utilisateur normal
+	 */
+	async createUserPrompt(
+		createPromptDto: CreatePromptDto,
+		user: User,
+	): Promise<any> {
+		// Nettoyer le response_format si il est incomplet
+		const cleanedDto = this.cleanResponseFormat(createPromptDto);
+
+		// Vérifier que le nom n'existe pas déjà
+		const existingPrompt = await this.promptService.findByName(
+			createPromptDto.name,
+		);
+		if (existingPrompt) {
+			throw new BadRequestException(
+				'Prompt with this name already exists',
+			);
+		}
+
+		// Validation basique de la structure du prompt
+		if (
+			!createPromptDto.name ||
+			!createPromptDto.description ||
+			!createPromptDto.platform ||
+			createPromptDto.temperature === undefined ||
+			createPromptDto.top_p === undefined ||
+			!createPromptDto.messages
+		) {
+			throw new BadRequestException('Invalid prompt structure');
+		}
+
+		// Les prompts créés par les utilisateurs normaux sont privés par défaut
+		cleanedDto.is_public = false;
+
+		return this.promptService.create(cleanedDto, user.id);
+	}
+
+	/**
+	 * Récupérer les prompts d'un utilisateur (ses propres prompts + les publics)
+	 */
+	async getUserPrompts(user: User): Promise<any[]> {
+		const userPrompts = await this.promptService.findByUserId(user.id);
+		const publicPrompts = await this.promptService.findPublic();
+		
+		// Combiner et dédupliquer
+		const allPrompts = [...userPrompts, ...publicPrompts];
+		const uniquePrompts = allPrompts.filter((prompt, index, self) => 
+			index === self.findIndex(p => p.id === prompt.id)
+		);
+
+		return uniquePrompts;
+	}
+
+	/**
+	 * Récupérer les prompts publics seulement
+	 */
+	async getPublicPrompts(): Promise<any[]> {
+		return this.promptService.findPublic();
+	}
+
+	/**
+	 * Récupérer un prompt spécifique pour un utilisateur
+	 */
+	async getUserPrompt(id: number, user: User): Promise<any> {
+		const prompt = await this.promptService.findOne(id);
+		if (!prompt) {
+			throw new NotFoundException('Prompt not found');
+		}
+
+		// L'utilisateur peut voir ses propres prompts ou les prompts publics
+		if (!prompt.is_public && prompt.created_by.id !== user.id) {
+			throw new BadRequestException('Access denied');
+		}
+
+		return prompt;
+	}
+
+	/**
+	 * Mettre à jour un prompt utilisateur
+	 */
+	async updateUserPrompt(
+		id: number,
+		updatePromptDto: UpdatePromptDto,
+		user: User,
+	): Promise<any> {
+		const prompt = await this.promptService.findOne(id);
+		if (!prompt) {
+			throw new NotFoundException('Prompt not found');
+		}
+
+		// Seul le créateur peut modifier son prompt
+		if (prompt.created_by.id !== user.id) {
+			throw new BadRequestException('You can only update your own prompts');
+		}
+
+		// Nettoyer le response_format si il est incomplet
+		const cleanedDto = this.cleanResponseFormat(updatePromptDto);
+
+		// Les utilisateurs normaux ne peuvent pas rendre leurs prompts publics
+		if (cleanedDto.is_public === true) {
+			delete cleanedDto.is_public;
+		}
+
+		return this.promptService.update(id, cleanedDto);
+	}
+
+	/**
+	 * Supprimer un prompt utilisateur
+	 */
+	async deleteUserPrompt(id: number, user: User): Promise<void> {
+		const prompt = await this.promptService.findOne(id);
+		if (!prompt) {
+			throw new NotFoundException('Prompt not found');
+		}
+
+		// Seul le créateur peut supprimer son prompt
+		if (prompt.created_by.id !== user.id) {
+			throw new BadRequestException('You can only delete your own prompts');
+		}
+
+		await this.promptService.remove(id);
 	}
 }
