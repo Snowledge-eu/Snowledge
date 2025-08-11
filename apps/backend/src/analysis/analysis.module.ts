@@ -9,10 +9,13 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { DiscordModule } from 'src/discord/discord.module';
 import { PromptModule } from 'src/prompt/prompt.module';
 import { CommunityModule } from 'src/community/community.module';
+import { UserModule } from 'src/user/user.module';
+import { JwtModule } from '@nestjs/jwt';
 import { AnalysisHelper } from './analysis.helper';
 import { PayloadBuilder } from './llm/payload-builder';
 import { OvhClient } from './llm/call-ovh-api';
 import { AnalysisProvider } from './analysis.provider';
+import { OptionalAuthGuard } from '../auth/optional-auth.guard';
 
 @Module({
 	imports: [
@@ -22,6 +25,11 @@ import { AnalysisProvider } from './analysis.provider';
 		DiscordModule,
 		PromptModule,
 		CommunityModule,
+		UserModule,
+		JwtModule.register({
+			secret: process.env.JWT_SECRET,
+			signOptions: { expiresIn: '24h' },
+		}),
 	],
 	controllers: [AnalysisController],
 	providers: [
@@ -30,6 +38,7 @@ import { AnalysisProvider } from './analysis.provider';
 		PayloadBuilder,
 		OvhClient,
 		AnalysisProvider,
+		OptionalAuthGuard,
 	],
 	exports: [AnalysisService, AnalysisHelper, AnalysisProvider],
 })

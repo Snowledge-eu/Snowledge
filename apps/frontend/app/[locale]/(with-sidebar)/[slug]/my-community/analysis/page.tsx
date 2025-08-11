@@ -19,12 +19,14 @@ import { usePrompts } from "@/hooks/usePrompts";
 import { Card } from "@repo/ui";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function Page() {
   const { user, fetcher } = useAuth();
   const { activeCommunity } = useCurrentCommunity();
   const { isLoading, meta } = useChannelSections(activeCommunity?.id || 0);
   const { data: prompts, isLoading: promptsLoading } = usePrompts();
+  const queryClient = useQueryClient();
 
   // États partagés
   const [selectedPlatform, setSelectedPlatform] = useState("discord");
@@ -64,8 +66,8 @@ export default function Page() {
         toast.success("Prompt créé avec succès !");
         // Sélectionner automatiquement le nouveau prompt
         setSelectedPrompt(promptData.name);
-        // Optionnel : recharger la liste des prompts
-        // Vous pourriez avoir besoin d'un mutate() ici si vous utilisez SWR
+        // Invalider le cache pour recharger la liste des prompts
+        queryClient.invalidateQueries({ queryKey: ["prompts"] });
       } else {
         toast.error("Erreur lors de la création du prompt");
       }

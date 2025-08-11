@@ -7,6 +7,7 @@ import {
 	Param,
 	Delete,
 	UseInterceptors,
+	UseGuards,
 	HttpException,
 	HttpStatus,
 	Logger,
@@ -25,6 +26,7 @@ import { AnalysisProvider } from './analysis.provider';
 import { PromptProvider } from '../prompt/prompt.provider';
 import { TestAnalysisDto } from './dto/test-analysis.dto';
 import { User } from '../user/entities/user.entity';
+import { OptionalAuthGuard } from '../auth/optional-auth.guard';
 @Controller('analysis')
 export class AnalysisController {
 	private readonly logger = new Logger(AnalysisController.name);
@@ -82,9 +84,17 @@ export class AnalysisController {
 	}
 
 	@Get('prompts')
-	async getAvailablePrompts() {
+	@UseGuards(OptionalAuthGuard)
+	async getAvailablePrompts(@Request() req: any) {
 		try {
-			const prompts = await this.promptProvider.getPublicPrompts();
+			const user = req.user as User;
+			
+			// Si l'utilisateur est connecté, récupérer ses prompts + les publics
+			// Sinon, seulement les prompts publics
+			const prompts = user 
+				? await this.promptProvider.getUserPrompts(user)
+				: await this.promptProvider.getPublicPrompts();
+				
 			return prompts.map((prompt) => ({
 				name: prompt.name,
 				description: prompt.description,

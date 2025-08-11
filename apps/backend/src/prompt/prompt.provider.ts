@@ -145,8 +145,6 @@ export class PromptProvider {
 		};
 	}
 
-
-
 	/**
 	 * Vérifie si un prompt existe en base de données
 	 */
@@ -231,11 +229,12 @@ export class PromptProvider {
 	async getUserPrompts(user: User): Promise<any[]> {
 		const userPrompts = await this.promptService.findByUserId(user.id);
 		const publicPrompts = await this.promptService.findPublic();
-		
+
 		// Combiner et dédupliquer
 		const allPrompts = [...userPrompts, ...publicPrompts];
-		const uniquePrompts = allPrompts.filter((prompt, index, self) => 
-			index === self.findIndex(p => p.id === prompt.id)
+		const uniquePrompts = allPrompts.filter(
+			(prompt, index, self) =>
+				index === self.findIndex((p) => p.id === prompt.id),
 		);
 
 		return uniquePrompts;
@@ -280,7 +279,9 @@ export class PromptProvider {
 
 		// Seul le créateur peut modifier son prompt
 		if (prompt.created_by.id !== user.id) {
-			throw new BadRequestException('You can only update your own prompts');
+			throw new BadRequestException(
+				'You can only update your own prompts',
+			);
 		}
 
 		// Nettoyer le response_format si il est incomplet
@@ -305,7 +306,9 @@ export class PromptProvider {
 
 		// Seul le créateur peut supprimer son prompt
 		if (prompt.created_by.id !== user.id) {
-			throw new BadRequestException('You can only delete your own prompts');
+			throw new BadRequestException(
+				'You can only delete your own prompts',
+			);
 		}
 
 		await this.promptService.remove(id);
