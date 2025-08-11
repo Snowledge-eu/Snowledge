@@ -38,7 +38,7 @@ export class CreatePromptDto {
 	@IsArray()
 	messages: any[];
 
-	@IsArray()
+	@IsOptional()
 	response_format: any;
 
 	@IsBoolean()

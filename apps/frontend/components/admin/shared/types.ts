@@ -74,7 +74,7 @@ export interface PromptForm {
   temperature: number;
   top_p: number;
   messages: any[];
-  response_format: any;
+  response_format?: any;
   is_public: boolean;
   model_name: string;
 }

@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/auth-context";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Badge } from "@repo/ui/components/badge";
-import { Alert, AlertDescription } from "@repo/ui/components/alert";
 import { Loader2, Settings, Users, Play, History } from "lucide-react";
 import {
   Tabs,
@@ -12,6 +11,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@repo/ui/components/tabs";
+import { Alert, AlertDescription } from "@repo/ui/components/alert";
 
 // Import des composants modulaires
 import { PromptsSection } from "@/components/admin/prompts/PromptsSection";
@@ -22,14 +22,13 @@ import { AnalysisHistorySection } from "@/components/admin/history/AnalysisHisto
 // Import des hooks et types
 import { useAdminData } from "@/components/admin/shared/hooks";
 import {
-  Prompt,
   Community,
   AnalysisResult,
   TestForm,
 } from "@/components/admin/shared/types";
 
 export default function AdminPage() {
-  const { user } = useAuth();
+  const { user, fetcher } = useAuth();
   const router = useRouter();
   const { prompts, communities, loading, fetchData } = useAdminData();
 
@@ -57,7 +56,7 @@ export default function AdminPage() {
     setAnalysisResult(null);
 
     try {
-      const response = await fetch(
+      const response = await fetcher(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/analysis/test-analysis`,
         {
           method: "POST",
@@ -67,8 +66,7 @@ export default function AdminPage() {
       );
 
       if (response.ok) {
-        const result = await response.json();
-        setAnalysisResult(result);
+        setAnalysisResult(response.data);
       }
     } catch (error) {
       console.error("Error testing analysis:", error);

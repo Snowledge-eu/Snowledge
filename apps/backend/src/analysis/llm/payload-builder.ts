@@ -65,12 +65,26 @@ export class PayloadBuilder {
 		};
 
 		// Ne pas inclure response_format s'il est vide ou mal formaté
+		console.log('Response format check:', {
+			hasResponseFormat: !!customPrompt.response_format,
+			hasType: !!customPrompt.response_format?.type,
+			hasJsonSchema: !!customPrompt.response_format?.json_schema,
+			hasName: !!customPrompt.response_format?.json_schema?.name,
+			hasSchema: !!customPrompt.response_format?.json_schema?.schema,
+			responseFormat: customPrompt.response_format,
+		});
+
 		if (
 			customPrompt.response_format &&
 			customPrompt.response_format.type &&
-			customPrompt.response_format.json_schema
+			customPrompt.response_format.json_schema &&
+			customPrompt.response_format.json_schema.name &&
+			customPrompt.response_format.json_schema.schema
 		) {
 			payload.response_format = customPrompt.response_format;
+			console.log('Including response_format in payload');
+		} else {
+			console.log('Skipping response_format - incomplete structure');
 		}
 
 		if (extra) {

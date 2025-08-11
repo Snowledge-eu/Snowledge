@@ -17,14 +17,14 @@ import { TimeframeBadge } from "./timeframe-badge";
 export interface AnalysisListBaseProps {
   history: any[];
   onSelect: (result: any) => void;
-  analysisType: "summary" | "trend";
+  analysisType: "summary" | "trend" | "generic";
   title?: string;
 }
 
 // ============
 // Function: AnalysisListBase
 // ------------
-// DESCRIPTION: Composant de base réutilisable pour les listes d'analyses (summary et trends)
+// DESCRIPTION: Composant de base réutilisable pour les listes d'analyses (summary, trends et generic)
 // PARAMS: AnalysisListBaseProps
 // RETURNS: JSX.Element
 // ============
@@ -36,9 +36,16 @@ export function AnalysisListBase({
 }: AnalysisListBaseProps) {
   const getTitle = () => {
     if (title) return title;
-    return analysisType === "summary"
-      ? "Past Summary Analyses"
-      : "Past Analyses";
+    switch (analysisType) {
+      case "summary":
+        return "Past Summary Analyses";
+      case "trend":
+        return "Past Trend Analyses";
+      case "generic":
+        return "Past Generic Analyses";
+      default:
+        return "Past Analyses";
+    }
   };
 
   return (

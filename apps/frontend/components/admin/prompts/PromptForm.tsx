@@ -47,7 +47,15 @@ export const PromptForm = ({
     ],
     response_format: selectedPrompt?.response_format || {
       type: "json_schema",
-      json_schema: {},
+      json_schema: {
+        name: "DefaultSchema",
+        schema: {
+          title: "DefaultSchema",
+          type: "object",
+          properties: {},
+          required: [],
+        },
+      },
     },
     is_public: selectedPrompt?.is_public || false,
     model_name: selectedPrompt?.model_name || "Llama-3.1-8B-Instruct",
@@ -78,7 +86,15 @@ export const PromptForm = ({
       ],
       response_format: selectedPrompt?.response_format || {
         type: "json_schema",
-        json_schema: {},
+        json_schema: {
+          name: "DefaultSchema",
+          schema: {
+            title: "DefaultSchema",
+            type: "object",
+            properties: {},
+            required: [],
+          },
+        },
       },
       is_public: selectedPrompt?.is_public || false,
       model_name: selectedPrompt?.model_name || "Llama-3.1-8B-Instruct",
@@ -100,17 +116,20 @@ export const PromptForm = ({
   const handleSubmit = () => {
     let finalPromptForm: any = { ...promptForm };
 
-    if (responseFormatText.trim()) {
+    // Si response_format est défini et que le texte JSON est valide
+    if (promptForm.response_format && responseFormatText.trim()) {
       try {
         const parsedResponseFormat = JSON.parse(responseFormatText);
         finalPromptForm.response_format = parsedResponseFormat;
       } catch (error) {
         console.error("Invalid response format JSON:", error);
+        // En cas d'erreur, on supprime response_format
         const { response_format, ...formWithoutResponseFormat } =
           finalPromptForm;
         finalPromptForm = formWithoutResponseFormat;
       }
-    } else {
+    } else if (!promptForm.response_format) {
+      // Si response_format n'est pas activé, on le supprime
       const { response_format, ...formWithoutResponseFormat } = finalPromptForm;
       finalPromptForm = formWithoutResponseFormat;
     }
@@ -254,32 +273,98 @@ export const PromptForm = ({
           />
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="response-format">Response Format (JSON Schema)</Label>
-          <Textarea
-            id="response-format"
-            value={responseFormatText}
-            onChange={(e) => {
-              const value = e.target.value;
-              setResponseFormatText(value);
-              try {
-                const responseFormat = JSON.parse(value);
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="use_response_format"
+            checked={!!promptForm.response_format}
+            onCheckedChange={(checked) => {
+              if (checked) {
                 setPromptForm({
                   ...promptForm,
-                  response_format: responseFormat,
+                  response_format: {
+                    type: "json_schema",
+                    json_schema: {
+                      name: "DefaultSchema",
+                      schema: {
+                        title: "DefaultSchema",
+                        type: "object",
+                        properties: {},
+                        required: [],
+                      },
+                    },
+                  },
                 });
-              } catch (error) {
-                // Keep value even if JSON is invalid during typing
+              } else {
+                const { response_format, ...formWithoutResponseFormat } =
+                  promptForm;
+                setPromptForm(formWithoutResponseFormat);
               }
             }}
-            placeholder='{"type": "json_schema", "json_schema": {...}}'
-            className="font-mono text-sm"
           />
-          <p className="text-xs text-muted-foreground">
-            Définit la structure de la réponse JSON. Laissez vide pour une
-            réponse libre.
-          </p>
+          <Label htmlFor="use_response_format">Use Response Schema</Label>
         </div>
+
+        {promptForm.response_format && (
+          <>
+            <div className="space-y-2">
+              <Label htmlFor="schema-name">Schema Name</Label>
+              <Input
+                id="schema-name"
+                value={promptForm.response_format?.json_schema?.name || ""}
+                onChange={(e) => {
+                  const newResponseFormat = {
+                    ...promptForm.response_format,
+                    json_schema: {
+                      ...promptForm.response_format?.json_schema,
+                      name: e.target.value,
+                      schema: {
+                        ...promptForm.response_format?.json_schema?.schema,
+                        title: e.target.value,
+                      },
+                    },
+                  };
+                  setPromptForm({
+                    ...promptForm,
+                    response_format: newResponseFormat,
+                  });
+                }}
+                placeholder="Enter schema name (e.g., DiscordTrends)"
+              />
+              <p className="text-xs text-muted-foreground">
+                Nom du schéma JSON (requis pour l'API OVH)
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="response-format">
+                Response Format (JSON Schema)
+              </Label>
+              <Textarea
+                id="response-format"
+                value={responseFormatText}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setResponseFormatText(value);
+                  try {
+                    const responseFormat = JSON.parse(value);
+                    setPromptForm({
+                      ...promptForm,
+                      response_format: responseFormat,
+                    });
+                  } catch (error) {
+                    // Keep value even if JSON is invalid during typing
+                  }
+                }}
+                placeholder='{"type": "json_schema", "json_schema": {...}}'
+                className="font-mono text-sm"
+              />
+              <p className="text-xs text-muted-foreground">
+                Définit la structure de la réponse JSON. Laissez vide pour une
+                réponse libre.
+              </p>
+            </div>
+          </>
+        )}
 
         <div className="flex items-center space-x-2">
           <Switch

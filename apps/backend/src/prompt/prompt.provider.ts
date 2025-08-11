@@ -24,6 +24,9 @@ export class PromptProvider {
 			throw new BadRequestException('Only admins can create prompts');
 		}
 
+		// Nettoyer le response_format si il est incomplet
+		const cleanedDto = this.cleanResponseFormat(createPromptDto);
+
 		const existingPrompt = await this.promptService.findByName(
 			createPromptDto.name,
 		);
@@ -45,7 +48,7 @@ export class PromptProvider {
 			throw new BadRequestException('Invalid prompt structure');
 		}
 
-		return this.promptService.create(createPromptDto, user.id);
+		return this.promptService.create(cleanedDto, user.id);
 	}
 
 	async getAllPrompts(user: User): Promise<any[]> {
@@ -82,7 +85,10 @@ export class PromptProvider {
 			throw new NotFoundException('Prompt not found');
 		}
 
-		return this.promptService.update(id, updatePromptDto);
+		// Nettoyer le response_format si il est incomplet
+		const cleanedDto = this.cleanResponseFormat(updatePromptDto);
+
+		return this.promptService.update(id, cleanedDto);
 	}
 
 	async deletePrompt(id: number, user: User): Promise<void> {
@@ -167,5 +173,29 @@ export class PromptProvider {
 		} catch (error) {
 			return false;
 		}
+	}
+
+	/**
+	 * Nettoie le response_format pour s'assurer qu'il est complet ou supprimé
+	 */
+	private cleanResponseFormat(dto: any): any {
+		const cleaned = { ...dto };
+
+		// Si response_format existe mais est incomplet, on le supprime
+		if (
+			cleaned.response_format &&
+			(!cleaned.response_format.type ||
+				!cleaned.response_format.json_schema ||
+				!cleaned.response_format.json_schema.name ||
+				!cleaned.response_format.json_schema.schema)
+		) {
+			console.log(
+				'Removing incomplete response_format:',
+				cleaned.response_format,
+			);
+			delete cleaned.response_format;
+		}
+
+		return cleaned;
 	}
 }

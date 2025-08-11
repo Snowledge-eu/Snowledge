@@ -32,7 +32,7 @@ export class Prompt {
 	@Column({ type: 'jsonb' })
 	messages: any[];
 
-	@Column({ type: 'jsonb' })
+	@Column({ type: 'jsonb', nullable: true })
 	response_format: any;
 
 	@Column({ default: false })

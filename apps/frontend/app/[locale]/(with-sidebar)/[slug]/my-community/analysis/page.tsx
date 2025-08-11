@@ -9,6 +9,10 @@ import {
   TrendList,
   TrendResult,
 } from "@/components/my-community/analysis/trend-components";
+import {
+  GenericList,
+  GenericResult,
+} from "@/components/my-community/analysis/generic-components";
 import { useAuth } from "@/contexts/auth-context";
 import { useCurrentCommunity } from "@/hooks/useCurrentCommunity";
 import { usePrompts } from "@/hooks/usePrompts";
@@ -185,6 +189,10 @@ export default function Page() {
           selectedPrompt.toLowerCase().includes("summary") ||
           selectedPrompt.toLowerCase().includes("résumé");
 
+        const isTrendAnalysis =
+          selectedPrompt.toLowerCase().includes("trend") ||
+          selectedPrompt.toLowerCase().includes("tendance");
+
         if (isSummaryAnalysis) {
           setSelectedResult({
             id: analysis?.result?.id
@@ -198,21 +206,22 @@ export default function Page() {
               { title: "New Voting Feature" },
               { title: "AMA with Founders" },
             ],
-            notable_users: JSON.parse(
+            notable_users: parseJsonContent(
               analysis?.result?.choices[0].message.content
             ).notable_users,
-            action_points: JSON.parse(
+            action_points: parseJsonContent(
               analysis?.result?.choices[0].message.content
             ).action_points,
             date: new Date(analysis?.created_at).toLocaleDateString(),
             score: getRandomByLevel(
-              JSON.parse(analysis?.result?.choices[0].message.content)
+              parseJsonContent(analysis?.result?.choices[0].message.content)
                 .confidence
             ),
-            summary: JSON.parse(analysis?.result?.choices[0].message.content)
-              .summary,
+            summary: parseJsonContent(
+              analysis?.result?.choices[0].message.content
+            ).summary,
           });
-        } else {
+        } else if (isTrendAnalysis) {
           setSelectedResult({
             _id: analysis?._id.toString(),
             id: analysis?.result?.id
@@ -221,18 +230,61 @@ export default function Page() {
             timeframe: `${new Date(analysis?.period.from).toLocaleDateString()} to ${new Date(analysis?.period.to).toLocaleDateString()}`,
             platform: analysis?.platform,
             scope: "Custom", //TODO définir regle All | Custom
-            trends: JSON.parse(analysis?.result?.choices[0].message.content)
-              .trends,
+            trends: parseJsonContent(
+              analysis?.result?.choices[0].message.content
+            ).trends,
             date: new Date(analysis?.created_at).toLocaleDateString(),
             score: getRandomByLevel(
-              JSON.parse(analysis?.result?.choices[0].message.content)
+              parseJsonContent(analysis?.result?.choices[0].message.content)
                 .confidence
             ),
-            notable_users: JSON.parse(
+            notable_users: parseJsonContent(
               analysis?.result?.choices[0].message.content
             ).notable_users,
-            summary: JSON.parse(analysis?.result?.choices[0].message.content)
-              .reasoning,
+            summary: parseJsonContent(
+              analysis?.result?.choices[0].message.content
+            ).reasoning,
+          });
+        } else {
+          // Analyse générique (ni summary ni trend)
+          const parsedContent = parseJsonContent(
+            analysis?.result?.choices[0].message.content || "{}"
+          );
+
+          let analysisContent = "No analysis content available";
+          let notable_users = [];
+
+          // Essayer d'extraire le contenu de l'analyse
+          if (parsedContent.summary) {
+            analysisContent = parsedContent.summary;
+          } else if (parsedContent.analysis) {
+            analysisContent = parsedContent.analysis;
+          } else if (parsedContent.content) {
+            analysisContent = parsedContent.content;
+          } else if (parsedContent.result) {
+            analysisContent = parsedContent.result;
+          } else if (typeof parsedContent === "string") {
+            analysisContent = parsedContent;
+          }
+
+          // Extraire les utilisateurs notables si disponibles
+          if (parsedContent.notable_users) {
+            notable_users = parsedContent.notable_users;
+          }
+
+          setSelectedResult({
+            _id: analysis?._id?.toString(),
+            id: analysis?.result?.id
+              ? shortenString(analysis?.result?.id)
+              : "temp",
+            timeframe: `${new Date(analysis?.period.from).toLocaleDateString()} to ${new Date(analysis?.period.to).toLocaleDateString()}`,
+            platform: analysis?.platform,
+            scope: "Custom",
+            date: new Date(analysis?.created_at).toLocaleDateString(),
+            score: getRandomByLevel(parsedContent.confidence || "Low"),
+            notable_users: notable_users,
+            summary: analysisContent,
+            analysis: analysisContent, // Pour le composant GenericResult
           });
         }
       } else if (res.status === 204) {
@@ -249,6 +301,33 @@ export default function Page() {
   const shortenString = (str: string, maxLength: number = 10): string => {
     if (str.length <= maxLength) return str;
     return `${str.slice(0, 3)}...${str.slice(-3)}`;
+  };
+
+  // Fonction pour nettoyer et parser le contenu JSON
+  const parseJsonContent = (content: string): any => {
+    if (!content) return {};
+
+    try {
+      // Nettoyer le contenu des markdown code blocks
+      let cleanedContent = content.trim();
+
+      // Supprimer les backticks et les labels de code blocks
+      cleanedContent = cleanedContent.replace(/```json\s*/g, "");
+      cleanedContent = cleanedContent.replace(/```\s*$/g, "");
+      cleanedContent = cleanedContent.replace(/^\s*```\s*/g, "");
+
+      // Essayer de parser le JSON
+      console.log("before parse", content);
+      console.log(
+        "ParseJsonContent cleanedContent",
+        JSON.parse(cleanedContent)
+      );
+      return JSON.parse(cleanedContent);
+    } catch (error) {
+      console.error("Error parsing JSON content:", error);
+      console.error("Original content:", content);
+      return {};
+    }
   };
 
   function getRandomByLevel(level: "Low" | "Medium" | "High"): number | null {
@@ -300,8 +379,14 @@ export default function Page() {
     ).catch((err) => console.error(err));
 
     const analysis = analysisResponse?.data;
+
     if (analysis?.length > 0) {
+      console.log(`📋 Past analyses for "${selectedPrompt}":`, analysis);
       deserializeAnalysis(analysis);
+    } else {
+      console.log(`❌ No past analyses found for "${selectedPrompt}"`);
+      setAnalysisHistory([]);
+      setSelectedResult(undefined);
     }
   };
 
@@ -309,6 +394,7 @@ export default function Page() {
     const tempArr = [];
     for (let index = 0; index < analysis.length; index++) {
       const item = analysis[index];
+
       const periodFrom = item?.period?.from
         ? new Date(item.period.from).toLocaleDateString()
         : "N/A";
@@ -316,7 +402,7 @@ export default function Page() {
         ? new Date(item.period.to).toLocaleDateString()
         : "N/A";
 
-      const parsedContent = JSON.parse(
+      const parsedContent = parseJsonContent(
         item?.result?.choices?.[0]?.message?.content || "{}"
       );
 
@@ -324,37 +410,32 @@ export default function Page() {
         selectedPrompt.toLowerCase().includes("summary") ||
         selectedPrompt.toLowerCase().includes("résumé");
 
+      const isTrendAnalysis =
+        selectedPrompt.toLowerCase().includes("trend") ||
+        selectedPrompt.toLowerCase().includes("tendance");
+
       if (isSummaryAnalysis) {
-        tempArr.push({
+        const summaryItem = {
           id: item?.result?.id
             ? shortenString(item?.result?.id)
             : `temp-${index}`,
           timeframe: `${periodFrom} to ${periodTo}`,
           platform: item?.platform || "N/A",
           scope: "Custom",
-          topics: [
-            { title: "Bot Downtime" },
-            { title: "New Voting Feature" },
-            { title: "AMA with Founders" },
-          ],
-          notable_users:
-            JSON.parse(item?.result?.choices?.[0]?.message?.content || "{}")
-              .notable_users || [],
           action_points:
-            JSON.parse(item?.result?.choices?.[0]?.message?.content || "{}")
-              .action_points || [],
+            parseJsonContent(
+              item?.result?.choices?.[0]?.message?.content || "{}"
+            ).action_points || [],
           date: item?.created_at
             ? new Date(item.created_at).toLocaleDateString()
             : "N/A",
-          score: getRandomByLevel(
-            JSON.parse(item?.result?.choices?.[0]?.message?.content || "{}")
-              .confidence || "Low"
-          ),
           summary:
-            JSON.parse(item?.result?.choices?.[0]?.message?.content || "{}")
-              .summary || "No summary available",
-        });
-      } else {
+            parseJsonContent(
+              item?.result?.choices?.[0]?.message?.content || "{}"
+            ).summary || "No summary available",
+        };
+        tempArr.push(summaryItem);
+      } else if (isTrendAnalysis) {
         let trends = [];
         let notable_users = [];
         let summary = "No reasoning available";
@@ -371,7 +452,7 @@ export default function Page() {
           summary = parsedContent.reasoning || "No reasoning available";
         }
 
-        tempArr.push({
+        const trendItem = {
           _id: item?._id?.toString() || `temp-${index}`,
           id: item?.result?.id
             ? shortenString(item?.result?.id)
@@ -383,10 +464,29 @@ export default function Page() {
           date: item?.created_at
             ? new Date(item.created_at).toLocaleDateString()
             : "N/A",
-          score: getRandomByLevel(parsedContent.confidence || "Low"),
           notable_users: notable_users,
           summary: summary,
-        });
+        };
+        tempArr.push(trendItem);
+      } else {
+        // Analyse générique (ni summary ni trend)
+
+        const genericItem = {
+          _id: item?._id?.toString() || `temp-${index}`,
+          id: item?.result?.id
+            ? shortenString(item?.result?.id)
+            : `temp-${index}`,
+          timeframe: `${periodFrom} to ${periodTo}`,
+          platform: item?.platform || "N/A",
+          scope: "Custom",
+          date: item?.created_at
+            ? new Date(item.created_at).toLocaleDateString()
+            : "N/A",
+          userMessages: parseJsonContent(
+            item?.result?.choices?.[0]?.message?.content || "{}"
+          ),
+        };
+        tempArr.push(genericItem);
       }
     }
     setAnalysisHistory(tempArr);
@@ -396,6 +496,9 @@ export default function Page() {
   // Effet pour refetch l'historique quand le prompt change
   useEffect(() => {
     if (activeCommunity?.discordServerId && selectedPrompt) {
+      // Réinitialiser l'état avant de charger les nouvelles données
+      setSelectedResult(undefined);
+      setAnalysisHistory([]);
       fetchAnalysis();
     }
   }, [selectedPrompt]);
@@ -404,6 +507,19 @@ export default function Page() {
   const isSummaryAnalysis =
     selectedPrompt?.toLowerCase().includes("summary") ||
     selectedPrompt?.toLowerCase().includes("résumé");
+
+  const isTrendAnalysis =
+    selectedPrompt?.toLowerCase().includes("trend") ||
+    selectedPrompt?.toLowerCase().includes("tendance");
+
+  // Déterminer le type d'affichage
+  const getAnalysisType = () => {
+    if (isSummaryAnalysis) return "summary";
+    if (isTrendAnalysis) return "trend";
+    return "generic";
+  };
+
+  const analysisType = getAnalysisType();
 
   return (
     <main className="grid grid-cols-1 md:grid-cols-[minmax(640px,800px)_1fr] items-stretch gap-8 h-screen min-h-screen bg-background">
@@ -437,7 +553,7 @@ export default function Page() {
 
       {/* Panneau droit (résultat + historique) */}
       <section className="flex flex-col items-center justify-start h-full min-h-0 px-2 w-full">
-        {isSummaryAnalysis ? (
+        {analysisType === "summary" ? (
           <>
             <SummaryResult
               summary={selectedResult?.summary || ""}
@@ -452,13 +568,24 @@ export default function Page() {
               />
             </Card>
           </>
-        ) : (
+        ) : analysisType === "trend" ? (
           <>
             <TrendResult result={selectedResult} />
             <Card className="w-full max-w-5xl mx-auto p-6 md:p-8 shadow-lg border bg-white space-y-6 mt-8">
               <TrendList
                 history={analysisHistory}
                 onSelect={setSelectedResult}
+              />
+            </Card>
+          </>
+        ) : (
+          <>
+            <GenericResult result={selectedResult} />
+            <Card className="w-full max-w-5xl mx-auto p-6 md:p-8 shadow-lg border bg-white space-y-6 mt-8">
+              <GenericList
+                history={analysisHistory}
+                onSelect={setSelectedResult}
+                promptName={selectedPrompt}
               />
             </Card>
           </>
