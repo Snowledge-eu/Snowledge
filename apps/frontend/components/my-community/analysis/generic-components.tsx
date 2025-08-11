@@ -270,8 +270,35 @@ export function GenericResult({ result }: GenericResultProps) {
                     : item.name ||
                       item.user ||
                       item.username ||
+                      item.auteur ||
+                      item.title ||
                       `Item ${index + 1}`}
                 </p>
+                
+                {/* Messages spéciaux pour les différents types d'objets */}
+                {item.message && (
+                  <p className="text-xs text-muted-foreground italic mt-1">
+                    "{item.message}"
+                  </p>
+                )}
+                {item.nombre_de_messages && (
+                  <p className="text-xs text-blue-600 font-medium">
+                    {item.nombre_de_messages} messages
+                  </p>
+                )}
+                {item.sentiment && (
+                  <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium mt-1 ${
+                    item.sentiment === 'positif' 
+                      ? 'bg-green-100 text-green-700' 
+                      : item.sentiment === 'négatif'
+                      ? 'bg-red-100 text-red-700'
+                      : 'bg-gray-100 text-gray-700'
+                  }`}>
+                    {item.sentiment}
+                  </span>
+                )}
+                
+                {/* Propriétés existantes */}
                 {item.reason && (
                   <p className="text-xs text-muted-foreground">{item.reason}</p>
                 )}
@@ -298,6 +325,20 @@ export function GenericResult({ result }: GenericResultProps) {
                     Activité: {item.activity_level}
                   </p>
                 )}
+                
+                {/* Affichage générique pour les autres propriétés */}
+                {Object.entries(item).map(([prop, val]) => {
+                  // Skip les propriétés déjà affichées
+                  const displayedProps = ['name', 'user', 'username', 'auteur', 'title', 'message', 'nombre_de_messages', 'sentiment', 'reason', 'description', 'score', 'activity_level'];
+                  if (displayedProps.includes(prop) || typeof val === 'object') return null;
+                  
+                  return (
+                    <p key={prop} className="text-xs text-muted-foreground">
+                      <span className="font-medium capitalize">{prop.replace(/_/g, ' ')}: </span>
+                      {String(val)}
+                    </p>
+                  );
+                })}
               </div>
             </div>
           ))}
@@ -349,9 +390,75 @@ export function GenericResult({ result }: GenericResultProps) {
     return null;
   };
 
+  // Détecte le type de données et retourne des métadonnées
+  const getDataTypeInfo = (value: any, fieldName: string) => {
+    // URLs
+    if (typeof value === "string" && /^https?:\/\//.test(value)) {
+      return {
+        type: "url",
+        icon: "🔗",
+        color: "from-blue-50 to-blue-100",
+        textColor: "text-blue-700",
+      };
+    }
+    // Emails
+    if (typeof value === "string" && /\S+@\S+\.\S+/.test(value)) {
+      return {
+        type: "email",
+        icon: "📧",
+        color: "from-purple-50 to-purple-100",
+        textColor: "text-purple-700",
+      };
+    }
+    // Dates (format ISO ou dates lisibles)
+    if (
+      typeof value === "string" &&
+      !isNaN(Date.parse(value)) &&
+      value.includes("-")
+    ) {
+      return {
+        type: "date",
+        icon: "📅",
+        color: "from-green-50 to-green-100",
+        textColor: "text-green-700",
+      };
+    }
+    // Nombres/Scores
+    if (
+      (typeof value === "number" && value >= 0 && value <= 100) ||
+      isScoreValue(value, fieldName) !== null
+    ) {
+      return {
+        type: "score",
+        icon: "📊",
+        color: "from-indigo-50 to-indigo-100",
+        textColor: "text-indigo-700",
+      };
+    }
+    // Longs textes (plus de 100 caractères)
+    if (typeof value === "string" && value.length > 100) {
+      return {
+        type: "long_text",
+        icon: "📝",
+        color: "from-gray-50 to-gray-100",
+        textColor: "text-gray-700",
+      };
+    }
+
+    // Valeurs simples
+    return {
+      type: "simple",
+      icon: "💬",
+      color: "from-slate-50 to-slate-100",
+      textColor: "text-slate-700",
+    };
+  };
+
   // Rend une valeur simple (string, number, etc.)
   const renderSimpleValue = (value: any, title: string, fieldName: string) => {
     if (value === null || value === undefined) return null;
+
+    const dataInfo = getDataTypeInfo(value, fieldName);
 
     // Score/confiance (nombres entre 0-100)
     if (typeof value === "number" && value >= 0 && value <= 100) {
@@ -366,17 +473,107 @@ export function GenericResult({ result }: GenericResultProps) {
       }
     }
 
+    // URLs - Rendu spécial avec lien cliquable
+    if (dataInfo.type === "url") {
+      return (
+        <div className="space-y-2">
+          <h4 className="text-sm font-medium flex items-center gap-2">
+            <span>{dataInfo.icon}</span>
+            {title}
+          </h4>
+          <div
+            className={`p-3 bg-gradient-to-r ${dataInfo.color} rounded-lg border`}
+          >
+            <a
+              href={value}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`${dataInfo.textColor} hover:underline break-all`}
+            >
+              {value}
+            </a>
+          </div>
+        </div>
+      );
+    }
+
+    // Dates - Formatage amélioré
+    if (dataInfo.type === "date") {
+      const date = new Date(value);
+      const formattedDate = date.toLocaleDateString("fr-FR", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+      return (
+        <div className="space-y-2">
+          <h4 className="text-sm font-medium flex items-center gap-2">
+            <span>{dataInfo.icon}</span>
+            {title}
+          </h4>
+          <div
+            className={`p-3 bg-gradient-to-r ${dataInfo.color} rounded-lg border`}
+          >
+            <span className={`${dataInfo.textColor} font-medium`}>
+              {formattedDate}
+            </span>
+          </div>
+        </div>
+      );
+    }
+
     // Texte long (plus de 100 caractères) - traiter comme summary/explanation
-    if (typeof value === "string" && value.length > 100) {
+    if (dataInfo.type === "long_text") {
       return (
         <div className="space-y-3">
           <h3 className="text-lg font-semibold flex items-center gap-2">
-            <div className="w-2 h-2 bg-primary rounded-full"></div>
+            <span>{dataInfo.icon}</span>
             {title}
           </h3>
-          <div className="p-4 bg-muted/20 rounded-lg">
-            <div className="text-base leading-relaxed whitespace-pre-wrap">
+          <div
+            className={`p-4 bg-gradient-to-r ${dataInfo.color} rounded-lg border`}
+          >
+            <div
+              className={`text-base leading-relaxed whitespace-pre-wrap ${dataInfo.textColor}`}
+            >
               {formatFreeText(value)}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Objets complexes (sentiment_by_channel, activity_level, etc.)
+    if (typeof value === "object" && value !== null && !Array.isArray(value)) {
+      return (
+        <div className="space-y-3">
+          <h3 className="text-lg font-semibold flex items-center gap-2">
+            <span>{dataInfo.icon}</span>
+            {title}
+          </h3>
+          <div
+            className={`p-4 bg-gradient-to-r ${dataInfo.color} rounded-lg border`}
+          >
+            <div className="space-y-3">
+              {Object.entries(value).map(([key, val], index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-2 bg-white/50 rounded"
+                >
+                  <span className="text-sm font-medium capitalize">
+                    {key.replace(/_/g, " ")}
+                  </span>
+                  <span
+                    className={`text-sm font-semibold ${dataInfo.textColor}`}
+                  >
+                    {typeof val === "object"
+                      ? JSON.stringify(val)
+                      : String(val)}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -385,11 +582,18 @@ export function GenericResult({ result }: GenericResultProps) {
 
     // Valeur simple courte
     return (
-      <div className="flex items-center gap-3 p-3 bg-muted/10 rounded-lg">
-        <span className="text-sm font-medium text-muted-foreground">
-          {title}:
-        </span>
-        <span className="text-sm font-semibold">{String(value)}</span>
+      <div className="space-y-2">
+        <h4 className="text-sm font-medium flex items-center gap-2">
+          <span>{dataInfo.icon}</span>
+          {title}
+        </h4>
+        <div
+          className={`p-3 bg-gradient-to-r ${dataInfo.color} rounded-lg border`}
+        >
+          <span className={`${dataInfo.textColor} font-medium`}>
+            {String(value)}
+          </span>
+        </div>
       </div>
     );
   };
@@ -454,9 +658,9 @@ export function GenericResult({ result }: GenericResultProps) {
     );
   }
 
-  // Configuration des champs connus avec leurs titres personnalisés
+  // Configuration complète basée sur AVAILABLE_OUTPUTS
   const fieldConfig = {
-    // Anciens champs
+    // Anciens champs (rétrocompatibilité)
     summary: "Summary",
     notable_users: "Notable Users",
     notable_messages: "Notable Messages",
@@ -471,29 +675,60 @@ export function GenericResult({ result }: GenericResultProps) {
     insights: "Insights",
     recommendations: "Recommendations",
 
-    // Nouveaux champs structurés
-    sentiment_global: "Sentiment Global",
-    sentiment_by_channel: "Sentiment par Canal",
-    sentiment_by_segment: "Sentiment par Segment",
-    top_influential_users: "Utilisateurs Influents",
-    top_active_users: "Utilisateurs Actifs",
-    activity_level: "Niveau d'Activité",
-    emerging_topics: "Sujets Émergents",
-    top_topics: "Sujets Principaux",
-    user_retention_rate: "Taux de Rétention",
-    at_risk_users: "Utilisateurs à Risque",
-    compliance_alerts: "Alertes de Conformité",
-    unanswered_questions: "Questions sans Réponse",
-    top_positive_messages: "Messages Positifs",
-    top_negative_messages: "Messages Négatifs",
-    user_interaction_map: "Carte des Interactions",
-    feedback_clusters: "Groupes de Feedback",
-    knowledge_base_gaps: "Lacunes de Connaissance",
+    // Tous les champs de AVAILABLE_OUTPUTS
+    sentiment_global: "Sentiment Level (Global)",
+    sentiment_by_channel: "Sentiment Level (Par Canal)",
+    sentiment_by_segment: "Sentiment Level (Par Segment)",
+    top_influential_users: "Top Influential Users",
+    top_active_users: "Top Active Users",
+    activity_level: "Activity Level",
+    emerging_topics: "Emerging Topics",
+    top_topics: "Top Topics",
+    user_retention_rate: "User Retention Rate",
+    at_risk_users: "At-Risk Users",
+    compliance_alerts: "Compliance/Risk Alerts",
+    unanswered_questions: "Unanswered Questions",
+    top_positive_messages: "Top Positive Messages",
+    top_negative_messages: "Top Negative Messages",
+    user_interaction_map: "User Interaction Map",
+    feedback_clusters: "Feedback Clusters",
+    knowledge_base_gaps: "Knowledge Base Gaps",
     reasoning: "Raisonnement du LLM",
   };
 
   // Extraction des données structurées
-  const structuredData = typeof result === "object" ? result : {};
+  let structuredData = typeof result === "object" ? result : {};
+
+  // Cas spécial : Si les données sont dans userMessages, les extraire
+  // FIXME: Les résultats d'analyse ne devraient pas être dans userMessages !
+  if (
+    structuredData.userMessages &&
+    typeof structuredData.userMessages === "object"
+  ) {
+    console.log("⚠️  GenericResult - ATTENTION: Les résultats d'analyse sont dans userMessages !");
+    console.log("🔍 GenericResult - Extracting analysis results from userMessages...");
+    
+    // Sauvegarder les vraies userMessages s'il y en a
+    const originalUserMessages = Array.isArray(structuredData.userMessages) 
+      ? structuredData.userMessages 
+      : null;
+    
+    // Extraire les données d'analyse
+    structuredData = { ...structuredData, ...structuredData.userMessages };
+    
+    // Restaurer les vraies userMessages si c'était un array
+    if (originalUserMessages) {
+      structuredData.userMessages = originalUserMessages;
+    }
+  }
+
+  // DEBUG: Afficher le contenu reçu
+  console.log("🔍 GenericResult - Raw result:", result);
+  console.log("🔍 GenericResult - Structured data:", structuredData);
+  console.log(
+    "🔍 GenericResult - Available fields:",
+    Object.keys(structuredData)
+  );
 
   // Filtrer les champs système (userMessages, platform, etc.)
   const systemFields = [
@@ -505,9 +740,74 @@ export function GenericResult({ result }: GenericResultProps) {
     "createdAt",
     "updatedAt",
   ];
-  const dataFields = Object.keys(structuredData).filter(
+
+  // Fonction pour trier les champs par importance (basée sur AVAILABLE_OUTPUTS)
+  const sortFieldsByImportance = (fields: string[]) => {
+    console.log("fields", fields);
+    const priorityOrder = {
+      // Très haute priorité - Résumé et insights principaux
+      summary: 1,
+      insights: 2,
+      explanation: 3,
+
+      // Haute priorité - Métriques globales (category: "metrics")
+      confidence: 10,
+      score: 11,
+      sentiment_global: 12,
+      user_retention_rate: 13,
+      activity_level: 14,
+
+      // Priorité normale - Sentiment détaillé (category: "sentiment")
+      sentiment_by_channel: 20,
+      sentiment_by_segment: 21,
+      top_positive_messages: 22,
+      top_negative_messages: 23,
+
+      // Priorité normale - Utilisateurs (category: "users")
+      top_influential_users: 25,
+      top_active_users: 26,
+      notable_users: 27,
+      at_risk_users: 28,
+
+      // Priorité normale - Sujets et tendances (category: "topics")
+      emerging_topics: 30,
+      top_topics: 31,
+      trends: 32,
+      keywords: 33,
+
+      // Priorité normale - Contenu et messages
+      notable_messages: 35,
+
+      // Priorité basse - Support et modération (category: "support", "moderation")
+      unanswered_questions: 40,
+      compliance_alerts: 41,
+
+      // Priorité basse - Analyse avancée (category: "network", "feedback")
+      user_interaction_map: 45,
+      feedback_clusters: 46,
+      knowledge_base_gaps: 47,
+
+      // Très basse priorité - Actions et recommandations
+      action_points: 50,
+      recommendations: 51,
+
+      // Le raisonnement sera traité séparément
+      reasoning: 100,
+    };
+
+    return fields.sort((a, b) => {
+      const priorityA = priorityOrder[a as keyof typeof priorityOrder] || 99;
+      const priorityB = priorityOrder[b as keyof typeof priorityOrder] || 99;
+      return priorityA - priorityB;
+    });
+  };
+
+  const allDataFields = Object.keys(structuredData).filter(
     (key) => !systemFields.includes(key)
   );
+
+  console.log("allDataFields", allDataFields);
+  const dataFields = sortFieldsByImportance(allDataFields);
 
   return (
     <AnalysisResultBase result={result} title="Analysis Result">
@@ -530,7 +830,7 @@ export function GenericResult({ result }: GenericResultProps) {
         {/* Rendu automatique de tous les champs de données */}
         {dataFields
           .filter((key) => key !== "reasoning")
-          .map((key) => {
+          .map((key, index) => {
             const value = structuredData[key];
             const title =
               fieldConfig[key as keyof typeof fieldConfig] ||
@@ -539,11 +839,85 @@ export function GenericResult({ result }: GenericResultProps) {
                 .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
                 .join(" ");
 
-            if (Array.isArray(value)) {
-              return renderArray(value, title, key);
-            } else {
-              return renderSimpleValue(value, title, key);
-            }
+            // Ajouter des séparateurs visuels entre les catégories
+            const isNewCategory = (
+              currentKey: string,
+              previousKey?: string
+            ) => {
+              if (!previousKey) return false;
+
+              // Mapping basé sur les catégories des AVAILABLE_OUTPUTS
+              const categoryMap = {
+                // Insights généraux
+                summary: "insights",
+                insights: "insights",
+                explanation: "insights",
+
+                // Métriques (category: "metrics")
+                confidence: "metrics",
+                score: "metrics",
+                user_retention_rate: "metrics",
+                activity_level: "activity",
+
+                // Sentiment (category: "sentiment")
+                sentiment_global: "sentiment",
+                sentiment_by_channel: "sentiment",
+                sentiment_by_segment: "sentiment",
+                top_positive_messages: "sentiment",
+                top_negative_messages: "sentiment",
+
+                // Utilisateurs (category: "users")
+                top_influential_users: "users",
+                top_active_users: "users",
+                notable_users: "users",
+                at_risk_users: "users",
+
+                // Sujets (category: "topics")
+                emerging_topics: "topics",
+                top_topics: "topics",
+                trends: "topics",
+                keywords: "topics",
+
+                // Messages et contenu
+                notable_messages: "content",
+
+                // Support (category: "support")
+                unanswered_questions: "support",
+                knowledge_base_gaps: "support",
+
+                // Modération (category: "moderation")
+                compliance_alerts: "moderation",
+
+                // Analyse avancée (category: "network", "feedback")
+                user_interaction_map: "network",
+                feedback_clusters: "feedback",
+
+                // Actions
+                action_points: "actions",
+                recommendations: "actions",
+              };
+
+              const currentCategory =
+                categoryMap[currentKey as keyof typeof categoryMap] || "other";
+              const previousCategory =
+                categoryMap[previousKey as keyof typeof categoryMap] || "other";
+
+              return currentCategory !== previousCategory;
+            };
+
+            const shouldShowSeparator =
+              index > 0 && isNewCategory(key, dataFields[index - 1]);
+
+            return (
+              <div key={key}>
+                {shouldShowSeparator && (
+                  <div className="my-8 border-t border-gray-200"></div>
+                )}
+                {Array.isArray(value)
+                  ? renderArray(value, title, key)
+                  : renderSimpleValue(value, title, key)}
+              </div>
+            );
           })}
 
         {/* Messages utilisateur (champ système spécial) */}
