@@ -175,6 +175,7 @@ export class AnalysisProvider {
 					customPrompt: prompt,
 					userContent: formatted,
 				});
+
 			const newAnalysis = await this.analysisHelper.saveAnalysis({
 				creator_id: dto.creator_id,
 				platform: 'discord',
@@ -190,6 +191,7 @@ export class AnalysisProvider {
 				},
 				result: ovhResponse,
 			});
+
 			return newAnalysis;
 		} catch (e) {
 			throw new HttpException(

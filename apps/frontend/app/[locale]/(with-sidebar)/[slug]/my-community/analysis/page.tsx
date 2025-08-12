@@ -191,6 +191,8 @@ export default function Page() {
         }
       );
 
+      console.log("🔍 res:", res);
+
       if (res.status === 200 || res.status === 201) {
         console.log(res);
         const analysisResponse = await fetcher(
@@ -276,8 +278,17 @@ export default function Page() {
           });
         } else {
           // Analyse générique (ni summary ni trend)
+          console.log(
+            "🔍 GenericResult - Raw resultrereere:",
+            analysis?.result?.choices[0].message.content
+          );
           const parsedContent = parseJsonContent(
             analysis?.result?.choices[0].message.content || "{}"
+          );
+
+          console.log(
+            "🔍 GenericResult - Parsed contrerereent:",
+            parsedContent
           );
 
           let analysisContent = "No analysis content available";
@@ -505,10 +516,11 @@ export default function Page() {
           date: item?.created_at
             ? new Date(item.created_at).toLocaleDateString()
             : "N/A",
-          userMessages: parseJsonContent(
+          analysisData: parseJsonContent(
             item?.result?.choices?.[0]?.message?.content || "{}"
           ),
         };
+        console.log("🔍 genericItem:", genericItem);
         tempArr.push(genericItem);
       }
     }
