@@ -423,6 +423,7 @@ export const SYSTEM_FIELDS = [
   "scope",
   "timeframe",
   "id",
+  "_id",
   "createdAt",
   "updatedAt",
 ];

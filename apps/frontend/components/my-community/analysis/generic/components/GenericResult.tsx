@@ -2,9 +2,7 @@ import React from "react";
 import { AnalysisResultBase } from "../../shared/analysis-result-base";
 import { GenericResultProps } from "../types";
 import { useAnalysisData } from "../hooks/useAnalysisData";
-import { getFieldTitle, isNewCategory } from "../utils/fieldConfig";
-import { useArrayRendering } from "../hooks/useArrayRendering";
-import { useValueRendering } from "../hooks/useValueRendering";
+import { useFieldRendering } from "../hooks/useFieldRendering";
 
 // ============
 // Utilitaires locaux
@@ -59,32 +57,10 @@ export function GenericResult({ result }: GenericResultProps) {
   // Tous les hooks doivent être appelés en premier, avant toute logique conditionnelle
   const { resultKey, structuredData, dataFields, isFreeText, hasData } =
     useAnalysisData(result);
-  const { renderArray } = useArrayRendering();
-  const { renderSimpleValue } = useValueRendering();
+  const { renderArray, renderSimpleValue, renderField, formatFreeText } =
+    useFieldRendering();
 
   console.log("🔍 result", result);
-
-  // Fonction utilitaire pour insérer séparateurs et router vers le bon rendu
-  const renderField = (
-    key: string,
-    value: any,
-    index: number,
-    fields: string[]
-  ) => {
-    const title = getFieldTitle(key);
-    const shouldShowSeparator =
-      index > 0 && isNewCategory(key, fields[index - 1]);
-    return (
-      <div key={key}>
-        {shouldShowSeparator && (
-          <div className="my-8 border-t border-gray-200"></div>
-        )}
-        {Array.isArray(value)
-          ? renderArray(value, title, key)
-          : renderSimpleValue(value, title, key)}
-      </div>
-    );
-  };
 
   // Maintenant on peut faire les vérifications conditionnelles
   if (!result) return null;

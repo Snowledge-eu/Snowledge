@@ -18,6 +18,8 @@ export type {
 // Hooks
 export { useAnalysisData } from "./hooks/useAnalysisData";
 export { useFieldRendering } from "./hooks/useFieldRendering";
+export { useScoreDetection } from "./hooks/useScoreDetection";
+export { useDataTypeDetection } from "./hooks/useDataTypeDetection";
 
 // Utilitaires
 export {
@@ -38,10 +40,3 @@ export {
   hasAnalysisData,
   generateResultKey,
 } from "./utils/dataProcessing";
-
-export {
-  formatFreeText,
-  isScoreValue,
-  getDataTypeInfo,
-  renderScoreBar,
-} from "./utils/fieldRendering";

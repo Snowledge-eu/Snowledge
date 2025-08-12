@@ -560,8 +560,8 @@ export default function Page() {
   const analysisType = getAnalysisType();
 
   return (
-    <main className="grid grid-cols-1 md:grid-cols-[minmax(640px,800px)_1fr] items-stretch gap-8 h-screen min-h-screen bg-background">
-      {/* Panneau gauche (formulaire) */}
+    <main className="grid grid-cols-1 md:grid-cols-[1fr_2fr] items-stretch gap-8 h-screen min-h-screen bg-background">
+      {/* Panneau gauche (formulaire) - 1/3 */}
       <aside className="relative flex flex-col items-stretch h-full min-h-0">
         <AnalysisInput
           platforms={platforms}
@@ -590,7 +590,7 @@ export default function Page() {
         />
       </aside>
 
-      {/* Panneau droit (résultat + historique) */}
+      {/* Panneau droit (résultat + historique) - 2/3 */}
       <section className="flex flex-col items-center justify-start h-full min-h-0 px-2 w-full">
         {analysisType === "summary" ? (
           <>

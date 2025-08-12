@@ -165,7 +165,7 @@ export function AnalysisInput({
     : [];
 
   return (
-    <div className="bg-muted rounded-xl shadow p-6 flex flex-col gap-10">
+    <div className="bg-muted rounded-xl shadow p-6 flex flex-col gap-10 ml-10">
       {/* 1. Platform selection with icons */}
       <PlatformIconButtons
         platforms={platforms}
