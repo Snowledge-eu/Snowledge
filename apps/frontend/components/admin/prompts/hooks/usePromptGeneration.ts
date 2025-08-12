@@ -13,6 +13,18 @@ export const usePromptGeneration = () => {
   const getAction = (id: string) => AVAILABLE_ACTIONS.find((a) => a.id === id);
   const getOutput = (id: string) => AVAILABLE_OUTPUTS.find((o) => o.id === id);
 
+  // Mapping des Actions vers les champs JSON correspondants
+  const ACTION_TO_JSON_MAPPING: Record<string, string> = {
+    sentiment_analysis: "sentiment_global",
+    topic_extraction: "emerging_topics",
+    user_segmentation: "top_influential_users",
+    activity_analysis: "activity_level",
+    risk_detection: "compliance_alerts",
+    knowledge_gaps: "unanswered_questions",
+    interaction_mapping: "user_interaction_map",
+    feedback_clustering: "feedback_clusters",
+  };
+
   // Générer automatiquement le message système basé sur le rôle et les actions
   const generateSystemMessage = (promptForm: PromptFormType): string => {
     let systemMessage =
@@ -65,51 +77,68 @@ export const usePromptGeneration = () => {
     return systemMessage;
   };
 
-  // Générer automatiquement le schema basé sur les selected_outputs
+  // Générer automatiquement le schema basé sur les selected_outputs ET selected_actions
   const generateResponseFormat = (promptForm: PromptFormType) => {
-    if (
-      !promptForm.selected_outputs ||
-      promptForm.selected_outputs.length === 0
-    ) {
-      return undefined; // Pas de schema si aucun output sélectionné
+    // Collecter tous les champs requis (Outputs + Actions mappées)
+    const allRequiredFields = new Set<string>();
+
+    // Ajouter les Outputs sélectionnés
+    if (promptForm.selected_outputs) {
+      promptForm.selected_outputs.forEach(outputId => allRequiredFields.add(outputId));
+    }
+
+    // Ajouter les Actions mappées vers leurs champs JSON correspondants
+    if (promptForm.selected_actions) {
+      promptForm.selected_actions.forEach(actionId => {
+        const jsonField = ACTION_TO_JSON_MAPPING[actionId];
+        if (jsonField) {
+          allRequiredFields.add(jsonField);
+        }
+      });
+    }
+
+    // Si aucun champ requis, pas de schema
+    if (allRequiredFields.size === 0) {
+      return undefined;
     }
 
     const properties: any = {};
     const required: string[] = [];
 
-    promptForm.selected_outputs.forEach((outputId) => {
-      const output = getOutput(outputId);
+    // Traiter tous les champs requis
+    allRequiredFields.forEach((fieldId) => {
+      const output = getOutput(fieldId);
       if (output) {
-        required.push(outputId);
+        required.push(fieldId);
 
         switch (output.type) {
           case "string":
-            properties[outputId] = {
+            properties[fieldId] = {
               type: "string",
               title: output.name,
             };
             break;
           case "number":
-            properties[outputId] = {
+            properties[fieldId] = {
               type: "number",
               title: output.name,
             };
             break;
           case "boolean":
-            properties[outputId] = {
+            properties[fieldId] = {
               type: "boolean",
               title: output.name,
             };
             break;
           case "array":
-            properties[outputId] = {
+            properties[fieldId] = {
               type: "array",
               items: { type: "string" },
               title: output.name,
             };
             break;
           case "object":
-            properties[outputId] = {
+            properties[fieldId] = {
               type: "object",
               title: output.name,
             };
@@ -183,5 +212,18 @@ export const usePromptGeneration = () => {
     generateSystemMessage,
     generateResponseFormat,
     generateFinalPromptPreview,
+    // Nouvelle fonction pour obtenir les champs automatiquement ajoutés
+    getAutoAddedFields: (selectedActions: string[]) => {
+      return selectedActions
+        .map(actionId => {
+          const jsonField = ACTION_TO_JSON_MAPPING[actionId];
+          if (jsonField) {
+            const output = getOutput(jsonField);
+            return output ? { actionId, jsonField, output } : null;
+          }
+          return null;
+        })
+        .filter(Boolean);
+    },
   };
 };

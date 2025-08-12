@@ -3,6 +3,7 @@ import { Switch } from "@repo/ui/components/switch";
 import { Badge } from "@repo/ui/components/badge";
 import { PromptForm as PromptFormType } from "../../shared/types";
 import { AVAILABLE_OUTPUTS } from "../../shared/constants";
+import { usePromptGeneration } from "../hooks/usePromptGeneration";
 
 interface OutputsSectionProps {
   promptForm: PromptFormType;
@@ -13,6 +14,8 @@ export const OutputsSection = ({
   promptForm,
   onUpdate,
 }: OutputsSectionProps) => {
+  const { getAutoAddedFields } = usePromptGeneration();
+
   const handleOutputToggle = (outputId: string, checked: boolean) => {
     const currentOutputs = promptForm.selected_outputs || [];
     const newOutputs = checked
@@ -49,6 +52,9 @@ export const OutputsSection = ({
     return icons[category as keyof typeof icons] || category;
   };
 
+  // Obtenir les champs automatiquement ajoutés
+  const autoAddedFields = getAutoAddedFields(promptForm.selected_actions || []);
+
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
@@ -57,6 +63,45 @@ export const OutputsSection = ({
           Éléments qui seront présents dans la réponse JSON
         </p>
       </div>
+
+      {/* Section des champs automatiquement ajoutés */}
+      {autoAddedFields.length > 0 && (
+        <div className="space-y-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className="flex items-center gap-2">
+            <h4 className="text-md font-medium text-blue-800">
+              🔄 Champs automatiquement ajoutés
+            </h4>
+            <Badge variant="secondary" className="text-xs">
+              Basé sur les Actions sélectionnées
+            </Badge>
+          </div>
+          <p className="text-xs text-blue-700">
+            Ces champs seront automatiquement inclus dans le JSON schema car ils correspondent aux Actions demandées :
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            {autoAddedFields
+              .filter((field): field is NonNullable<typeof field> => field !== null)
+              .map(({ actionId, jsonField, output }) => (
+                <div
+                  key={jsonField}
+                  className="flex items-center gap-2 p-2 bg-blue-100 border border-blue-300 rounded"
+                >
+                  <div className="flex-1">
+                    <div className="text-xs font-medium text-blue-900">
+                      {output.name}
+                    </div>
+                    <div className="text-xs text-blue-700">
+                      Action: {actionId}
+                    </div>
+                    <Badge variant="outline" className="text-xs mt-1">
+                      {output.type}
+                    </Badge>
+                  </div>
+                </div>
+              ))}
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 gap-4">
         {categories.map((category) => {
@@ -71,37 +116,53 @@ export const OutputsSection = ({
                 {getCategoryIcon(category)}
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                {categoryOutputs.map((output) => (
-                  <div
-                    key={output.id}
-                    className="flex items-start space-x-2 p-2 border rounded"
-                  >
-                    <Switch
-                      id={`output_${output.id}`}
-                      checked={
-                        promptForm.selected_outputs?.includes(output.id) ||
-                        false
-                      }
-                      onCheckedChange={(checked) =>
-                        handleOutputToggle(output.id, checked)
-                      }
-                    />
-                    <div className="flex-1">
-                      <Label
-                        htmlFor={`output_${output.id}`}
-                        className="text-xs font-medium"
-                      >
-                        {output.name}
-                      </Label>
-                      <p className="text-xs text-muted-foreground">
-                        {output.description}
-                      </p>
-                      <Badge variant="outline" className="text-xs mt-1">
-                        {output.type}
-                      </Badge>
+                {categoryOutputs.map((output) => {
+                  const isAutoAdded = autoAddedFields.some(
+                    field => field !== null && field.jsonField === output.id
+                  );
+                  
+                  return (
+                    <div
+                      key={output.id}
+                      className={`flex items-start space-x-2 p-2 border rounded ${
+                        isAutoAdded ? 'bg-blue-50 border-blue-200' : ''
+                      }`}
+                    >
+                      <Switch
+                        id={`output_${output.id}`}
+                        checked={
+                          promptForm.selected_outputs?.includes(output.id) ||
+                          false
+                        }
+                        onCheckedChange={(checked) =>
+                          handleOutputToggle(output.id, checked)
+                        }
+                        disabled={isAutoAdded}
+                      />
+                      <div className="flex-1">
+                        <Label
+                          htmlFor={`output_${output.id}`}
+                          className={`text-xs font-medium ${
+                            isAutoAdded ? 'text-blue-700' : ''
+                          }`}
+                        >
+                          {output.name}
+                          {isAutoAdded && (
+                            <Badge variant="secondary" className="ml-1 text-xs">
+                              Auto
+                            </Badge>
+                          )}
+                        </Label>
+                        <p className="text-xs text-muted-foreground">
+                          {output.description}
+                        </p>
+                        <Badge variant="outline" className="text-xs mt-1">
+                          {output.type}
+                        </Badge>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           );
