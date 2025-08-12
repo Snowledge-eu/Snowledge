@@ -99,7 +99,6 @@ export default function Page() {
 
   // Fonction pour récupérer les canaux Discord (exactement comme dans les anciennes pages)
   const fetchChannels = async (guildId: string) => {
-    console.log("fetchChannel");
     try {
       if (meta && meta.listData) {
         const options = meta?.listData?.map((channel) => ({
@@ -346,12 +345,6 @@ export default function Page() {
       cleanedContent = cleanedContent.replace(/```\s*$/g, "");
       cleanedContent = cleanedContent.replace(/^\s*```\s*/g, "");
 
-      // Essayer de parser le JSON
-      console.log("before parse", content);
-      console.log(
-        "ParseJsonContent cleanedContent",
-        JSON.parse(cleanedContent)
-      );
       return JSON.parse(cleanedContent);
     } catch (error) {
       console.error("Error parsing JSON content:", error);

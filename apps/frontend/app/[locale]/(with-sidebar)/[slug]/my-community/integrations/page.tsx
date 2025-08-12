@@ -104,7 +104,6 @@ export default function Page() {
     }
   }
   const fetchChannels = async (guildId: string) => {
-    console.log("fetchChannelllss");
     try {
       // const data = await fetch(
       //   `${process.env.NEXT_PUBLIC_ANALYSER_URL}/discord/channels/${guildId}`,

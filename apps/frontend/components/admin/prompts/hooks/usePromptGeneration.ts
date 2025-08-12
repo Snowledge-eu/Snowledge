@@ -84,12 +84,14 @@ export const usePromptGeneration = () => {
 
     // Ajouter les Outputs sélectionnés
     if (promptForm.selected_outputs) {
-      promptForm.selected_outputs.forEach(outputId => allRequiredFields.add(outputId));
+      promptForm.selected_outputs.forEach((outputId) =>
+        allRequiredFields.add(outputId)
+      );
     }
 
     // Ajouter les Actions mappées vers leurs champs JSON correspondants
     if (promptForm.selected_actions) {
-      promptForm.selected_actions.forEach(actionId => {
+      promptForm.selected_actions.forEach((actionId) => {
         const jsonField = ACTION_TO_JSON_MAPPING[actionId];
         if (jsonField) {
           allRequiredFields.add(jsonField);
@@ -215,7 +217,7 @@ export const usePromptGeneration = () => {
     // Nouvelle fonction pour obtenir les champs automatiquement ajoutés
     getAutoAddedFields: (selectedActions: string[]) => {
       return selectedActions
-        .map(actionId => {
+        .map((actionId) => {
           const jsonField = ACTION_TO_JSON_MAPPING[actionId];
           if (jsonField) {
             const output = getOutput(jsonField);

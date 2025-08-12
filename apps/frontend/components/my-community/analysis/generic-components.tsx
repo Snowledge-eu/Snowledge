@@ -274,7 +274,7 @@ export function GenericResult({ result }: GenericResultProps) {
                       item.title ||
                       `Item ${index + 1}`}
                 </p>
-                
+
                 {/* Messages spéciaux pour les différents types d'objets */}
                 {item.message && (
                   <p className="text-xs text-muted-foreground italic mt-1">
@@ -287,17 +287,19 @@ export function GenericResult({ result }: GenericResultProps) {
                   </p>
                 )}
                 {item.sentiment && (
-                  <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium mt-1 ${
-                    item.sentiment === 'positif' 
-                      ? 'bg-green-100 text-green-700' 
-                      : item.sentiment === 'négatif'
-                      ? 'bg-red-100 text-red-700'
-                      : 'bg-gray-100 text-gray-700'
-                  }`}>
+                  <span
+                    className={`inline-block px-2 py-1 rounded-full text-xs font-medium mt-1 ${
+                      item.sentiment === "positif"
+                        ? "bg-green-100 text-green-700"
+                        : item.sentiment === "négatif"
+                          ? "bg-red-100 text-red-700"
+                          : "bg-gray-100 text-gray-700"
+                    }`}
+                  >
                     {item.sentiment}
                   </span>
                 )}
-                
+
                 {/* Propriétés existantes */}
                 {item.reason && (
                   <p className="text-xs text-muted-foreground">{item.reason}</p>
@@ -325,16 +327,32 @@ export function GenericResult({ result }: GenericResultProps) {
                     Activité: {item.activity_level}
                   </p>
                 )}
-                
+
                 {/* Affichage générique pour les autres propriétés */}
                 {Object.entries(item).map(([prop, val]) => {
                   // Skip les propriétés déjà affichées
-                  const displayedProps = ['name', 'user', 'username', 'auteur', 'title', 'message', 'nombre_de_messages', 'sentiment', 'reason', 'description', 'score', 'activity_level'];
-                  if (displayedProps.includes(prop) || typeof val === 'object') return null;
-                  
+                  const displayedProps = [
+                    "name",
+                    "user",
+                    "username",
+                    "auteur",
+                    "title",
+                    "message",
+                    "nombre_de_messages",
+                    "sentiment",
+                    "reason",
+                    "description",
+                    "score",
+                    "activity_level",
+                  ];
+                  if (displayedProps.includes(prop) || typeof val === "object")
+                    return null;
+
                   return (
                     <p key={prop} className="text-xs text-muted-foreground">
-                      <span className="font-medium capitalize">{prop.replace(/_/g, ' ')}: </span>
+                      <span className="font-medium capitalize">
+                        {prop.replace(/_/g, " ")}:{" "}
+                      </span>
                       {String(val)}
                     </p>
                   );
@@ -705,17 +723,21 @@ export function GenericResult({ result }: GenericResultProps) {
     structuredData.userMessages &&
     typeof structuredData.userMessages === "object"
   ) {
-    console.log("⚠️  GenericResult - ATTENTION: Les résultats d'analyse sont dans userMessages !");
-    console.log("🔍 GenericResult - Extracting analysis results from userMessages...");
-    
+    console.log(
+      "⚠️  GenericResult - ATTENTION: Les résultats d'analyse sont dans userMessages !"
+    );
+    console.log(
+      "🔍 GenericResult - Extracting analysis results from userMessages..."
+    );
+
     // Sauvegarder les vraies userMessages s'il y en a
-    const originalUserMessages = Array.isArray(structuredData.userMessages) 
-      ? structuredData.userMessages 
+    const originalUserMessages = Array.isArray(structuredData.userMessages)
+      ? structuredData.userMessages
       : null;
-    
+
     // Extraire les données d'analyse
     structuredData = { ...structuredData, ...structuredData.userMessages };
-    
+
     // Restaurer les vraies userMessages si c'était un array
     if (originalUserMessages) {
       structuredData.userMessages = originalUserMessages;

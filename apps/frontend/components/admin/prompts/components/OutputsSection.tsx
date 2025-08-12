@@ -55,6 +55,16 @@ export const OutputsSection = ({
   // Obtenir les champs automatiquement ajoutés
   const autoAddedFields = getAutoAddedFields(promptForm.selected_actions || []);
 
+  // Fonction pour vérifier si un output est activé (manuellement ou automatiquement)
+  const isOutputActive = (outputId: string) => {
+    const isManuallySelected =
+      promptForm.selected_outputs?.includes(outputId) || false;
+    const isAutoAdded = autoAddedFields.some(
+      (field) => field !== null && field.jsonField === outputId
+    );
+    return isManuallySelected || isAutoAdded;
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
@@ -76,11 +86,14 @@ export const OutputsSection = ({
             </Badge>
           </div>
           <p className="text-xs text-blue-700">
-            Ces champs seront automatiquement inclus dans le JSON schema car ils correspondent aux Actions demandées :
+            Ces champs seront automatiquement inclus dans le JSON schema car ils
+            correspondent aux Actions demandées :
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             {autoAddedFields
-              .filter((field): field is NonNullable<typeof field> => field !== null)
+              .filter(
+                (field): field is NonNullable<typeof field> => field !== null
+              )
               .map(({ actionId, jsonField, output }) => (
                 <div
                   key={jsonField}
@@ -118,22 +131,19 @@ export const OutputsSection = ({
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                 {categoryOutputs.map((output) => {
                   const isAutoAdded = autoAddedFields.some(
-                    field => field !== null && field.jsonField === output.id
+                    (field) => field !== null && field.jsonField === output.id
                   );
-                  
+
                   return (
                     <div
                       key={output.id}
                       className={`flex items-start space-x-2 p-2 border rounded ${
-                        isAutoAdded ? 'bg-blue-50 border-blue-200' : ''
+                        isAutoAdded ? "bg-blue-50 border-blue-200" : ""
                       }`}
                     >
                       <Switch
                         id={`output_${output.id}`}
-                        checked={
-                          promptForm.selected_outputs?.includes(output.id) ||
-                          false
-                        }
+                        checked={isOutputActive(output.id)}
                         onCheckedChange={(checked) =>
                           handleOutputToggle(output.id, checked)
                         }
@@ -143,7 +153,7 @@ export const OutputsSection = ({
                         <Label
                           htmlFor={`output_${output.id}`}
                           className={`text-xs font-medium ${
-                            isAutoAdded ? 'text-blue-700' : ''
+                            isAutoAdded ? "text-blue-700" : ""
                           }`}
                         >
                           {output.name}

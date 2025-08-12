@@ -15,13 +15,8 @@ export const PreviewSection = ({
   onUpdate,
 }: PreviewSectionProps) => {
   const [showFullPreview, setShowFullPreview] = useState(false);
-  const {
-    getRole,
-    getMode,
-    generateSystemMessage,
-    generateResponseFormat,
-    generateFinalPromptPreview,
-  } = usePromptGeneration();
+  const { getRole, getMode, generateFinalPromptPreview } =
+    usePromptGeneration();
 
   return (
     <div className="space-y-4">
@@ -43,76 +38,36 @@ export const PreviewSection = ({
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Message système généré */}
-        <div className="space-y-3">
-          <Label className="text-sm font-medium">
-            🤖 Message Système Généré
-          </Label>
-          <div className="bg-muted/50 rounded-lg p-3 text-xs max-h-64 overflow-y-auto">
-            <pre className="whitespace-pre-wrap">
-              {generateSystemMessage(promptForm)}
-            </pre>
+      {/* Configuration résumée */}
+      <div className="space-y-3">
+        <Label className="text-sm font-medium">⚙️ Configuration</Label>
+        <div className="bg-muted/50 rounded-lg p-3 text-sm space-y-2">
+          <div>
+            <strong>Mode:</strong>{" "}
+            {promptForm.mode_id
+              ? getMode(promptForm.mode_id)?.name || "Standard"
+              : "Standard"}
           </div>
-        </div>
-
-        {/* Schema JSON généré */}
-        <div className="space-y-3">
-          <Label className="text-sm font-medium">
-            📋 Schema de Réponse{" "}
-            {promptForm.selected_outputs &&
-            promptForm.selected_outputs.length > 0
-              ? "(Structuré)"
-              : "(Libre)"}
-          </Label>
-          <div className="bg-muted/50 rounded-lg p-3 text-xs font-mono max-h-64 overflow-y-auto">
-            <pre>
-              {promptForm.selected_outputs &&
-              promptForm.selected_outputs.length > 0
-                ? JSON.stringify(generateResponseFormat(promptForm), null, 2)
-                : "// Réponse libre - Pas de schéma JSON\n// Le LLM retournera du texte libre"}
-            </pre>
+          <div>
+            <strong>Modèle:</strong> {promptForm.model_name}
           </div>
-        </div>
-
-        {/* Configuration résumée */}
-        <div className="space-y-3">
-          <Label className="text-sm font-medium">⚙️ Configuration</Label>
-          <div className="bg-muted/50 rounded-lg p-3 text-sm space-y-2">
-            <div>
-              <strong>Mode:</strong>{" "}
-              {promptForm.mode_id
-                ? getMode(promptForm.mode_id)?.name || "Standard"
-                : "Standard"}
-            </div>
-            <div>
-              <strong>Modèle:</strong> {promptForm.model_name}
-            </div>
-            <div>
-              <strong>Rôle:</strong>{" "}
-              {promptForm.role_id
-                ? getRole(promptForm.role_id)?.name || "Aucun"
-                : "Aucun"}
-            </div>
-            <div>
-              <strong>Actions:</strong>{" "}
-              {promptForm.selected_actions?.length || 0} sélectionnée(s)
-            </div>
-            <div>
-              <strong>Outputs:</strong>{" "}
-              {promptForm.selected_outputs?.length || 0} sélectionné(s)
-            </div>
-            <div>
-              <strong>Raisonnement:</strong>{" "}
-              {promptForm.show_reasoning ? "Activé" : "Désactivé"}
-            </div>
-            <div>
-              <strong>Type de réponse:</strong>{" "}
-              {promptForm.selected_outputs &&
-              promptForm.selected_outputs.length > 0
-                ? "Structurée (JSON)"
-                : "Libre"}
-            </div>
+          <div>
+            <strong>Rôle:</strong>{" "}
+            {promptForm.role_id
+              ? getRole(promptForm.role_id)?.name || "Aucun"
+              : "Aucun"}
+          </div>
+          <div>
+            <strong>Actions:</strong> {promptForm.selected_actions?.length || 0}{" "}
+            sélectionnée(s)
+          </div>
+          <div>
+            <strong>Outputs:</strong> {promptForm.selected_outputs?.length || 0}{" "}
+            sélectionné(s)
+          </div>
+          <div>
+            <strong>Raisonnement:</strong>{" "}
+            {promptForm.show_reasoning ? "Activé" : "Désactivé"}
           </div>
         </div>
       </div>
