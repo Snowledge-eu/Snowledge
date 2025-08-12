@@ -57,6 +57,8 @@ export const hasAnalysisData = (result: any): boolean => {
     (field) => result[field] && result[field] !== ""
   );
 
+  console.log("🔍 hasMainData", hasMainData);
+
   // Vérifier dans analysisData (cas spécial)
   const hasAnalysisDataData =
     result.analysisData &&
@@ -66,6 +68,10 @@ export const hasAnalysisData = (result: any): boolean => {
       (field) => result.analysisData[field] && result.analysisData[field] !== ""
     );
 
+  console.log("anlaisis fields", ANALYSIS_FIELDS);
+
+  console.log("🔍 result.analysisData", result.analysisData);
+  console.log("🔍 hasAnalysisDataData", hasAnalysisDataData);
   return hasMainData || hasAnalysisDataData;
 };
 

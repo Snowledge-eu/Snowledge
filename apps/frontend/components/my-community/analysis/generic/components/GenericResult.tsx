@@ -62,6 +62,8 @@ export function GenericResult({ result }: GenericResultProps) {
   const { renderArray } = useArrayRendering();
   const { renderSimpleValue } = useValueRendering();
 
+  console.log("🔍 result", result);
+
   // Fonction utilitaire pour insérer séparateurs et router vers le bon rendu
   const renderField = (
     key: string,

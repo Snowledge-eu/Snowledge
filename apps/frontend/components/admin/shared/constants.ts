@@ -5,6 +5,7 @@ import {
   PromptAction,
   PromptOutput,
 } from "./types";
+import { AVAILABLE_OUTPUTS } from "../../my-community/analysis/generic/utils/fieldDefinitions";
 
 // ============
 // MODÈLES DISPONIBLES
@@ -184,126 +185,8 @@ export const AVAILABLE_ACTIONS: PromptAction[] = [
 ];
 
 // ============
-// OUTPUTS DISPONIBLES
+// OUTPUTS DISPONIBLES (UNIFIÉS)
 // ============
-export const AVAILABLE_OUTPUTS: PromptOutput[] = [
-  {
-    id: "sentiment_global",
-    name: "Sentiment Level (Global)",
-    description: "Sentiment général de la communauté",
-    type: "string",
-    category: "sentiment",
-  },
-  {
-    id: "sentiment_by_channel",
-    name: "Sentiment Level (Par Canal)",
-    description: "Sentiment analysé par canal",
-    type: "object",
-    category: "sentiment",
-  },
-  {
-    id: "sentiment_by_segment",
-    name: "Sentiment Level (Par Segment)",
-    description: "Sentiment par segment d'utilisateurs",
-    type: "object",
-    category: "sentiment",
-  },
-  {
-    id: "top_influential_users",
-    name: "Top Influential Users",
-    description: "Utilisateurs les plus influents",
-    type: "array",
-    category: "users",
-  },
-  {
-    id: "top_active_users",
-    name: "Top Active Users",
-    description: "Utilisateurs les plus actifs",
-    type: "array",
-    category: "users",
-  },
-  {
-    id: "activity_level",
-    name: "Activity Level",
-    description: "Niveau d'activité (heatmap, évolution)",
-    type: "object",
-    category: "activity",
-  },
-  {
-    id: "emerging_topics",
-    name: "Emerging Topics",
-    description: "Sujets émergents et tendances",
-    type: "array",
-    category: "topics",
-  },
-  {
-    id: "top_topics",
-    name: "Top Topics",
-    description: "Sujets principaux (fréquence et évolution)",
-    type: "array",
-    category: "topics",
-  },
-  {
-    id: "user_retention_rate",
-    name: "User Retention Rate",
-    description: "Taux de rétention utilisateur",
-    type: "number",
-    category: "metrics",
-  },
-  {
-    id: "at_risk_users",
-    name: "At-Risk Users",
-    description: "Utilisateurs à risque de churn",
-    type: "array",
-    category: "users",
-  },
-  {
-    id: "compliance_alerts",
-    name: "Compliance/Risk Alerts",
-    description: "Alertes de conformité et risques",
-    type: "array",
-    category: "moderation",
-  },
-  {
-    id: "unanswered_questions",
-    name: "Unanswered Questions",
-    description: "Questions sans réponse",
-    type: "array",
-    category: "support",
-  },
-  {
-    id: "top_positive_messages",
-    name: "Top Positive Messages",
-    description: "Messages les plus positifs",
-    type: "array",
-    category: "sentiment",
-  },
-  {
-    id: "top_negative_messages",
-    name: "Top Negative Messages",
-    description: "Messages les plus négatifs",
-    type: "array",
-    category: "sentiment",
-  },
-  {
-    id: "user_interaction_map",
-    name: "User Interaction Map",
-    description: "Carte des interactions utilisateurs",
-    type: "object",
-    category: "network",
-  },
-  {
-    id: "feedback_clusters",
-    name: "Feedback Clusters",
-    description: "Groupes d'idées récurrentes",
-    type: "array",
-    category: "feedback",
-  },
-  {
-    id: "knowledge_base_gaps",
-    name: "Knowledge Base Gaps",
-    description: "Sujets non couverts par la documentation",
-    type: "array",
-    category: "support",
-  },
-];
+// IMPORTANT: AVAILABLE_OUTPUTS est maintenant importé depuis le système unifié
+// Cela garantit la cohérence entre la génération de prompts et l'affichage des résultats
+export { AVAILABLE_OUTPUTS };
