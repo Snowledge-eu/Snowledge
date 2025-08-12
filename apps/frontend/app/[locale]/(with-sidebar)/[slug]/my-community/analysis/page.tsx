@@ -334,8 +334,11 @@ export default function Page() {
           position: "top-center",
         });
       }
-      setLoading(false);
     }
+
+    // Rafraîchir l'historique des analyses après avoir terminé
+    await fetchAnalysis();
+    setLoading(false);
   };
 
   const shortenString = (str: string, maxLength: number = 10): string => {
