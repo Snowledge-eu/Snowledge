@@ -25,6 +25,7 @@ import {
   AVAILABLE_OUTPUTS,
 } from "../shared/constants";
 import { PromptForm as PromptFormType } from "../shared/types";
+import { usePromptGeneration } from "./hooks/usePromptGeneration";
 
 interface SimplePromptBuilderProps {
   onSubmit: (formData: PromptFormType) => void;
@@ -47,6 +48,8 @@ export const SimplePromptBuilder = ({
   title = "🚀 Créer mon Analyse Personnalisée",
   submitText = "Créer l'Analyse",
 }: SimplePromptBuilderProps) => {
+  const { getAutoAddedFields, generateSystemMessage, generateResponseFormat, generateFinalPromptPreview } = usePromptGeneration();
+  
   const [promptForm, setPromptForm] = useState<PromptFormType>({
     // Champs de base
     name: "",
@@ -73,49 +76,16 @@ export const SimplePromptBuilder = ({
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 5;
 
-  // Génération automatique du system message basé sur les sélections
-  const generateSystemMessage = () => {
-    let baseMessage =
-      "Tu es un assistant IA spécialisé dans l'analyse de communautés en ligne.";
+  // Obtenir les champs automatiquement ajoutés
+  const autoAddedFields = getAutoAddedFields(promptForm.selected_actions || []);
 
-    // Ajout du rôle
-    if (promptForm.role_id) {
-      const role = AVAILABLE_ROLES.find((r) => r.id === promptForm.role_id);
-      if (role) {
-        baseMessage += ` ${role.systemPromptAddition}`;
-      }
-    }
-
-    // Ajout des actions
-    if (promptForm.selected_actions && promptForm.selected_actions.length > 0) {
-      const actions = promptForm.selected_actions
-        .map((actionId) => {
-          const action = AVAILABLE_ACTIONS.find((a) => a.id === actionId);
-          return action?.name || actionId;
-        })
-        .join(", ");
-      baseMessage += ` Tu dois effectuer les analyses suivantes : ${actions}.`;
-    }
-
-    // Instructions pour les outputs
-    if (promptForm.selected_outputs && promptForm.selected_outputs.length > 0) {
-      baseMessage += ` Ta réponse doit être structurée et inclure les éléments suivants : `;
-      const outputs = promptForm.selected_outputs
-        .map((outputId) => {
-          const output = AVAILABLE_OUTPUTS.find((o) => o.id === outputId);
-          return output?.name || outputId;
-        })
-        .join(", ");
-      baseMessage += outputs + ".";
-    }
-
-    // Ajout du raisonnement si demandé
-    if (promptForm.show_reasoning) {
-      baseMessage +=
-        " Inclus ton raisonnement étape par étape dans un champ 'reasoning'.";
-    }
-
-    return baseMessage;
+  // Fonction pour vérifier si un output est activé (manuellement ou automatiquement)
+  const isOutputActive = (outputId: string) => {
+    const isManuallySelected = promptForm.selected_outputs?.includes(outputId) || false;
+    const isAutoAdded = autoAddedFields.some(
+      field => field !== null && field.jsonField === outputId
+    );
+    return isManuallySelected || isAutoAdded;
   };
 
   const handleNext = () => {
@@ -131,48 +101,8 @@ export const SimplePromptBuilder = ({
   };
 
   const handleSubmit = () => {
-    // Générer automatiquement le system message
-    const systemMessage = generateSystemMessage();
-    const finalForm = {
-      ...promptForm,
-      messages: [
-        { role: "system", content: systemMessage },
-        { role: "user", content: "{{messages}}" },
-      ],
-      // Générer automatiquement le response_format si des outputs sont sélectionnés
-      response_format:
-        promptForm.selected_outputs && promptForm.selected_outputs.length > 0
-          ? {
-              type: "json_schema",
-              json_schema: {
-                name: promptForm.name.replace(/\s+/g, "") || "CustomAnalysis",
-                schema: {
-                  title:
-                    promptForm.name.replace(/\s+/g, "") || "CustomAnalysis",
-                  type: "object",
-                  properties: promptForm.selected_outputs.reduce(
-                    (props, outputId) => {
-                      const output = AVAILABLE_OUTPUTS.find(
-                        (o) => o.id === outputId
-                      );
-                      if (output) {
-                        props[outputId] = {
-                          type: output.type,
-                          title: output.name,
-                          description: output.description,
-                        };
-                      }
-                      return props;
-                    },
-                    {} as any
-                  ),
-                  required: promptForm.selected_outputs,
-                },
-              },
-            }
-          : undefined,
-    };
-
+    // Utiliser le hook pour générer le prompt final avec le mapping automatique
+    const finalForm = generateFinalPromptPreview(promptForm);
     onSubmit(finalForm);
   };
 
@@ -382,6 +312,45 @@ export const SimplePromptBuilder = ({
               </p>
             </div>
 
+            {/* Section des champs automatiquement ajoutés */}
+            {autoAddedFields.length > 0 && (
+              <div className="space-y-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <h4 className="text-md font-medium text-blue-800">
+                    🔄 Champs automatiquement ajoutés
+                  </h4>
+                  <Badge variant="secondary" className="text-xs">
+                    Basé sur les Actions sélectionnées
+                  </Badge>
+                </div>
+                <p className="text-xs text-blue-700">
+                  Ces champs seront automatiquement inclus car ils correspondent aux Actions demandées :
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  {autoAddedFields
+                    .filter((field): field is NonNullable<typeof field> => field !== null)
+                    .map(({ actionId, jsonField, output }) => (
+                      <div
+                        key={jsonField}
+                        className="flex items-center gap-2 p-2 bg-blue-100 border border-blue-300 rounded"
+                      >
+                        <div className="flex-1">
+                          <div className="text-xs font-medium text-blue-900">
+                            {output.name}
+                          </div>
+                          <div className="text-xs text-blue-700">
+                            Action: {actionId}
+                          </div>
+                          <Badge variant="outline" className="text-xs mt-1">
+                            {output.type}
+                          </Badge>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            )}
+
             <div className="space-y-4">
               {[
                 "sentiment",
@@ -413,52 +382,64 @@ export const SimplePromptBuilder = ({
                       {category === "feedback" && "💭 Feedback"}
                     </h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                      {categoryOutputs.map((output) => (
-                        <div
-                          key={output.id}
-                          className="flex items-start space-x-2 p-2 border rounded"
-                        >
-                          <Switch
-                            id={`output_${output.id}`}
-                            checked={
-                              promptForm.selected_outputs?.includes(
-                                output.id
-                              ) || false
-                            }
-                            onCheckedChange={(checked) => {
-                              const currentOutputs =
-                                promptForm.selected_outputs || [];
-                              if (checked) {
-                                setPromptForm({
-                                  ...promptForm,
-                                  selected_outputs: [
-                                    ...currentOutputs,
-                                    output.id,
-                                  ],
-                                });
-                              } else {
-                                setPromptForm({
-                                  ...promptForm,
-                                  selected_outputs: currentOutputs.filter(
-                                    (o) => o !== output.id
-                                  ),
-                                });
-                              }
-                            }}
-                          />
-                          <div className="flex-1">
-                            <Label
-                              htmlFor={`output_${output.id}`}
-                              className="text-xs font-medium"
-                            >
-                              {output.name}
-                            </Label>
-                            <p className="text-xs text-muted-foreground">
-                              {output.description}
-                            </p>
+                      {categoryOutputs.map((output) => {
+                        const isAutoAdded = autoAddedFields.some(
+                          field => field !== null && field.jsonField === output.id
+                        );
+                        
+                        return (
+                          <div
+                            key={output.id}
+                            className={`flex items-start space-x-2 p-2 border rounded ${
+                              isAutoAdded ? 'bg-blue-50 border-blue-200' : ''
+                            }`}
+                          >
+                            <Switch
+                              id={`output_${output.id}`}
+                              checked={isOutputActive(output.id)}
+                              onCheckedChange={(checked) => {
+                                const currentOutputs =
+                                  promptForm.selected_outputs || [];
+                                if (checked) {
+                                  setPromptForm({
+                                    ...promptForm,
+                                    selected_outputs: [
+                                      ...currentOutputs,
+                                      output.id,
+                                    ],
+                                  });
+                                } else {
+                                  setPromptForm({
+                                    ...promptForm,
+                                    selected_outputs: currentOutputs.filter(
+                                      (o) => o !== output.id
+                                    ),
+                                  });
+                                }
+                              }}
+                              disabled={isAutoAdded}
+                            />
+                            <div className="flex-1">
+                              <Label
+                                htmlFor={`output_${output.id}`}
+                                className={`text-xs font-medium ${
+                                  isAutoAdded ? 'text-blue-700' : ''
+                                }`}
+                              >
+                                {output.name}
+                                {isAutoAdded && (
+                                  <Badge variant="secondary" className="ml-1 text-xs">
+                                    Auto
+                                  </Badge>
+                                )}
+                              </Label>
+                              <p className="text-xs text-muted-foreground">
+                                {output.description}
+                              </p>
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 );
