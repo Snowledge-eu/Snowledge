@@ -48,8 +48,13 @@ export const SimplePromptBuilder = ({
   title = "🚀 Créer mon Analyse Personnalisée",
   submitText = "Créer l'Analyse",
 }: SimplePromptBuilderProps) => {
-  const { getAutoAddedFields, generateSystemMessage, generateResponseFormat, generateFinalPromptPreview } = usePromptGeneration();
-  
+  const {
+    getAutoAddedFields,
+    generateSystemMessage,
+    generateResponseFormat,
+    generateFinalPromptPreview,
+  } = usePromptGeneration();
+
   const [promptForm, setPromptForm] = useState<PromptFormType>({
     // Champs de base
     name: "",
@@ -81,9 +86,10 @@ export const SimplePromptBuilder = ({
 
   // Fonction pour vérifier si un output est activé (manuellement ou automatiquement)
   const isOutputActive = (outputId: string) => {
-    const isManuallySelected = promptForm.selected_outputs?.includes(outputId) || false;
+    const isManuallySelected =
+      promptForm.selected_outputs?.includes(outputId) || false;
     const isAutoAdded = autoAddedFields.some(
-      field => field !== null && field.jsonField === outputId
+      (field) => field !== null && field.jsonField === outputId
     );
     return isManuallySelected || isAutoAdded;
   };
@@ -324,11 +330,15 @@ export const SimplePromptBuilder = ({
                   </Badge>
                 </div>
                 <p className="text-xs text-blue-700">
-                  Ces champs seront automatiquement inclus car ils correspondent aux Actions demandées :
+                  Ces champs seront automatiquement inclus car ils correspondent
+                  aux Actions demandées :
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   {autoAddedFields
-                    .filter((field): field is NonNullable<typeof field> => field !== null)
+                    .filter(
+                      (field): field is NonNullable<typeof field> =>
+                        field !== null
+                    )
                     .map(({ actionId, jsonField, output }) => (
                       <div
                         key={jsonField}
@@ -384,14 +394,15 @@ export const SimplePromptBuilder = ({
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                       {categoryOutputs.map((output) => {
                         const isAutoAdded = autoAddedFields.some(
-                          field => field !== null && field.jsonField === output.id
+                          (field) =>
+                            field !== null && field.jsonField === output.id
                         );
-                        
+
                         return (
                           <div
                             key={output.id}
                             className={`flex items-start space-x-2 p-2 border rounded ${
-                              isAutoAdded ? 'bg-blue-50 border-blue-200' : ''
+                              isAutoAdded ? "bg-blue-50 border-blue-200" : ""
                             }`}
                           >
                             <Switch
@@ -423,12 +434,15 @@ export const SimplePromptBuilder = ({
                               <Label
                                 htmlFor={`output_${output.id}`}
                                 className={`text-xs font-medium ${
-                                  isAutoAdded ? 'text-blue-700' : ''
+                                  isAutoAdded ? "text-blue-700" : ""
                                 }`}
                               >
                                 {output.name}
                                 {isAutoAdded && (
-                                  <Badge variant="secondary" className="ml-1 text-xs">
+                                  <Badge
+                                    variant="secondary"
+                                    className="ml-1 text-xs"
+                                  >
                                     Auto
                                   </Badge>
                                 )}
