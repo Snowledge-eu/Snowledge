@@ -16,6 +16,7 @@ import {
   AVAILABLE_MODES,
   AVAILABLE_ACTIONS,
   AVAILABLE_OUTPUTS,
+  AVAILABLE_MODELS,
 } from "../shared/constants";
 import { PromptForm as PromptFormType } from "../shared/types";
 import { usePromptGeneration } from "./hooks/usePromptGeneration";
@@ -72,10 +73,23 @@ export const SimplePromptBuilder = ({
   });
 
   const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 5;
+  const totalSteps = 6;
 
   // Obtenir les champs automatiquement ajoutés
   const autoAddedFields = getAutoAddedFields(promptForm.selected_actions || []);
+
+  // Obtenir les modèles recommandés pour le mode sélectionné
+  const getRecommendedModels = () => {
+    if (!promptForm.mode_id) return AVAILABLE_MODELS;
+    const selectedMode = AVAILABLE_MODES.find(
+      (m) => m.id === promptForm.mode_id
+    );
+    if (!selectedMode) return AVAILABLE_MODELS;
+
+    return AVAILABLE_MODELS.filter((model) =>
+      selectedMode.recommendedModels.includes(model.name)
+    );
+  };
 
   // Fonction pour vérifier si un output est activé (manuellement ou automatiquement)
   const isOutputActive = (outputId: string) => {
@@ -122,7 +136,7 @@ export const SimplePromptBuilder = ({
           </div>
           {step < totalSteps && (
             <div
-              className={`w-12 h-1 mx-2 ${
+              className={`w-8 h-1 mx-1 ${
                 step < currentStep ? "bg-green-500" : "bg-muted"
               }`}
             />
@@ -246,6 +260,76 @@ export const SimplePromptBuilder = ({
         return (
           <div className="space-y-4">
             <div className="text-center mb-6">
+              <h3 className="text-xl font-semibold mb-2">🤖 Modèle d'IA</h3>
+              <p className="text-muted-foreground">
+                Choisissez le modèle d'IA adapté à votre mode d'analyse
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              {promptForm.mode_id && (
+                <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <h4 className="text-md font-medium text-blue-800">
+                      📋 Modèles recommandés pour le mode "
+                      {
+                        AVAILABLE_MODES.find((m) => m.id === promptForm.mode_id)
+                          ?.name
+                      }
+                      "
+                    </h4>
+                  </div>
+                  <p className="text-xs text-blue-700">
+                    Ces modèles sont optimisés pour votre type d'analyse
+                  </p>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {getRecommendedModels().map((model) => (
+                  <div
+                    key={model.name}
+                    className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                      promptForm.model_name === model.name
+                        ? "border-primary bg-primary/5"
+                        : "border-muted hover:border-primary/50"
+                    }`}
+                    onClick={() =>
+                      setPromptForm({ ...promptForm, model_name: model.name })
+                    }
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-medium text-sm truncate">
+                          {model.name}
+                        </h4>
+                        <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                          {model.description}
+                        </p>
+                        <div className="flex items-center gap-2 mt-2 flex-wrap">
+                          <Badge
+                            variant="outline"
+                            className="text-xs truncate max-w-full"
+                          >
+                            {model.cost}
+                          </Badge>
+                          <Badge variant="secondary" className="text-xs">
+                            {model.mode}
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+
+      case 4:
+        return (
+          <div className="space-y-4">
+            <div className="text-center mb-6">
               <h3 className="text-xl font-semibold mb-2">
                 ⚡ Actions à Effectuer
               </h3>
@@ -299,7 +383,7 @@ export const SimplePromptBuilder = ({
           </div>
         );
 
-      case 4:
+      case 5:
         return (
           <div className="space-y-4">
             <div className="text-center mb-6">
@@ -455,7 +539,7 @@ export const SimplePromptBuilder = ({
           </div>
         );
 
-      case 5:
+      case 6:
         return (
           <div className="space-y-4">
             <div className="text-center mb-6">
@@ -504,6 +588,9 @@ export const SimplePromptBuilder = ({
                     }
                   </div>
                   <div>
+                    <strong>Modèle :</strong> {promptForm.model_name}
+                  </div>
+                  <div>
                     <strong>Actions :</strong>{" "}
                     {promptForm.selected_actions?.length || 0} sélectionnée(s)
                   </div>
@@ -548,7 +635,10 @@ export const SimplePromptBuilder = ({
             )}
 
             {currentStep === totalSteps ? (
-              <Button onClick={handleSubmit} disabled={!promptForm.name}>
+              <Button
+                onClick={handleSubmit}
+                disabled={!promptForm.name || !promptForm.model_name}
+              >
                 {submitText}
               </Button>
             ) : (
