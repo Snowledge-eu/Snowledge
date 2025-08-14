@@ -367,11 +367,53 @@ export default function Page() {
     }
   };
 
-  function getRandomByLevel(level: "Low" | "Medium" | "High"): number | null {
+  function getRandomByLevel(level: any): number | null {
     if (!level) return null;
+
+    // Convertir les valeurs numériques en niveaux
+    let normalizedLevel: "Low" | "Medium" | "High";
+
+    if (typeof level === "number") {
+      if (level <= 0.33) {
+        normalizedLevel = "Low";
+      } else if (level <= 0.66) {
+        normalizedLevel = "Medium";
+      } else {
+        normalizedLevel = "High";
+      }
+    } else if (typeof level === "string") {
+      // Normaliser les chaînes de caractères
+      const lowerLevel = level.toLowerCase();
+      if (
+        lowerLevel === "low" ||
+        lowerLevel === "faible" ||
+        lowerLevel === "bas"
+      ) {
+        normalizedLevel = "Low";
+      } else if (
+        lowerLevel === "medium" ||
+        lowerLevel === "moyen" ||
+        lowerLevel === "modéré"
+      ) {
+        normalizedLevel = "Medium";
+      } else if (
+        lowerLevel === "high" ||
+        lowerLevel === "élevé" ||
+        lowerLevel === "haut"
+      ) {
+        normalizedLevel = "High";
+      } else {
+        // Valeur par défaut si la chaîne n'est pas reconnue
+        normalizedLevel = "Medium";
+      }
+    } else {
+      // Valeur par défaut pour les autres types
+      normalizedLevel = "Medium";
+    }
+
     let min: number, max: number;
 
-    switch (level) {
+    switch (normalizedLevel) {
       case "Low":
         min = 1;
         max = 33;
@@ -385,7 +427,9 @@ export default function Page() {
         max = 99;
         break;
       default:
-        throw new Error(`Invalid level: ${level}`);
+        // Fallback sécurisé
+        min = 34;
+        max = 66;
     }
 
     return Math.floor(Math.random() * (max - min + 1)) + min;
