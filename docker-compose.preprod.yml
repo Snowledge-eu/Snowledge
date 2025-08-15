@@ -58,8 +58,6 @@ services:
       - ./apps/backend:/app
       - /app/node_modules
       - ./apps/backend/.env:/app/.env
-    env_file:
-      - .env.dev
     environment:
       - NODE_ENV=production
       - MG_NAME=social_data
