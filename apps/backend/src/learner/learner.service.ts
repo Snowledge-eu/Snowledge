@@ -27,29 +27,29 @@ export class LearnerService {
 	) {
 		const community = await this.communityRepository.findOne({
 			where: { slug },
-			relations: ['user'],
 		});
-		if (!community) throw new NotFoundException('Community not found');
-		const user = await this.userRepository.findOne({
-			where: { id: userId },
-		});
-		if (!user) throw new NotFoundException('User not found');
 
-		//Vérifie si c'est pas le créateur de la communauté
-		if (community.user.id === user.id)
-			throw new BadRequestException('You cannot join your own community');
+		if (!community) {
+			throw new NotFoundException('Community not found');
+		}
 
-		// Vérifie si déjà membre
-		const existing = await this.learnerRepository.findOne({
-			where: { community: { id: community.id }, user: { id: user.id } },
+		const existingLearner = await this.learnerRepository.findOne({
+			where: { user: { id: userId }, community: { id: community.id } },
 		});
-		if (existing) throw new BadRequestException('User already a member');
+
+		if (existingLearner) {
+			throw new BadRequestException(
+				'User is already a learner in this community',
+			);
+		}
 
 		const learner = this.learnerRepository.create({
-			community,
-			user,
+			user: { id: userId },
+			community: { id: community.id },
 			isContributor,
+			status: LearnerStatus.MEMBER,
 		});
+
 		return this.learnerRepository.save(learner);
 	}
 
@@ -190,15 +190,8 @@ export class LearnerService {
 	}
 
 	async getInvitedUsersByCommunitySlug(slug: string) {
-		const community = await this.communityRepository.findOne({
-			where: { slug },
-		});
-		if (!community) throw new NotFoundException('Community not found');
 		return this.learnerRepository.find({
-			where: {
-				community: { id: community.id },
-				status: LearnerStatus.INVITED,
-			},
+			where: { community: { slug }, status: LearnerStatus.INVITED },
 			relations: ['user'],
 		});
 	}
@@ -219,6 +212,7 @@ export class LearnerService {
 			where: { community: { slug }, user: { id: userId } },
 		});
 
+		if (!learner) throw new NotFoundException('Invitation non trouvée');
 		learner.status = LearnerStatus.INVITATION_REJECTED;
 		await this.learnerRepository.save(learner);
 		return { success: true };
@@ -228,6 +222,32 @@ export class LearnerService {
 		return this.learnerRepository.findOne({
 			where: { user: { id: userId }, community: { id: communityId } },
 		});
+	}
+
+	/**
+	 * Récupère les IDs Discord des utilisateurs qui ont accepté les termes d'une communauté
+	 * @param communityId - ID de la communauté
+	 * @returns Set des IDs Discord des utilisateurs qui ont accepté les termes
+	 */
+	async getAcceptedUsersDiscordIds(
+		communityId: number,
+	): Promise<Set<string>> {
+		const learners = await this.learnerRepository.find({
+			where: {
+				community: { id: communityId },
+				status: LearnerStatus.MEMBER, // Seuls les membres actifs ont accepté les termes
+			},
+			relations: ['user'],
+		});
+
+		const discordIds = new Set<string>();
+		learners.forEach((learner) => {
+			if (learner.user.discordId) {
+				discordIds.add(learner.user.discordId);
+			}
+		});
+
+		return discordIds;
 	}
 
 	async findContributorsByExpertiseInUserCommunity(

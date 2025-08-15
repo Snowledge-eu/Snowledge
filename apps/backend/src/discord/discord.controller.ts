@@ -83,7 +83,11 @@ export class DiscordController {
 
 	@Post('count-message')
 	async countMessageInterval(
-		@Body() info: { channelId: string[]; interval: 'last_day' | 'last_week' | 'last_month' },
+		@Body()
+		info: {
+			channelId: string[];
+			interval: 'last_day' | 'last_week' | 'last_month';
+		},
 	): Promise<number> {
 		return this.discordProvider.countMessageInterval(info);
 	}
@@ -91,9 +95,9 @@ export class DiscordController {
 	async harvestDiscord(@Body() dto: any) {
 		return this.discordProvider.harvestDiscord(dto);
 	}
-	
+
 	@Delete('disconnect')
-	async disconnect(@User() user: UserEntity){
+	async disconnect(@User() user: UserEntity) {
 		return await this.discordProvider.disconnectDiscord(user);
 	}
 }
