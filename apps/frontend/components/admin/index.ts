@@ -11,7 +11,7 @@ export { PromptForm } from "./prompts/PromptForm";
 
 export { CommunityList } from "./communities/CommunityList";
 
-export { TestAnalysis } from "./testing/TestAnalysis";
+export { TestAnalysis } from "./TestAnalysis";
 
 export { AnalysisHistorySection } from "./history/AnalysisHistorySection";
 export { AnalysisHistoryFilters } from "./history/AnalysisHistoryFilters";
