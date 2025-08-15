@@ -27,9 +27,6 @@ services:
       - NODE_ENV=production
       - SWAGGER=
       - COOKIE_DOMAIN=snowledge.eu
-      - JWT_ACCESS_SECRET=
-      - JWT_REFRESH_SECRET=
-      - JWT_EMAIL_SECRET=
       - DISCORD_CLIENT_ID=1386722785069367356
       - MG_NAME=social_data #INutile je crois
       - MG_HOST=mongo
