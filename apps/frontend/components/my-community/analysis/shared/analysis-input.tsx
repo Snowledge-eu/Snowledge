@@ -64,14 +64,10 @@ export interface AnalysisInputBaseProps {
   onTimeRangeChange: (v: string) => void;
   customDate: Date | undefined;
   onCustomDateChange: (date: Date | undefined) => void;
-  mode: "Meta-Llama-3_3-70B-Instruct" | "DeepSeek-R1-Distill-Llama-70B";
-  onModeChange: (
-    v: "Meta-Llama-3_3-70B-Instruct" | "DeepSeek-R1-Distill-Llama-70B"
-  ) => void;
   messageCount: number;
   canLaunch: boolean;
   loading: boolean;
-  onStart: (channels: Array<string>, model: string, period: string) => void;
+  onStart: (channels: Array<string>, period: string) => void;
   // Nouvelle approche : sélection directe de prompts
   selectedPrompt?: string;
   onPromptChange?: (v: string) => void;
@@ -101,8 +97,6 @@ export function AnalysisInput({
   onTimeRangeChange,
   customDate,
   onCustomDateChange,
-  mode,
-  onModeChange,
   messageCount,
   canLaunch,
   loading,
@@ -645,7 +639,6 @@ export function AnalysisInput({
           onClick={() =>
             onStart(
               selectedChannels.map((ch) => ch.value),
-              mode,
               timeRange
             )
           }

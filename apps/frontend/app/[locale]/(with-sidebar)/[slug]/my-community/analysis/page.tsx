@@ -39,9 +39,6 @@ export default function Page() {
   >([]);
   const [timeRange, setTimeRange] = useState("last_week");
   const [customDate, setCustomDate] = useState<Date | undefined>(undefined);
-  const [mode, setMode] = useState<
-    "Meta-Llama-3_3-70B-Instruct" | "DeepSeek-R1-Distill-Llama-70B"
-  >("Meta-Llama-3_3-70B-Instruct");
   const [loading, setLoading] = useState(false);
   const [messageCount, setMessageCount] = useState(0);
 
@@ -159,11 +156,7 @@ export default function Page() {
   }, [isLoading]);
 
   // Fonction unifiée pour lancer l'analyse
-  const startAnalysis = async (
-    channels: Array<string>,
-    model: string,
-    period: string
-  ) => {
+  const startAnalysis = async (channels: Array<string>, period: string) => {
     if (!selectedPrompt) {
       toast.error("Please select an analysis type");
       return;
@@ -175,11 +168,9 @@ export default function Page() {
         creator_id: Number(user.id),
         serverId: activeCommunity?.discordServerId,
         channelId: channel,
-        model_name: model,
         prompt_key: selectedPrompt,
         period: period,
       };
-      console.log(body);
       const res = await fetcher(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/analysis/discord`,
         {
@@ -620,8 +611,6 @@ export default function Page() {
           onTimeRangeChange={setTimeRange}
           customDate={customDate}
           onCustomDateChange={setCustomDate}
-          mode={mode}
-          onModeChange={setMode}
           messageCount={messageCount}
           canLaunch={canLaunch}
           loading={loading}

@@ -171,7 +171,7 @@ export class AnalysisProvider {
 
 			const ovhResponse =
 				await this.analysisHelper.analyseWithCustomPrompt({
-					modelName: dto.model_name,
+					modelName: prompt.model_name,
 					customPrompt: prompt,
 					userContent: formatted,
 				});
@@ -180,7 +180,7 @@ export class AnalysisProvider {
 				creator_id: dto.creator_id,
 				platform: 'discord',
 				prompt_key: dto.prompt_key,
-				llm_model: dto.model_name,
+				llm_model: prompt.model_name,
 				scope: {
 					server_id: dto.serverId,
 					channel_id: dto.channelId,
