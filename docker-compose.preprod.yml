@@ -26,7 +26,7 @@ services:
       - APP_PORT=4000
       - NODE_ENV=production
       - SWAGGER=
-      - COOKIE_DOMAIN=snowledge.eu
+      - COOKIE_DOMAIN=test.snowledge.eu
       - DISCORD_CLIENT_ID=1386722785069367356
       - MG_NAME=social_data #INutile je crois
       - MG_HOST=mongo

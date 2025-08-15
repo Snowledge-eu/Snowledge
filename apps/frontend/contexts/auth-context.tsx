@@ -125,13 +125,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         },
         credentials: "include",
       });
-      
+
       // Créer un objet qui simule la Response avec les données
       const responseWrapper = {
         status: res.status,
         headers: res.headers,
         ok: res.ok,
-        data: null as any
+        data: null as any,
       };
 
       if (!res.ok) {
@@ -146,27 +146,27 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           }
         } else throw new Error("Failed. Please try again.");
       }
-      
+
       // Vérifier si la réponse est vide
       const contentLength = res.headers.get("Content-Length");
-      
+
       if (contentLength === "0" || contentLength === null) {
-        console.log('[Fetcher] Empty response detected');
+        console.log("[Fetcher] Empty response detected");
         return responseWrapper;
       }
-      
+
       // Essayer de parser le JSON seulement si on a du contenu
       try {
         const text = await res.text();
-        if (!text || text.trim() === '') {
-          console.log('[Fetcher] Empty response body');
+        if (!text || text.trim() === "") {
+          console.log("[Fetcher] Empty response body");
           return responseWrapper;
         }
         responseWrapper.data = JSON.parse(text);
         return responseWrapper;
       } catch (parseError) {
-        console.error('[Fetcher] JSON parse error:', parseError);
-        throw new Error('Invalid JSON response from server');
+        console.error("[Fetcher] JSON parse error:", parseError);
+        throw new Error("Invalid JSON response from server");
       }
     },
     [accessToken, refreshAccessToken]
@@ -188,9 +188,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setFetchDataUserInProgress(false);
         return true;
       } else {
+        console.error("No user data in response:", response);
+        setFetchDataUserInProgress(false);
         return false;
       }
     } catch (err: any) {
+      console.error("Error fetching user data:", err);
+      setFetchDataUserInProgress(false);
       throw new Error(err.message || "An unexpected error occurred.");
     }
   };
@@ -242,11 +246,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return null;
   };
   const validPassword = (pwd: string, confirmPwd: string) => {
-    if(!pwd) {
+    if (!pwd) {
       return "Password is empty";
     }
     if (!confirmPwd) {
-      return "Confirm password is empty"
+      return "Confirm password is empty";
     }
     if (pwd.length < 8) {
       return "Password must be at least 8 characters.";
@@ -255,10 +259,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       return "Passwords do not match.";
     }
     return null;
-  }
+  };
 
   useEffect(() => {
-
     if (!accessiblePath.some((val) => pathname.split("/").includes(val))) {
       if (!(pathname.split("/").length > 2)) {
         if (!accessToken) {

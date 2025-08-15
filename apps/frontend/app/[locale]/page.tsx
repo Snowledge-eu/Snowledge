@@ -15,40 +15,62 @@ import { useCurrentCommunity } from "@/hooks/useCurrentCommunity";
 import { fi } from "date-fns/locale";
 
 export default function Home() {
-  const { accessToken, user, fetchDataUserInProgress, fetchDataUser } = useAuth();
+  const { accessToken, user, fetchDataUserInProgress, fetchDataUser } =
+    useAuth();
   const noRedirect = useSearchParams().get("no-redirect");
   const router = useRouter();
   // Appelle le hook directement dans le composant
   const { data: communities, isLoading } = useUserCommunities(user?.id || 0);
   const { activeCommunity } = useCurrentCommunity();
   useEffect(() => {
-    if (accessToken && !noRedirect){ 
-      if(!user && !fetchDataUserInProgress) {
+    console.log("Home page useEffect - Debug:", {
+      accessToken: !!accessToken,
+      user: !!user,
+      fetchDataUserInProgress,
+      isLoading,
+      communitiesCount: communities?.length || 0,
+      activeCommunity: !!activeCommunity,
+      noRedirect,
+    });
+
+    if (accessToken && !noRedirect) {
+      // Si on n'a pas d'utilisateur et qu'on n'est pas en train de le récupérer
+      if (!user && !fetchDataUserInProgress) {
+        console.log("Fetching user data...");
         fetchDataUser();
-      } else {
-        if (!isLoading){
-          if(communities){
-            if(communities.length > 0){ 
-              if(activeCommunity){
-                router.push(`/${activeCommunity?.slug}`);
-              } else {
-                router.push(`/${communities[0].slug}`);
-              }
-            } else {
-              router.push("/post-sign-up");
-            }
+        return;
+      }
+
+      // Si on a un utilisateur et que les communautés ne sont pas en cours de chargement
+      if (user && !isLoading) {
+        console.log("User loaded, checking communities...");
+        if (communities && communities.length > 0) {
+          if (activeCommunity) {
+            console.log(
+              "Redirecting to active community:",
+              activeCommunity.slug
+            );
+            router.push(`/${activeCommunity.slug}`);
+          } else {
+            console.log("Redirecting to first community:", communities[0].slug);
+            router.push(`/${communities[0].slug}`);
           }
+        } else {
+          console.log("No communities, redirecting to post-sign-up");
+          router.push("/post-sign-up");
         }
       }
     }
   }, [
-    isLoading,
-    communities,
-    noRedirect,
-    router,
-    // activeCommunity,
     accessToken,
     user,
+    fetchDataUserInProgress,
+    isLoading,
+    communities,
+    activeCommunity,
+    noRedirect,
+    router,
+    fetchDataUser,
   ]);
 
   // Si pas connecté : affiche la landing page
