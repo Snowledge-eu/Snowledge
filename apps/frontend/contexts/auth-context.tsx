@@ -258,8 +258,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   useEffect(() => {
-    const cookie = document.cookie.match(/(?:^| )access-token=([^;]*)/);
-    const token = cookie ? decodeURIComponent(cookie[1]) : null;
 
     if (!accessiblePath.some((val) => pathname.split("/").includes(val))) {
       if (!(pathname.split("/").length > 2)) {

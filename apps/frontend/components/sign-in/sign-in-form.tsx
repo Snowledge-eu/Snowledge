@@ -57,7 +57,8 @@ export default function SignInForm() {
         <div className="max-w-sm px-6 py-16 md:p-0 w-full ">
           {/* Header section with logo and title */}
           <div className="space-y-6 mb-6">
-            <Link href="https://www.shadcndesign.com/" target="_blank">
+            {/* TODO change logo */}
+            <Link href="https://www.shadcndesign.com/" target="_blank"> 
               <Logo />
             </Link>
             {/* Title and description */}
@@ -104,7 +105,7 @@ export default function SignInForm() {
                 </Label>
               </div>
               <Link
-                href=""
+                href="/forgot-password"
                 className="text-sm text-muted-foreground hover:text-foreground underline"
               >
                 Forgot password?

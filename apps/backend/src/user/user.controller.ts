@@ -40,6 +40,13 @@ export class UserController {
 		return { user };
 	}
 
+  @Put()
+  async updateOneUser(@User() user: UserEntity, @Body() dto: UpdateUserDto) {
+    await this.userService.update(user.id, dto);
+    const updated = await this.userService.findOneById(user.id);
+    return { user: updated };
+  }
+
 	@Public()
 	@Get(':id/nft-metadata')
 	async getNftMetadata(@Param('id') id: string) {

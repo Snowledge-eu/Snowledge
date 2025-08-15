@@ -12,6 +12,8 @@ import {
 	Res,
 	Delete,
 	Query,
+	BadRequestException,
+	Patch,
 } from '@nestjs/common';
 import { AuthProvider } from './auth.provider';
 import { Public } from './auth.decorator';
@@ -20,6 +22,10 @@ import { SignInDto, SignUpDto, VerifyCodeDto } from './dto';
 import { EmailProvider } from 'src/email/email.provider';
 import { Response, Request } from 'express';
 import { VerifyTokenDto } from './dto/verify-token.dto';
+import { ForgotPassword } from './dto/forgot-password.dto';
+import { ChangePassword } from './dto/change-password.dto';
+import { User } from 'src/user/decorator';
+import { User as UserEntity } from 'src/user/entities/user.entity';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -208,5 +214,49 @@ export class AuthController {
 			domain: process.env.COOKIE_DOMAIN || undefined,
 		});
 		return res.redirect(`${process.env.FRONT_URL}/`);
+	}
+	
+	@Public()
+	@HttpCode(HttpStatus.OK)
+	@Post('forgot-password')
+	forgotPassword(@Body() forgotPassword: ForgotPassword) {
+		return this.authProvider.forgotPassword(forgotPassword.email);
+	}
+
+	@Public()
+	@HttpCode(HttpStatus.OK)
+	@Post('change-password')
+	async changePassword(@Body() body: ChangePassword) {
+		if (body.token) {
+			const authorizedUser = await this.authProvider.verifyTokenChangePassword(body.token);
+			if (!authorizedUser) {
+				throw new BadRequestException('Token invalid');
+			}
+			if (!body.password) {
+				throw new BadRequestException('Missing new password');
+			}
+			return this.authProvider.changePassword(body.password, authorizedUser);
+		}
+	}
+
+	@HttpCode(HttpStatus.OK)
+	@Patch('change-password')
+	async changePasswordConnected(@Body() body: ChangePassword, @User() user: UserEntity) {
+		if (!user) {
+			throw new BadRequestException('User undefined');
+		}
+		const { currentPassword, newPassword, confirmPassword } = body || ({} as any);
+		if (!currentPassword || !newPassword || !confirmPassword) {
+			throw new BadRequestException('Missing password fields');
+		}
+		if (newPassword !== confirmPassword) {
+			throw new BadRequestException('Passwords do not match');
+		}
+		// Validate current password
+		const isValid = await this.authProvider.validateCurrentPassword(user.id, currentPassword);
+		if (!isValid) {
+			throw new BadRequestException('Current password incorrect');
+		}
+		return this.authProvider.changePassword(newPassword, user);
 	}
 }

@@ -1,6 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsEnum, IsString, IsEmail, IsDate, IsOptional, IsInt, MaxLength } from "class-validator";
-import { Gender } from "src/shared/enums/Gender";
+import { IsString, IsEmail, IsOptional, IsInt, ArrayMaxSize, IsArray } from "class-validator";
 
 export class CreateSnowTestRegisterDto {
         @ApiProperty({
@@ -29,10 +28,10 @@ export class CreateSnowTestRegisterDto {
 
         @ApiProperty({
             type: [String],
+            maxItems: 5,
         })
-        @MaxLength(5, {
-            each: true,
-        })
+        @IsArray()
+        @ArrayMaxSize(5)
         platforms: string[];
 
         @ApiProperty({

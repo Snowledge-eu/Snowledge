@@ -1,11 +1,12 @@
-import { Email } from "src/email/entities/email.entity";
-import { PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn, UpdateDateColumn } from "typeorm";
+import { randomUUID } from "node:crypto";
+import { PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, BeforeInsert, Entity } from "typeorm";
 
+@Entity({ name: 'snow_test_register' })
 export class SnowTestRegister {
         @PrimaryGeneratedColumn()
         id: number;
     
-        @Column({ nullable: true, unique: true })
+        @Column({ type: 'varchar', length: 320 })
         email: string;
     
         @Column()
@@ -20,7 +21,7 @@ export class SnowTestRegister {
         @Column()
         communitySize: number;
 
-        @Column()
+        @Column('simple-array')
         platforms: string[];
 
         @Column({ nullable: true })
@@ -29,11 +30,7 @@ export class SnowTestRegister {
         @Column({ unique: true })
         referral: string;
     
-        @OneToMany(() => Email, (email) => email.user)
-        emails: Email[];
         
-        @Column({ nullable: true })
-        refreshToken: string;
     
         @CreateDateColumn({
             type: 'timestamp',
@@ -47,4 +44,9 @@ export class SnowTestRegister {
             onUpdate: 'CURRENT_TIMESTAMP(6)',
         })
         updated_at: Date;
+
+        @BeforeInsert()
+        lowercase() {
+            this.referral = randomUUID().replace(/-/g, '').slice(0, 8);
+        }
 }

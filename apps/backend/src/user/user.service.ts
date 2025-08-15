@@ -75,7 +75,9 @@ export class UserService {
 	update(id: number, updateUserDto: UpdateUserDto) {
 		return this.userRepository.update(id, updateUserDto);
 	}
-
+	updatePassword(id: number, pwd: string) {
+		return this.userRepository.update(id, {password: pwd});
+	}
 	async updateValueNewColumn() {
 		const users = await this.userRepository.find();
 		for (const user of users) {
