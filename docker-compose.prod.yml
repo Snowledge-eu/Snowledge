@@ -45,21 +45,29 @@ services:
       - FRONT_URL=https://hi.snowledge.eu
       - ORIGIN_CORS= ["https://hi.snowledge.eu"]
 
-  analyzer:
+  discord-harvester:
     build:
       context: .
-      dockerfile: ./apps/analyzer/Dockerfile.prod #TODO:Améliorer le dockerfile
+      dockerfile: ./apps/backend/Dockerfile.dev
+    command: npm run start:harvest
+    depends_on:
+      - backend
+      - mongo
+    volumes:
+      # Monter le code source en préservant node_modules
+      - ./apps/backend:/app
+      - /app/node_modules
+      - ./apps/backend/.env:/app/.env
     env_file:
-      - .env
+      - .env.dev
     environment:
-      - PYTHONUNBUFFERED=1
-      - PYTHONIOENCODING=UTF-8
-      - DISCORD_CLIENT_ID=1377545849126518784
-      - DISCORD_PUBLIC_KEY=b070d4bde7773615aa052a7bf6ef7608b2d2fde3e5939c2bb15a581939a30230
-      - OVH_API_BASE_URL=https://oai.endpoints.kepler.ai.cloud.ovh.net/v1/chat/completions
+      - NODE_ENV=production
       - MG_NAME=social_data
       - MG_HOST=mongo
       - MG_PORT=27017
+    networks:
+      - snowledge_network
+
 networks:
   snowledge_network:
     external: true
