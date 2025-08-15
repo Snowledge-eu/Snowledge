@@ -16,7 +16,7 @@ import { Alert, AlertDescription } from "@repo/ui/components/alert";
 // Import des composants modulaires
 import { PromptsSection } from "@/components/admin/prompts/PromptsSection";
 import { CommunityList } from "@/components/admin/communities/CommunityList";
-import { TestAnalysis } from "@/components/admin/testing/TestAnalysis";
+import { TestAnalysis } from "@/components/admin/TestAnalysis";
 import { AnalysisHistorySection } from "@/components/admin/history/AnalysisHistorySection";
 
 // Import des hooks et types
