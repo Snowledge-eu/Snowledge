@@ -34,18 +34,25 @@ export class AuthGuard implements CanActivate {
 			throw new UnauthorizedException();
 		}
 		try {
+			console.log('AuthGuard - Verifying token...');
 			const payload = await this.jwtService.verifyAsync(token, {
 				secret: process.env.JWT_ACCESS_SECRET,
 			});
+			console.log('AuthGuard - Token verified, payload:', payload);
+
 			// 💡 We're assigning the payload to the request object here
 			// so that we can access it in our route handlers
 			if (!request['user']) {
-				request['user'] = await this.userService.findOneById(
+				console.log(
+					'AuthGuard - Fetching user with ID:',
 					payload.userId,
 				);
+				const user = await this.userService.findOneById(payload.userId);
+				console.log('AuthGuard - User found:', user ? 'yes' : 'no');
+				request['user'] = user;
 			}
 		} catch (error) {
-			// console.log('error', error);
+			console.log('AuthGuard - Error verifying token:', error);
 			throw new UnauthorizedException();
 		}
 		// console.log('before return auth');
