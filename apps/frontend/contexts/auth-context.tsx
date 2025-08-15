@@ -147,21 +147,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         } else throw new Error("Failed. Please try again.");
       }
 
-      // Vérifier si la réponse est vide
-      const contentLength = res.headers.get("Content-Length");
-
-      if (contentLength === "0" || contentLength === null) {
-        console.log("[Fetcher] Empty response detected");
-        return responseWrapper;
-      }
-
-      // Essayer de parser le JSON seulement si on a du contenu
+      // Essayer de parser le JSON directement
       try {
         const text = await res.text();
+        console.log("[Fetcher] Response text:", text);
+
         if (!text || text.trim() === "") {
           console.log("[Fetcher] Empty response body");
           return responseWrapper;
         }
+
         responseWrapper.data = JSON.parse(text);
         return responseWrapper;
       } catch (parseError) {
