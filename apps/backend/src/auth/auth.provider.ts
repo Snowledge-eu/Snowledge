@@ -185,17 +185,18 @@ export class AuthProvider {
 			return emailFind;
 		}
 	}
-	async changePassword(password: string, user: User){
+	async changePassword(password: string, user: User) {
 		const hashPassword = await bcrypt.hash(password, 10);
-
-		return this.userService.updatePassword(user.id, hashPassword)
-
+		return this.userService.updatePassword(user.id, hashPassword);
 	}
-  async validateCurrentPassword(userId: number, currentPassword: string): Promise<boolean> {
-    const user = await this.userService.findOneById(userId);
-    if (!user) return false;
-    return bcrypt.compare(currentPassword, user.password);
-  }
+	async validateCurrentPassword(
+		userId: number,
+		currentPassword: string,
+	): Promise<boolean> {
+		const user = await this.userService.findOneById(userId);
+		if (!user) return false;
+		return bcrypt.compare(currentPassword, user.password);
+	}
 	async forgotPassword(email: string) {
 		const userFind = await this.userService.findOneByEmail(email);
 		if (!userFind) return false;
@@ -211,14 +212,13 @@ export class AuthProvider {
 		const payload = await this.jwtService.verifyAsync(token, {
 			secret: process.env.JWT_EMAIL_SECRET,
 		});
-
 		const user = await this.userService.findOneById(payload.userId);
-		if (!user){
+		if (!user) {
 			return false;
 		} else {
 			return user;
 		}
-	} 
+	}
 	private async generateTokensForUser(user: User) {
 		const payload = {
 			userId: user.id,

@@ -87,6 +87,9 @@ jobs:
             echo "PGSQL_PWD=${{ secrets.PGSQL_PWD_PREPROD }}" >> .env
             echo "XRPL_SEED_KEY=${{ secrets.XRPL_SEED_KEY }}" >> .env
             echo "XRPL_BACKEND_SEED=${{ secrets.XRPL_BACKEND_SEED }}" >> .env
+            echo "JWT_EMAIL_SECRET=${{ secrets.JWT_EMAIL_SECRET }}" >> .env
+            echo "JWT_ACCESS_SECRET=${{ secrets.JWT_ACCESS_SECRET }}" >> .env
+            echo "JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }}" >> .env
             echo "NEXT_PUBLIC_BACKEND_URL=https://test.snowledge.eu/api" >> .env
             echo "NEXT_PUBLIC_FRONTEND_URL=https://test.snowledge.eu" >> .env
             echo "NEXT_PUBLIC_ANALYSER_URL=https://test.snowledge.eu/analyzer" >> .env
@@ -120,6 +123,9 @@ jobs:
             echo "PASS_BREVO=${{ secrets.PASS_BREVO }}" >> .env
             echo "XRPL_SEED_KEY=${{ secrets.XRPL_SEED_KEY }}" >> .env
             echo "XRPL_BACKEND_SEED=${{ secrets.XRPL_BACKEND_SEED }}" >> .env
+            echo "JWT_EMAIL_SECRET=${{ secrets.JWT_EMAIL_SECRET }}" >> .env
+            echo "JWT_ACCESS_SECRET=${{ secrets.JWT_ACCESS_SECRET }}" >> .env
+            echo "JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }}" >> .env
             echo "NEXT_PUBLIC_BACKEND_URL=https://hi.snowledge.eu/api" >> .env
             echo "NEXT_PUBLIC_FRONTEND_URL=https://hi.snowledge.eu" >> .env
             echo "NEXT_PUBLIC_ANALYSER_URL=https://hi.snowledge.eu/analyzer" >> .env

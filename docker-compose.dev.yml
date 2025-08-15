@@ -41,10 +41,6 @@ services:
       - snowledge_network
     environment:
       - NODE_ENV=development
-      - SMTP_HOST=smtp.exemple.com
-      - SMTP_PORT=587
-      - SMTP_USER=ton_user
-      - SMTP_PASS=ton_mot_de_passe
       - PGSQL_HOST=postgres
       - PGSQL_PORT=5432
       - PGSQL_DB=snowledge
@@ -57,7 +53,7 @@ services:
       - BACK_URL=http://localhost:4000/api
       - FRONT_URL=http://localhost:3000
   discord-harvester:
-    build: 
+    build:
       context: .
       dockerfile: ./apps/backend/Dockerfile.dev
     command: npm run start:harvest
@@ -73,10 +69,6 @@ services:
       - .env.dev
     environment:
       - NODE_ENV=development
-      - SMTP_HOST=smtp.exemple.com
-      - SMTP_PORT=587
-      - SMTP_USER=ton_user
-      - SMTP_PASS=ton_mot_de_passe
       - PGSQL_HOST=postgres
       - PGSQL_PORT=5432
       - PGSQL_DB=snowledge

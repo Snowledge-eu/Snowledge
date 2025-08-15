@@ -13,7 +13,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/auth-context";
 
 export default function Settings() {
-  const { verifyToken } = useAuth();
+  const { verifyToken, user } = useAuth();
   const [validEmail, setValidEmail] = useState(false);
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
@@ -37,11 +37,13 @@ export default function Settings() {
 
           <Separator className="my-6" />
 
-          {/* Change password section */}
-          <section className="grid grid-cols-1 lg:grid-cols-8 gap-4 mb-8">
-            <ChangePasswordText />
-            <ChangePasswordForm />
-          </section>
+          {/* Change password section for not discord connexion user */}
+          {user?.password && (
+            <section className="grid grid-cols-1 lg:grid-cols-8 gap-4 mb-8">
+              <ChangePasswordText />
+              <ChangePasswordForm />
+            </section>
+          )}
 
           {/* <Separator className="my-6" /> */}
 

@@ -21,7 +21,7 @@ export class EmailHelper {
 	async tokenEmail(email: string, code: string) {
 		try {
 			const subject = `Code d'identification`;
-	
+
 			const mailSend = await this.mailerService.sendMail({
 				to: email,
 				subject,
@@ -32,7 +32,6 @@ export class EmailHelper {
 		} catch (error) {
 			this.logger.error(error);
 		}
-
 	}
 
 	async sendGenericEmail(to: string, subject: string, text: string) {
@@ -50,7 +49,7 @@ export class EmailHelper {
 	async forgotPassword(email: string, code: string) {
 		try {
 			const subject = `Mot de passe oublié`;
-	
+
 			const mailSend = await this.mailerService.sendMail({
 				to: email,
 				subject,

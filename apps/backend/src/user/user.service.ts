@@ -76,7 +76,7 @@ export class UserService {
 		return this.userRepository.update(id, updateUserDto);
 	}
 	updatePassword(id: number, pwd: string) {
-		return this.userRepository.update(id, {password: pwd});
+		return this.userRepository.update(id, { password: pwd });
 	}
 	async updateValueNewColumn() {
 		const users = await this.userRepository.find();
@@ -86,7 +86,7 @@ export class UserService {
 			});
 		}
 	}
-	
+
 	async getInvitationsForUser(userId: number) {
 		const user = await this.userRepository.findOne({
 			where: { id: userId, learners: { status: LearnerStatus.INVITED } },

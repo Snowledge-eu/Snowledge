@@ -215,7 +215,7 @@ export class AuthController {
 		});
 		return res.redirect(`${process.env.FRONT_URL}/`);
 	}
-	
+
 	@Public()
 	@HttpCode(HttpStatus.OK)
 	@Post('forgot-password')
@@ -228,24 +228,32 @@ export class AuthController {
 	@Post('change-password')
 	async changePassword(@Body() body: ChangePassword) {
 		if (body.token) {
-			const authorizedUser = await this.authProvider.verifyTokenChangePassword(body.token);
+			const authorizedUser =
+				await this.authProvider.verifyTokenChangePassword(body.token);
 			if (!authorizedUser) {
 				throw new BadRequestException('Token invalid');
 			}
 			if (!body.password) {
 				throw new BadRequestException('Missing new password');
 			}
-			return this.authProvider.changePassword(body.password, authorizedUser);
+			return this.authProvider.changePassword(
+				body.password,
+				authorizedUser,
+			);
 		}
 	}
 
 	@HttpCode(HttpStatus.OK)
 	@Patch('change-password')
-	async changePasswordConnected(@Body() body: ChangePassword, @User() user: UserEntity) {
+	async changePasswordConnected(
+		@Body() body: ChangePassword,
+		@User() user: UserEntity,
+	) {
 		if (!user) {
 			throw new BadRequestException('User undefined');
 		}
-		const { currentPassword, newPassword, confirmPassword } = body || ({} as any);
+		const { currentPassword, newPassword, confirmPassword } =
+			body || ({} as any);
 		if (!currentPassword || !newPassword || !confirmPassword) {
 			throw new BadRequestException('Missing password fields');
 		}
@@ -253,7 +261,10 @@ export class AuthController {
 			throw new BadRequestException('Passwords do not match');
 		}
 		// Validate current password
-		const isValid = await this.authProvider.validateCurrentPassword(user.id, currentPassword);
+		const isValid = await this.authProvider.validateCurrentPassword(
+			user.id,
+			currentPassword,
+		);
 		if (!isValid) {
 			throw new BadRequestException('Current password incorrect');
 		}
