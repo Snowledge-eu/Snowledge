@@ -7,10 +7,20 @@ export class AuthService {
 	constructor(private readonly jwtService: JwtService) {}
 
 	createAccessToken(payload: IAuthPayload) {
-		return this.jwtService.sign(payload, { secret: process.env.JWT_ACCESS_SECRET, expiresIn: '30m' });
+		console.log(
+			'AuthService - Creating token with secret:',
+			process.env.JWT_ACCESS_SECRET ? 'defined' : 'undefined',
+		);
+		return this.jwtService.sign(payload, {
+			secret: process.env.JWT_ACCESS_SECRET,
+			expiresIn: '30m',
+		});
 	}
 	async createRefreshToken(payload: IAuthPayload) {
-		return this.jwtService.sign(payload, { secret: process.env.JWT_REFRESH_SECRET, expiresIn: '7d' });
+		return this.jwtService.sign(payload, {
+			secret: process.env.JWT_REFRESH_SECRET,
+			expiresIn: '7d',
+		});
 	}
 	createEmailVerificationToken(payload: { userId: number; email: string }) {
 		return this.jwtService.sign(payload, {
@@ -28,5 +38,4 @@ export class AuthService {
 		// Validate the user exists in your database, etc.
 		return { id: payload.id };
 	}
-
 }

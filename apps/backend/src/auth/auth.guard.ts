@@ -18,10 +18,10 @@ export class AuthGuard implements CanActivate {
 		private readonly userService: UserService,
 	) {}
 	async canActivate(context: ExecutionContext): Promise<boolean> {
-		const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
-			context.getHandler(),
-			context.getClass(),
-		]);
+		const isPublic = this.reflector.getAllAndOverride<boolean>(
+			IS_PUBLIC_KEY,
+			[context.getHandler(), context.getClass()],
+		);
 		if (isPublic) {
 			// 💡 See this condition
 			return true;
@@ -40,7 +40,9 @@ export class AuthGuard implements CanActivate {
 			// 💡 We're assigning the payload to the request object here
 			// so that we can access it in our route handlers
 			if (!request['user']) {
-				request['user'] = await this.userService.findOneById(payload.userId);
+				request['user'] = await this.userService.findOneById(
+					payload.userId,
+				);
 			}
 		} catch (error) {
 			// console.log('error', error);
@@ -51,9 +53,10 @@ export class AuthGuard implements CanActivate {
 	}
 
 	private extractToken(request: Request): string | undefined {
-		const [type, tokenFromHeader] = request.headers.authorization?.split(' ') ?? [];
+		const [type, tokenFromHeader] =
+			request.headers.authorization?.split(' ') ?? [];
 		if (type === 'Bearer' && tokenFromHeader) return tokenFromHeader;
 
-    	return request.cookies?.['access-token'];
+		return request.cookies?.['access-token'];
 	}
 }

@@ -3,7 +3,6 @@ import { AuthController } from './auth.controller';
 import { AuthProvider } from './auth.provider';
 import { UserModule } from '../user/user.module';
 import { JwtModule } from '@nestjs/jwt';
-import { jwtConstants } from './constants';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth.guard';
 import { EmailModule } from '../email/email.module';
@@ -19,7 +18,7 @@ import { DiscordBotModule } from 'src/discord-bot/discord-bot.module';
 		DiscordBotModule,
 		JwtModule.register({
 			global: true,
-			secret: jwtConstants.secret,
+			secret: process.env.JWT_ACCESS_SECRET,
 			signOptions: { expiresIn: '1d' },
 		}),
 	],

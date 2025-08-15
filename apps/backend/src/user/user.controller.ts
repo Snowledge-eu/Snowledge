@@ -40,12 +40,12 @@ export class UserController {
 		return { user };
 	}
 
-  @Put()
-  async updateOneUser(@User() user: UserEntity, @Body() dto: UpdateUserDto) {
-    await this.userService.update(user.id, dto);
-    const updated = await this.userService.findOneById(user.id);
-    return { user: updated };
-  }
+	@Put()
+	async updateOneUser(@User() user: UserEntity, @Body() dto: UpdateUserDto) {
+		await this.userService.update(user.id, dto);
+		const updated = await this.userService.findOneById(user.id);
+		return { user: updated };
+	}
 
 	@Public()
 	@Get(':id/nft-metadata')
@@ -137,9 +137,16 @@ export class UserController {
 
 	@Public()
 	@Post('find-contributor')
-	async findContributor(@User() user: UserEntity, @Body() infoExpertise: FindContributorDto){
-		const contributors = await this.learnerService.findContributorsByExpertiseInUserCommunity(infoExpertise.communityId, infoExpertise.expertises);
-		console.log(contributors)
+	async findContributor(
+		@User() user: UserEntity,
+		@Body() infoExpertise: FindContributorDto,
+	) {
+		const contributors =
+			await this.learnerService.findContributorsByExpertiseInUserCommunity(
+				infoExpertise.communityId,
+				infoExpertise.expertises,
+			);
+		console.log(contributors);
 
 		return infoExpertise.expertises.map((exp) => ({
 			expertise: exp,
