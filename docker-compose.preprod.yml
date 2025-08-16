@@ -54,12 +54,20 @@ services:
       # Monter le code source en préservant node_modules
       - ./apps/backend:/app
       - /app/node_modules
-      - ./apps/backend/.env:/app/.env
+      - ./pg-ca.crt:/etc/ssl/certs/pg-ca.crt
+    env_file:
+      - .env
     environment:
       - NODE_ENV=production
+      - PGSQL_HOST=postgresql-02aff275-o9835f167.database.cloud.ovh.net
+      - PGSQL_PORT=20184
+      - PGSQL_DB=defaultdb
+      - PGSQL_SSL=true
+      - NODE_EXTRA_CA_CERTS=/etc/ssl/certs/pg-ca.crt
       - MG_NAME=social_data
       - MG_HOST=mongo
       - MG_PORT=27017
+      - MG_DB=snowledge
     networks:
       - snowledge_network
 
