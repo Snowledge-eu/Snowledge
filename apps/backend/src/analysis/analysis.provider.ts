@@ -13,6 +13,7 @@ import {
 	BadRequestException,
 	InternalServerErrorException,
 } from '@nestjs/common';
+import { Long } from 'bson';
 
 @Injectable()
 export class AnalysisProvider {
@@ -228,6 +229,10 @@ export class AnalysisProvider {
 			throw new NotFoundException('Community not found');
 		}
 
+		this.logger.debug(`Community found: ${community.name} (ID: ${community.id})`);
+		this.logger.debug(`Community discordServer: ${JSON.stringify(community.discordServer)}`);
+		this.logger.debug(`Community discordServerId: ${community.discordServerId}`);
+
 		// Récupérer les messages Discord de la communauté
 		const messages = await this.discordMessageService.findAll();
 		this.logger.debug(`Total messages found: ${messages.length}`);
@@ -238,12 +243,33 @@ export class AnalysisProvider {
 
 		// Filtrer les canaux qui appartiennent au serveur Discord de la communauté
 		const communityChannels = channels.filter((channel) => {
-			if (!community.discordServer) {
-				return false;
+			// Essayer d'abord avec la relation discordServer
+			if (community.discordServer) {
+				this.logger.debug(`Using discordServer relation for community ${community.name}`);
+				this.logger.debug(`Comparing channel.server_id: ${channel.server_id.toString()} with guildId: ${community.discordServer.guildId}`);
+				
+				// Convertir le guildId en Long pour la comparaison avec server_id
+				const guildIdLong = Long.fromString(
+					community.discordServer.guildId,
+				);
+				const isMatch = channel.server_id.equals(guildIdLong);
+				this.logger.debug(`Channel ${channel.name} (${channel._id}) match: ${isMatch}`);
+				return isMatch;
 			}
-			return (
-				channel.server_id.toString() === community.discordServer.guildId
-			);
+			
+			// Fallback: utiliser discordServerId directement
+			if (community.discordServerId) {
+				this.logger.debug(`Using discordServerId fallback for community ${community.name}`);
+				this.logger.debug(`Comparing channel.server_id: ${channel.server_id.toString()} with discordServerId: ${community.discordServerId}`);
+				
+				const guildIdLong = Long.fromString(community.discordServerId);
+				const isMatch = channel.server_id.equals(guildIdLong);
+				this.logger.debug(`Channel ${channel.name} (${channel._id}) match: ${isMatch}`);
+				return isMatch;
+			}
+			
+			this.logger.debug(`No discordServer or discordServerId found for community ${community.name}`);
+			return false;
 		});
 
 		this.logger.debug(
