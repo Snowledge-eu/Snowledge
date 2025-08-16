@@ -11,35 +11,37 @@ import { AVAILABLE_OUTPUTS } from "../../my-community/analysis/generic/utils/fie
 // MODÈLES DISPONIBLES
 // ============
 export const AVAILABLE_MODELS: AvailableModel[] = [
+  // Mode NLP - Modèles gratuits
   {
-    name: "Llama-3.1-8B-Instruct",
-    cost: "0,10 €/token",
-    description: "Modèle rapide et économique",
-    mode: "standard",
-  },
-  {
-    name: "Mistral-Nemo-Instruct-2407",
-    cost: "0,13 €/token",
-    description: "Modèle Mistral optimisé",
-    mode: "standard",
-  },
-  {
-    name: "Mistral-Small-3.2-24B-Instruct-2506",
-    cost: "0,09 €/token input, 0,28 €/token output",
-    description: "Modèle Mistral Small haute performance",
+    name: "bart-large-cnn",
+    cost: "Gratuit",
+    description: "Modèle BART optimisé pour la génération de résumés",
     mode: "nlp",
   },
   {
-    name: "Meta-Llama-3_1-70B-Instruct",
-    cost: "0,67 €/token",
-    description: "Modèle Meta haute performance",
+    name: "bert-base-NER",
+    cost: "Gratuit",
+    description: "Modèle BERT pour la reconnaissance d'entités nommées",
     mode: "nlp",
   },
   {
-    name: "Meta-Llama-3_3-70B-Instruct",
-    cost: "0,67 €/token",
-    description: "Modèle Meta haute performance",
+    name: "bert-base-multilingual-uncased-sentiment",
+    cost: "Gratuit",
+    description: "Modèle BERT multilingue pour l'analyse de sentiment",
     mode: "nlp",
+  },
+  {
+    name: "roberta-base-go_emotions",
+    cost: "Gratuit",
+    description: "Modèle RoBERTa pour la classification d'émotions",
+    mode: "nlp",
+  },
+  // Mode Reasoning - Modèles haute performance
+  {
+    name: "Qwen3-32B",
+    cost: "0,23 €/token output",
+    description: "Modèle Qwen haute performance pour le raisonnement avancé",
+    mode: "reasoning",
   },
   {
     name: "DeepSeek-R1-Distill-Llama-70B",
@@ -47,17 +49,42 @@ export const AVAILABLE_MODELS: AvailableModel[] = [
     description: "Modèle DeepSeek haute performance - Raisonnement avancé",
     mode: "reasoning",
   },
+  // Mode Standard - Modèles généraux
+  {
+    name: "Mistral-7B-Instruct-v0.3",
+    cost: "0,1 €/Mtoken",
+    description: "Modèle Mistral 7B optimisé pour les instructions",
+    mode: "standard",
+  },
+  {
+    name: "Llama-3.1-8B-Instruct",
+    cost: "0,1 €/Mtoken",
+    description: "Modèle Llama 3.1 8B pour le dialogue multilingue",
+    mode: "standard",
+  },
+  {
+    name: "Meta-Llama-3_3-70B-Instruct",
+    cost: "0,67 €/Mtoken",
+    description: "Modèle Llama 3.3 haute performance pour le dialogue",
+    mode: "standard",
+  },
+  {
+    name: "Mistral-Nemo-Instruct-2407",
+    cost: "0,13 €/Mtoken",
+    description: "Modèle Mistral-NVIDIA optimisé multilingue",
+    mode: "standard",
+  },
+  {
+    name: "Meta-Llama-3_1-70B-Instruct",
+    cost: "0,67 €/Mtoken",
+    description: "Modèle Llama 3.1 70B haute performance",
+    mode: "standard",
+  },
   {
     name: "Mixtral-8x7B-Instruct-v0.1",
     cost: "0,63 €/token",
-    description: "Modèle Mixtral haute performance",
-    mode: "nlp",
-  },
-  {
-    name: "Qwen3-32B",
-    cost: "0,23 €/token output",
-    description: "Modèle Qwen haute performance",
-    mode: "nlp",
+    description: "Modèle Mixtral Sparse Mixture of Experts",
+    mode: "standard",
   },
 ];
 
@@ -117,23 +144,32 @@ export const AVAILABLE_MODES: PromptMode[] = [
     id: "standard",
     name: "Standard",
     description: "Analyse générale rapide et économique",
-    recommendedModels: ["Llama-3.1-8B-Instruct", "Mistral-Nemo-Instruct-2407"],
+    recommendedModels: [
+      "Mistral-7B-Instruct-v0.3",
+      "Llama-3.1-8B-Instruct",
+      "Mistral-Nemo-Instruct-2407",
+      "Meta-Llama-3_1-70B-Instruct",
+      "Meta-Llama-3_3-70B-Instruct",
+      "Mixtral-8x7B-Instruct-v0.1",
+    ],
   },
   {
     id: "nlp",
     name: "NLP Avancé",
-    description: "Analyse linguistique et sémantique approfondie",
+    description:
+      "Modèles légers focalisés sur des tâches textuelles spécifiques (sentiment, entités, résumé)",
     recommendedModels: [
-      "Meta-Llama-3_1-70B-Instruct",
-      "Meta-Llama-3_3-70B-Instruct",
-      "Mistral-Small-3.2-24B-Instruct-2506",
+      "bart-large-cnn",
+      "bert-base-NER",
+      "bert-base-multilingual-uncased-sentiment",
+      "roberta-base-go_emotions",
     ],
   },
   {
     id: "reasoning",
     name: "Raisonnement",
-    description: "Analyse avec raisonnement étape par étape",
-    recommendedModels: ["DeepSeek-R1-Distill-Llama-70B"],
+    description: "Analyse avec raisonnement étape par étape et logique avancée",
+    recommendedModels: ["Qwen3-32B", "DeepSeek-R1-Distill-Llama-70B"],
   },
 ];
 
