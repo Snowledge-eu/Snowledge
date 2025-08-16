@@ -7,6 +7,7 @@ import {
 } from './schemas/analysis-result.schema';
 import { MongooseModule } from '@nestjs/mongoose';
 import { DiscordModule } from 'src/discord/discord.module';
+import { DiscordBotModule } from 'src/discord-bot/discord-bot.module';
 import { PromptModule } from 'src/prompt/prompt.module';
 import { CommunityModule } from 'src/community/community.module';
 import { UserModule } from 'src/user/user.module';
@@ -21,6 +22,7 @@ import { AnalysisProvider } from './analysis.provider';
 			{ name: AnalysisResult.name, schema: AnalysisResultSchema },
 		]),
 		DiscordModule,
+		DiscordBotModule,
 		PromptModule,
 		CommunityModule,
 		UserModule,

@@ -95,6 +95,17 @@ export class DiscordMessageService {
 		return results.map((id) => id.toString());
 	}
 
+	async findMessagesByChannelIds(channelIds: string[]): Promise<any[]> {
+		const longIds = channelIds.map((id) => Long.fromString(id));
+
+		return this.messageModel
+			.find({
+				channel_id: { $in: longIds },
+			})
+			.lean()
+			.exec();
+	}
+
 	/**
 	 * Anonymise un message en masquant les informations personnelles
 	 * Compatible avec la structure author_name/author_user_id du DiscordHelper

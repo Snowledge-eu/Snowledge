@@ -5,6 +5,7 @@ import { AnalysisHelper } from './analysis.helper';
 import { AnalysisService } from './analysis.service';
 import { PromptProvider } from '../prompt/prompt.provider';
 import { DiscordChannelService } from '../discord/services/discord-channel.service';
+import { DiscordProposalProvider } from '../discord-bot/providers/discord-proposal.provider';
 import { CommunityService } from '../community/community.service';
 import { TestAnalysisDto } from './dto/test-analysis.dto';
 import { User } from '../user/entities/user.entity';
@@ -21,6 +22,7 @@ export class AnalysisProvider {
 	constructor(
 		private readonly discordMessageService: DiscordMessageService,
 		private readonly discordChannelService: DiscordChannelService,
+		private readonly discordProposalProvider: DiscordProposalProvider,
 		private readonly communityService: CommunityService,
 		private readonly analysisHelper: AnalysisHelper,
 		private readonly analysisService: AnalysisService,
@@ -239,12 +241,6 @@ export class AnalysisProvider {
 			`Community discordServerId: ${community.discordServerId}`,
 		);
 
-		// Récupérer tous les messages et canaux
-		const messages = await this.discordMessageService.findAll();
-		const channels = await this.discordChannelService.findAll();
-		this.logger.debug(`Total messages found: ${messages.length}`);
-		this.logger.debug(`Total channels found: ${channels.length}`);
-
 		// Récupérer le guildId de la communauté
 		const guildId =
 			community.discordServer?.guildId || community.discordServerId;
@@ -254,64 +250,33 @@ export class AnalysisProvider {
 			);
 		}
 
-		this.logger.debug(`Looking for channels with server_id: ${guildId}`);
+		this.logger.debug(`Fetching channels for guild: ${guildId}`);
 
-		// Filtrer les canaux qui appartiennent au serveur Discord de la communauté
-		const guildIdLong = Long.fromString(guildId);
-		const communityChannels = channels.filter((channel) => {
-			const isMatch = channel.server_id.equals(guildIdLong);
-			this.logger.debug(
-				`Channel ${channel.name} (${channel._id}) server_id: ${channel.server_id.toString()} - match: ${isMatch}`,
-			);
-			return isMatch;
-		});
-
+		// Récupérer les canaux textuels du serveur Discord via l'API Discord
+		const discordChannels =
+			await this.discordProposalProvider.listTextChannels(guildId);
 		this.logger.debug(
-			`Channels for community ${community.name}: ${communityChannels.length}`,
+			`Found ${discordChannels.length} text channels in Discord`,
 		);
 
-		let communityMessages: any[];
+		// Récupérer les IDs des canaux
+		const channelIds = discordChannels.map((ch) => ch.id);
+		this.logger.debug(`Channel IDs: ${channelIds.join(', ')}`);
 
-		// Si aucun canal trouvé, essayer une approche alternative
-		if (communityChannels.length === 0) {
-			this.logger.debug(
-				`No channels found for guild ${guildId}, trying alternative approach...`,
+		// Récupérer les messages des canaux du serveur Discord
+		const communityMessages =
+			await this.discordMessageService.findMessagesByChannelIds(
+				channelIds,
 			);
 
-			// Essayer de trouver des messages qui pourraient appartenir à ce serveur
-			// en regardant les patterns des channel_id
-			const allChannelIds = [
-				...new Set(messages.map((msg) => msg.channel_id.toString())),
-			];
-			this.logger.debug(
-				`All unique channel_ids in messages: ${allChannelIds.join(', ')}`,
-			);
+		this.logger.debug(
+			`Messages for community ${community.name}: ${communityMessages.length}`,
+		);
 
-			// Pour le test, utiliser tous les messages disponibles (limiter à 50)
-			communityMessages = messages.slice(0, 50);
-			this.logger.debug(
-				`Using first 50 messages for test analysis: ${communityMessages.length}`,
+		if (!communityMessages || communityMessages.length === 0) {
+			throw new BadRequestException(
+				`No messages found for community "${community.name}". Make sure the community has a Discord server connected and messages have been collected.`,
 			);
-		} else {
-			// Récupérer les IDs des canaux de la communauté
-			const communityChannelIds = communityChannels.map((channel) =>
-				channel._id.toString(),
-			);
-
-			// Filtrer les messages par les canaux de la communauté
-			communityMessages = messages.filter((msg) => {
-				return communityChannelIds.includes(msg.channel_id.toString());
-			});
-
-			this.logger.debug(
-				`Messages for community ${community.name}: ${communityMessages.length}`,
-			);
-
-			if (!communityMessages || communityMessages.length === 0) {
-				throw new BadRequestException(
-					`No messages found for community "${community.name}". Make sure the community has a Discord server connected and messages have been collected.`,
-				);
-			}
 		}
 
 		// Préparer les données pour l'analyse
