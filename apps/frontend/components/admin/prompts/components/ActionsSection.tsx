@@ -24,9 +24,11 @@ export const ActionsSection = ({
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
-        <h3 className="text-lg font-semibold">⚡ Actions du LLM</h3>
+        <h3 className="text-lg font-semibold">
+          ⚡ Module d'analyse pré-configurés
+        </h3>
         <p className="text-sm text-muted-foreground">
-          Choisissez les analyses que le LLM doit effectuer
+          Contexte, objectifs et actions à réalisées
         </p>
       </div>
 

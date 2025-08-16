@@ -137,7 +137,7 @@ export const PromptForm = ({
         {/* Sélection du modèle et configuration */}
         <ModelSelection promptForm={promptForm} onUpdate={handleUpdate} />
 
-        {/* Actions du LLM */}
+        {/*Module d'analyse pré-configurés */}
         <ActionsSection promptForm={promptForm} onUpdate={handleUpdate} />
 
         {/* Outputs structurés */}
