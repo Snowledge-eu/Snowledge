@@ -59,6 +59,7 @@ services:
       - .env
     environment:
       - NODE_ENV=production
+      - DISCORD_CLIENT_ID=1386722785069367356
       - PGSQL_HOST=postgresql-02aff275-o9835f167.database.cloud.ovh.net
       - PGSQL_PORT=20184
       - PGSQL_DB=defaultdb
