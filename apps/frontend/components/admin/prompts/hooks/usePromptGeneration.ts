@@ -27,8 +27,8 @@ export const usePromptGeneration = () => {
 
   // Générer automatiquement le message système basé sur le rôle et les actions
   const generateSystemMessage = (promptForm: PromptFormType): string => {
-    let systemMessage =
-      "You are an AI assistant specialized in analyzing community data.";
+    let systemMessage = "";
+    // "You are an AI assistant specialized in analyzing community data.";
 
     // Ajouter le contexte du rôle
     if (promptForm.role_id) {
