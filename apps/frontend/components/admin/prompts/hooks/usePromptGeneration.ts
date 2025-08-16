@@ -34,23 +34,31 @@ export const usePromptGeneration = () => {
     if (promptForm.role_id) {
       const selectedRole = getRole(promptForm.role_id);
       if (selectedRole) {
-        systemMessage += ` ${selectedRole.systemPromptAddition}`;
+        systemMessage += selectedRole.systemPromptAddition;
       }
     }
+
+    // Ajouter l'instruction pour le format JSON
+    systemMessage += " Respond only using the requested JSON format.";
+
+    return systemMessage;
+  };
+
+  // Générer le message utilisateur avec les instructions spécifiques
+  const generateUserMessage = (promptForm: PromptFormType): string => {
+    let userMessage = "Based on the following messages, please perform:\n\n";
 
     // Ajouter les actions spécifiques
     if (promptForm.selected_actions && promptForm.selected_actions.length > 0) {
       const actionDescriptions = promptForm.selected_actions
-        .map((actionId) => {
+        .map((actionId, index) => {
           const action = getAction(actionId);
-          return action ? action.description : null;
+          return action ? `${index + 1}. ${action.description}` : null;
         })
         .filter(Boolean);
 
       if (actionDescriptions.length > 0) {
-        systemMessage +=
-          "\n\nYour specific tasks include:\n" +
-          actionDescriptions.map((desc) => `- ${desc}`).join("\n");
+        userMessage += actionDescriptions.join(".\n") + ".\n\n";
       }
     }
 
@@ -63,18 +71,23 @@ export const usePromptGeneration = () => {
         })
         .filter(Boolean);
 
-      systemMessage +=
-        "\n\nProvide your analysis in JSON format including these elements:\n" +
-        outputNames.map((name) => `- ${name}`).join("\n");
+      if (outputNames.length > 0) {
+        userMessage +=
+          "Provide your analysis in JSON format including these elements:\n";
+        userMessage +=
+          outputNames.map((name) => `- ${name}`).join("\n") + "\n\n";
+      }
     }
 
     // Ajouter l'instruction pour le raisonnement
     if (promptForm.show_reasoning) {
-      systemMessage +=
-        "\n\nInclude a 'reasoning' field explaining your analytical process step by step.";
+      userMessage +=
+        "Include a 'reasoning' field explaining your analytical process step by step.\n\n";
     }
 
-    return systemMessage;
+    userMessage += "Here are the messages:\n\n{{messages}}";
+
+    return userMessage;
   };
 
   // Générer automatiquement le schema basé sur les selected_outputs ET selected_actions
@@ -182,6 +195,7 @@ export const usePromptGeneration = () => {
   const generateFinalPromptPreview = (promptForm: PromptFormType) => {
     const generatedResponseFormat = generateResponseFormat(promptForm);
     const generatedSystemMessage = generateSystemMessage(promptForm);
+    const generatedUserMessage = generateUserMessage(promptForm);
 
     return {
       name: promptForm.name,
@@ -192,7 +206,7 @@ export const usePromptGeneration = () => {
       top_p: promptForm.top_p,
       messages: [
         { role: "system", content: generatedSystemMessage },
-        { role: "user", content: "{{messages}}" },
+        { role: "user", content: generatedUserMessage },
       ],
       response_format: generatedResponseFormat,
       is_public: promptForm.is_public,
@@ -212,6 +226,7 @@ export const usePromptGeneration = () => {
     getAction,
     getOutput,
     generateSystemMessage,
+    generateUserMessage,
     generateResponseFormat,
     generateFinalPromptPreview,
     // Nouvelle fonction pour obtenir les champs automatiquement ajoutés
