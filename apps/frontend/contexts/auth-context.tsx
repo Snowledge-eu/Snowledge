@@ -150,17 +150,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       // Essayer de parser le JSON directement
       try {
         const text = await res.text();
-        console.log("[Fetcher] Response text:", text);
 
         if (!text || text.trim() === "") {
-          console.log("[Fetcher] Empty response body");
           return responseWrapper;
         }
 
         responseWrapper.data = JSON.parse(text);
         return responseWrapper;
       } catch (parseError) {
-        console.error("[Fetcher] JSON parse error:", parseError);
         throw new Error("Invalid JSON response from server");
       }
     },

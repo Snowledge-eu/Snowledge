@@ -23,40 +23,22 @@ export default function Home() {
   const { data: communities, isLoading } = useUserCommunities(user?.id || 0);
   const { activeCommunity } = useCurrentCommunity();
   useEffect(() => {
-    console.log("Home page useEffect - Debug:", {
-      accessToken: !!accessToken,
-      user: !!user,
-      fetchDataUserInProgress,
-      isLoading,
-      communitiesCount: communities?.length || 0,
-      activeCommunity: !!activeCommunity,
-      noRedirect,
-    });
-
     if (accessToken && !noRedirect) {
       // Si on n'a pas d'utilisateur et qu'on n'est pas en train de le récupérer
       if (!user && !fetchDataUserInProgress) {
-        console.log("Fetching user data...");
         fetchDataUser();
         return;
       }
 
       // Si on a un utilisateur et que les communautés ne sont pas en cours de chargement
       if (user && !isLoading) {
-        console.log("User loaded, checking communities...");
         if (communities && communities.length > 0) {
           if (activeCommunity) {
-            console.log(
-              "Redirecting to active community:",
-              activeCommunity.slug
-            );
             router.push(`/${activeCommunity.slug}`);
           } else {
-            console.log("Redirecting to first community:", communities[0].slug);
             router.push(`/${communities[0].slug}`);
           }
         } else {
-          console.log("No communities, redirecting to post-sign-up");
           router.push("/post-sign-up");
         }
       }

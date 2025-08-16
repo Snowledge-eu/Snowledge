@@ -7,10 +7,6 @@ export class AuthService {
 	constructor(private readonly jwtService: JwtService) {}
 
 	createAccessToken(payload: IAuthPayload) {
-		console.log(
-			'AuthService - Creating token with secret:',
-			process.env.JWT_ACCESS_SECRET ? 'defined' : 'undefined',
-		);
 		return this.jwtService.sign(payload, {
 			secret: process.env.JWT_ACCESS_SECRET,
 			expiresIn: '30m',

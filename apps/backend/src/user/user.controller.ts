@@ -37,10 +37,6 @@ export class UserController {
 
 	@Get()
 	async findOne(@User() user: UserEntity) {
-		console.log(
-			'UserController - findOne called with user:',
-			user ? 'present' : 'null',
-		);
 		return { user };
 	}
 
