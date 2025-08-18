@@ -23,10 +23,7 @@ export class DiscordMessageService {
 		channelId: string | Long,
 		date: Date,
 	): Promise<number> {
-		const idChannel =
-			typeof channelId === 'string'
-				? Long.fromString(channelId)
-				: channelId;
+		const idChannel = channelId;
 		const result = await this.messageModel
 			.aggregate([
 				{

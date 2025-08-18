@@ -27,6 +27,7 @@ import { DiscordServerModule } from 'src/discord-server/discord-server.module';
 import { DiscordHarvestJobService } from './services/discord-harvest-job.service';
 import { DiscordMessageService } from './services/discord-message.service';
 import { DiscordChannelService } from './services/discord-channel.service';
+import { DiscordServerMongoService } from './services/discord-server-mongo.service';
 import { DiscordHelper } from './helpers/discord.helper';
 import { DiscordClientHelper } from './helpers/discord-client.helper';
 import { DiscordHarvestJobHelper } from './helpers/discord-harvest-job.helper';
@@ -50,6 +51,7 @@ import { DiscordHarvestJobHelper } from './helpers/discord-harvest-job.helper';
 		DiscordService,
 		DiscordHelper,
 		DiscordChannelService,
+		DiscordServerMongoService,
 		DiscordHarvestJobService,
 		DiscordMessageService,
 		DiscordClientHelper,
@@ -61,6 +63,7 @@ import { DiscordHarvestJobHelper } from './helpers/discord-harvest-job.helper';
 		DiscordService,
 		DiscordMessageService,
 		DiscordChannelService,
+		DiscordServerMongoService,
 	],
 })
 export class DiscordModule {}

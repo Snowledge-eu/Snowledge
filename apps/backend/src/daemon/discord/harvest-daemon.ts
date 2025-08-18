@@ -7,6 +7,8 @@
 
 import { NestFactory } from '@nestjs/core';
 import { DiscordMessageService } from '../../discord/services/discord-message.service';
+import { DiscordChannelService } from '../../discord/services/discord-channel.service';
+import { DiscordServerMongoService } from '../../discord/services/discord-server-mongo.service';
 import { AppModule } from '../../app.module';
 import { DiscordHelper } from '../../discord/helpers/discord.helper';
 import { DiscordHarvestJobService } from '../../discord/services/discord-harvest-job.service';
@@ -16,10 +18,13 @@ import { ChannelType, TextChannel } from 'discord.js';
 import { Long } from 'bson';
 
 async function runDaemon() {
+	console.log('Starting Discord Harvest Daemon');
 	const app = await NestFactory.createApplicationContext(AppModule);
 	const discord = app.get(DiscordHelper);
 	const jobService = app.get(DiscordHarvestJobService);
 	const messageService = app.get(DiscordMessageService);
+	const channelService = app.get(DiscordChannelService);
+	const serverService = app.get(DiscordServerMongoService);
 	const learnerService = app.get(LearnerService);
 	const communityService = app.get(CommunityService);
 
@@ -60,6 +65,17 @@ async function runDaemon() {
 				);
 
 				const guild = await discord.getGuild(job.serverId.toString());
+				
+				// 2. Add server if not present
+				const serverData = {
+					_id: job.serverId.toString(),
+					name: guild.name,
+					user_id: parseInt(job.discordId.toString()),
+				};
+				const exists = await serverService.exists(serverData._id);
+				if (!exists) {
+					await serverService.create(serverData);
+				}
 				const channels: TextChannel[] = [];
 
 				for (const channelId of job.channels) {
@@ -69,6 +85,17 @@ async function runDaemon() {
 						);
 						if (ch && ch.type === ChannelType.GuildText) {
 							channels.push(ch as TextChannel);
+							
+							// 2. Add channel if not present 
+							const channelData = {
+								_id: ch.id,
+								name: ch.name,
+								server_id: job.serverId.toString(),
+							};
+							const exists = await channelService.exists(channelData._id);
+							if (!exists) {
+								await channelService.create(channelData);
+							}
 						}
 					} catch (err: any) {
 						console.warn(

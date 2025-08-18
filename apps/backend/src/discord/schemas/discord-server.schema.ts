@@ -1,7 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Transform } from 'class-transformer';
 import { Document, ObjectId } from 'mongoose';
-import { Long } from 'bson';
 
 export type DiscordServerDocument = DiscordServer & Document;
 @Schema({
@@ -10,9 +9,8 @@ export type DiscordServerDocument = DiscordServer & Document;
 	toJSON: { virtuals: true },
 })
 export class DiscordServer {
-	@Transform(({ value }) => value.toString())
-	@Prop({ type: Object, required: true })
-	_id: Long;
+	@Prop({ type: String, required: true })
+	_id: string;
 
 	@Prop({ required: true })
 	name: string;

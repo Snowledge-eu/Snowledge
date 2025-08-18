@@ -16,13 +16,13 @@ export class DiscordHarvestJob {
 	@Prop({ required: true })
 	discordId: string;
 
-	@Prop({ type: Object, required: true })
+	@Prop({ type: String, required: true })
 	@Transform(({ value }) => value.toString())
-	serverId: Long;
+	serverId: string;
 
-	@Prop({ type: [Object], required: true })
+	@Prop({ type: [String], required: true })
 	@Transform(({ value }) => value.map((v) => v.toString()))
-	channels: Long[];
+	channels: string[];
 
 	@Prop()
 	after?: Date;

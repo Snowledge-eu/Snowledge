@@ -112,11 +112,11 @@ export default function Page() {
       //   }
       // );
       // console.log("data", data);
-      const harvest: DiscordHarvestJob & {
+      const harvest: {data: DiscordHarvestJob & {
         lastFetched: {
           date: Date;
           channels: Array<{ name: string; qty: number }>;
-        };
+        }};
       } = await fetcher(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/discord/last-harvest/${guildId}`
       ).catch((err) => console.error(err));
@@ -143,7 +143,7 @@ export default function Page() {
                   name: "",
                   connected: user.discordId != "",
                 },
-                lastFetched: harvest?.lastFetched || {
+                lastFetched: harvest?.data.lastFetched || {
                   date: null,
                   channels: [],
                 },
