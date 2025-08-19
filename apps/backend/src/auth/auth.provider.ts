@@ -143,7 +143,10 @@ export class AuthProvider {
 
 			const newAccessToken = this.jwtService.sign(
 				{ sub: user.id, email: user.email },
-				{ expiresIn: '30m' },
+				{ 
+					secret: process.env.JWT_ACCESS_SECRET,
+					expiresIn: '30m' 
+				},
 			);
 
 			return { access_token: newAccessToken };
