@@ -30,8 +30,7 @@ export class AnalysisProvider {
 	) {}
 
 	async analyzeDiscord(dto: DiscordAnalyzeDto): Promise<any> {
-		const now = new Date();
-		const since = this.getSinceDate(dto.period, now);
+		const { since, now } = this.getDateRange(dto);
 		const messages = await this.discordMessageService.findMessagesInRange(
 			dto.channelId,
 			since,
@@ -125,6 +124,26 @@ export class AnalysisProvider {
 		} catch (e) {
 			throw new InternalServerErrorException(`LLM error: ${e}`);
 		}
+	}
+
+	private getDateRange(dto: DiscordAnalyzeDto): { since: Date; now: Date } {
+		const now = new Date();
+
+		if (dto.period === AnalyzePeriod.CUSTOM) {
+			if (!dto.startDate || !dto.endDate) {
+				throw new HttpException(
+					'startDate and endDate are required for custom period',
+					HttpStatus.BAD_REQUEST,
+				);
+			}
+			return {
+				since: new Date(dto.startDate),
+				now: new Date(dto.endDate),
+			};
+		}
+
+		const since = this.getSinceDate(dto.period, now);
+		return { since, now };
 	}
 
 	private getSinceDate(period: AnalyzePeriod, now: Date): Date {

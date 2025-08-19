@@ -1,9 +1,16 @@
-import { IsEnum, IsInt, IsString } from 'class-validator';
+import {
+	IsEnum,
+	IsInt,
+	IsString,
+	IsOptional,
+	IsDateString,
+} from 'class-validator';
 
 export enum AnalyzePeriod {
 	LAST_DAY = 'last_day',
 	LAST_WEEK = 'last_week',
 	LAST_MONTH = 'last_month',
+	CUSTOM = 'custom',
 }
 
 export class DiscordAnalyzeDto {
@@ -21,4 +28,12 @@ export class DiscordAnalyzeDto {
 
 	@IsEnum(AnalyzePeriod)
 	period: AnalyzePeriod;
+
+	@IsOptional()
+	@IsDateString()
+	startDate?: string;
+
+	@IsOptional()
+	@IsDateString()
+	endDate?: string;
 }

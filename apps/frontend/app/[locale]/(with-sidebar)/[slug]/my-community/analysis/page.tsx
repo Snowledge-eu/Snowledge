@@ -185,13 +185,19 @@ export default function Page() {
 
     setLoading(true);
     for (const channel of channels) {
-      const body = {
+      const body: any = {
         creator_id: Number(user.id),
         serverId: activeCommunity?.discordServerId,
         channelId: channel,
         prompt_key: selectedPrompt,
         period: period,
       };
+
+      // Ajouter les dates personnalisées si la période est custom
+      if (period === "custom" && customStartDate && customEndDate) {
+        body.startDate = customStartDate.toISOString();
+        body.endDate = customEndDate.toISOString();
+      }
       const res = await fetcher(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/analysis/discord`,
         {
