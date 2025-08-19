@@ -132,12 +132,16 @@ export class AuthProvider {
 			});
 
 			const user = await this.userService.findOneById(payload.userId);
+			if (!user) {
+				throw new UnauthorizedException('Invalid refresh token');
+			}
+
 			const isValid = await bcrypt.compare(
 				refreshToken,
 				user.refreshToken,
 			);
 
-			if (!user || !isValid) {
+			if (!isValid) {
 				throw new UnauthorizedException('Invalid refresh token');
 			}
 
@@ -151,7 +155,8 @@ export class AuthProvider {
 
 			return { access_token: newAccessToken };
 		} catch (error) {
-			this.logger.error(error);
+			this.logger.error('Refresh token error:', error);
+			throw new UnauthorizedException('Invalid or expired refresh token');
 		}
 	}
 	async verifyTokenEmail(token: string) {

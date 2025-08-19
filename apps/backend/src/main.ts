@@ -3,7 +3,7 @@ import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
-import { ClassSerializerInterceptor } from '@nestjs/common';
+import { ClassSerializerInterceptor, Logger } from '@nestjs/common';
 import { join } from 'path';
 import { NestExpressApplication } from '@nestjs/platform-express';
 
@@ -16,6 +16,15 @@ async function bootstrap() {
 	app.useGlobalInterceptors(
 		new ClassSerializerInterceptor(app.get(Reflector)),
 	);
+
+	// Middleware de logging pour le debug
+	app.use((req, res, next) => {
+		const logger = new Logger('HTTP');
+		if (req.path.includes('/auth/refresh-token')) {
+			logger.debug(`Refresh token request: ${req.method} ${req.path}`);
+		}
+		next();
+	});
 
 	// Définir un préfixe api
 	app.setGlobalPrefix('api');

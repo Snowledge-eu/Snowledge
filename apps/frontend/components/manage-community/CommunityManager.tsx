@@ -44,8 +44,9 @@ export function CommunityManager() {
 
   const { mutate: updateCommunity } = useUpdateCommunity(community?.id ?? 0, {
     onSuccess: (data) => {
+      // Ne pas mettre à jour activeCommunity immédiatement pour éviter les problèmes de menu
+      // La redirection va naturellement recharger les données
       setTimeout(() => {
-        setActiveCommunity(data);
         router.push(`/${data.slug}`);
       }, 1000);
     },

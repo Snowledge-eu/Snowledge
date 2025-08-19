@@ -2,11 +2,13 @@
 
 import { Button, Card, Input } from "@repo/ui";
 import { useAuth } from "@/contexts/auth-context";
+import { useSecureApi } from "@/hooks/useSecureApi";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 export default function DisplayName() {
-  const { user, fetchDataUser, fetcher } = useAuth();
+  const { user, fetchDataUser } = useAuth();
+  const { secureMutation } = useSecureApi();
   const [pseudo, setPseudo] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -32,12 +34,15 @@ export default function DisplayName() {
   const handleSave = async () => {
     try {
       setLoading(true);
-      const res = await fetcher(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user`, {
+      const res = await secureMutation(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ pseudo }),
       });
-      if (!res?.ok && !res?.data) throw new Error("Update failed");
+      if (!res?.ok) {
+        const errorMessage = res?.data?.message || "Update failed";
+        throw new Error(errorMessage);
+      }
       toast.success("Pseudo mis à jour");
     } catch (e: any) {
       toast.error(e?.message || "Erreur lors de la mise à jour");

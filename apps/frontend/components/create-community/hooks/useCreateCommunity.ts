@@ -2,6 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner"; // ou le toast que tu utilises
 import { FormSchema } from "../../shared/community/hooks/useCommunityFormSchema";
 import { useTranslations } from "next-intl";
+import { useSecureApi } from "@/hooks/useSecureApi";
 
 export function useCreateCommunity({
   onSuccess,
@@ -9,32 +10,27 @@ export function useCreateCommunity({
   onSuccess?: (data: any, variables: any) => void;
 } = {}) {
   const t = useTranslations("communityForm.toast");
+  const { secureMutation } = useSecureApi();
 
   return useMutation({
     mutationFn: async (data: FormSchema) => {
-      const res = await fetch(
+      const res = await secureMutation(
         `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000/api"}/communities`,
         {
-          method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
             ...data,
           }),
-          credentials: "include",
         }
       );
       if (!res.ok) {
-        let err;
-        try {
-          err = await res.json();
-        } catch {
-          err = { message: t("unknownError") };
-        }
-        throw new Error(err.message || t("unknownError"));
+        // La réponse est déjà parsée dans le wrapper
+        const errorMessage = res.data?.message || t("unknownError");
+        throw new Error(errorMessage);
       }
-      return res.json();
+      return res.data;
     },
     onSuccess: (data, variables) => {
       toast.success(t("success"));

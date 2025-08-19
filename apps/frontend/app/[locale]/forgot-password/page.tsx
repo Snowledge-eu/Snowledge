@@ -1,5 +1,6 @@
 "use client";
 import { useAuth } from "@/contexts/auth-context";
+import { useSecureApi } from "@/hooks/useSecureApi";
 import { Button, Input, Logo } from "@repo/ui";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -10,6 +11,7 @@ export default function ForgotPassword() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
   const { validPassword } = useAuth();
+  const { secureMutation } = useSecureApi();
   const subTitle = token
     ? `Enter your new password. 
             You will be redirected to log in after.`
@@ -53,11 +55,10 @@ export default function ForgotPassword() {
         ? { password: formData.password, token: token }
         : { email: formData.email };
       const path = token ? "change-password" : "forgot-password";
-      const response = await fetch(
+      const response = await secureMutation(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/${path}`,
         {
           method: "POST",
-          credentials: "include",
           headers: {
             "Content-Type": "application/json",
           },
@@ -67,7 +68,7 @@ export default function ForgotPassword() {
       if (!response.ok) {
         throw new Error("Registration failed. Please try again.");
       }
-      const data = await response.json();
+      const data = await response?.data;
 
       router.push("/sign-in");
     } catch (err: any) {

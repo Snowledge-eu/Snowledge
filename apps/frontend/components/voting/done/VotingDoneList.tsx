@@ -3,9 +3,11 @@ import { useQuery } from "@tanstack/react-query";
 import type { Proposal } from "@/types/proposal";
 import VotingDoneCard from "./VotingDoneCard";
 import { useAuth } from "@/contexts/auth-context";
+import { useSecureApi } from "@/hooks/useSecureApi";
 
 const VotingDoneList = ({ communitySlug }: { communitySlug: string }) => {
   const { fetcher } = useAuth();
+  const { secureQuery } = useSecureApi();
 
   const t = useTranslations("voting");
   const {
@@ -15,11 +17,16 @@ const VotingDoneList = ({ communitySlug }: { communitySlug: string }) => {
   } = useQuery<Proposal[]>({
     queryKey: ["proposals", "done"],
     queryFn: async () => {
-      const res = await fetcher(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000/api"}/communities/${communitySlug}/proposals`,
-        { credentials: "include" }
+      const res = await secureQuery(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000/api"}/communities/${communitySlug}/proposals`
       );
       return res;
+    },
+    retry: (failureCount, error) => {
+      if (error instanceof Error && error.message === "Authentication failed") {
+        return false;
+      }
+      return failureCount < 3;
     },
   });
 

@@ -22,13 +22,14 @@ import { useMembersQuery } from "@/components/manage-members/hooks/useMembersQue
 import { Member } from "@/types/member";
 import { features } from "@/config/features";
 import { notFound } from "next/navigation";
-import { useAuth } from "@/contexts/auth-context";
+import { useSecureApi } from "@/hooks/useSecureApi";
 import { useQueryClient } from "@tanstack/react-query";
 import { Expertise } from "@/shared/enums/Expertise";
 import { capitalize } from "@/components/manage-integrations/utils/capitalize";
+import { toast } from "sonner";
 
 export default function Page() {
-  const { fetcher } = useAuth();
+  const { secureMutation } = useSecureApi();
   const { slug } = useParams();
   const queryClient = useQueryClient();
   if (!features.community.myCommunity.members) {
@@ -55,8 +56,8 @@ export default function Page() {
   const handleExpertiseChange = async (idContrib: number, value: string) => {
     const body = { expertise: value };
     try {
-      await fetcher(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/add-expertise/${idContrib}`,
+      await secureMutation(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000/api"}/user/add-expertise/${idContrib}`,
         {
           method: "PUT",
           headers: {
@@ -84,8 +85,10 @@ export default function Page() {
           );
         }
       );
+      toast.success("Expertise ajoutée avec succès");
     } catch (error) {
-      console.error(error);
+      console.error("Erreur lors de l'ajout de l'expertise:", error);
+      toast.error("Erreur lors de l'ajout de l'expertise");
     }
   };
   // Filtrage

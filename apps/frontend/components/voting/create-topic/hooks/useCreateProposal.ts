@@ -4,23 +4,24 @@ import { VoteFormValues } from "../vote-schema";
 import { useTranslations } from "next-intl";
 import { Proposal } from "@/types/proposal";
 import { useAuth } from "@/contexts/auth-context";
+import { useSecureApi } from "@/hooks/useSecureApi";
 
 export function useCreateProposal(communitySlug: string) {
   const t = useTranslations("voting");
   const { user, fetcher } = useAuth();
+  const { secureMutation } = useSecureApi();
+  
   return useMutation({
     mutationFn: async (data: VoteFormValues): Promise<Proposal> => {
-      const res = await fetcher(
+      const res = await secureMutation(
         `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000/api"}/communities/${communitySlug}/proposals`,
         {
-          method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             ...data,
             communityId: communitySlug,
             submitterId: user?.id,
           }),
-          credentials: "include",
         }
       );
       return res;

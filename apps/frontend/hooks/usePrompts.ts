@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "../contexts/auth-context";
+import { useSecureApi } from "./useSecureApi";
 
 export interface Prompt {
   name: string;
@@ -14,18 +15,13 @@ export interface Prompt {
 
 export const usePrompts = (userId: number) => {
   const { fetcher } = useAuth();
+  const { secureQuery } = useSecureApi();
 
   return useQuery({
     queryKey: ["prompts", userId],
     queryFn: async (): Promise<Prompt[]> => {
-      const response = await fetcher(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/prompts/${userId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
+      const response = await secureQuery(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/prompts/${userId}`
       );
 
       // S'assurer que la réponse est un tableau
@@ -43,5 +39,11 @@ export const usePrompts = (userId: number) => {
       return [];
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: (failureCount, error) => {
+      if (error instanceof Error && error.message === "Authentication failed") {
+        return false;
+      }
+      return failureCount < 3;
+    },
   });
 };

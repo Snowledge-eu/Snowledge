@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/auth-context";
+import { useSecureApi } from "@/hooks/useSecureApi";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
@@ -9,6 +10,7 @@ type addLearnerToCommunityBySlugParams = {
 
 export function useaddLearnerToCommunityBySlug() {
   const { user, fetcher } = useAuth();
+  const { secureMutation } = useSecureApi();
   const t = useTranslations("postSignUp");
 
   return useMutation({
@@ -17,13 +19,11 @@ export function useaddLearnerToCommunityBySlug() {
     }: addLearnerToCommunityBySlugParams) => {
       const id = user?.id;
       if (!id) throw new Error("Utilisateur non authentifié");
-      const res = await fetcher(
+      const res = await secureMutation(
         `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000/api"}/communities/${communitySlug}/learners/${id}`,
         {
-          method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ userId: id }),
-          credentials: "include",
         }
       );
       return res;

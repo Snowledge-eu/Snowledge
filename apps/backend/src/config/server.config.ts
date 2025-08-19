@@ -17,12 +17,23 @@ export default registerAs('serverConfig', (): ServerConfig => {
 						if (value.includes('localhost')) {
 							return new RegExp(`http://${value}`);
 						}
+						return value;
 					})
 				: [
 						new RegExp(`https?://snowledge.eu`),
 						new RegExp(`https://snowledge.eu`),
 					],
 			credentials: true,
+			methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+			allowedHeaders: [
+				'Origin',
+				'X-Requested-With',
+				'Content-Type',
+				'Accept',
+				'Authorization',
+				'x-internal-call',
+			],
+			exposedHeaders: ['Set-Cookie'],
 		},
 	};
 });

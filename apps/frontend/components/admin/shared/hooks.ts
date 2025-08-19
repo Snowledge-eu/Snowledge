@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/auth-context";
+import { useSecureApi } from "@/hooks/useSecureApi";
 import { Prompt, Community, AnalysisHistory, HistoryFilters } from "./types";
 
 export const useAdminData = () => {
   const { fetcher } = useAuth();
+  const { secureQuery } = useSecureApi();
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [communities, setCommunities] = useState<Community[]>([]);
   const [loading, setLoading] = useState(true);
@@ -11,8 +13,8 @@ export const useAdminData = () => {
   const fetchData = async () => {
     try {
       const [promptsRes, communitiesRes] = await Promise.all([
-        fetcher(`${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/prompts`),
-        fetcher(`${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/communities`),
+        secureQuery(`${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/prompts`),
+        secureQuery(`${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/communities`),
       ]);
 
       if (promptsRes.ok && promptsRes.data) {
@@ -41,6 +43,7 @@ export const useAdminData = () => {
 
 export const useAnalysisHistory = () => {
   const { fetcher } = useAuth();
+  const { secureQuery } = useSecureApi();
   const [analysisHistory, setAnalysisHistory] = useState<AnalysisHistory[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [selectedAnalysis, setSelectedAnalysis] =
@@ -71,7 +74,7 @@ export const useAnalysisHistory = () => {
         queryParams.append("date_to", filters.date_to);
       if (filters.sortOrder === "asc") queryParams.append("sort_order", "asc");
 
-      const response = await fetcher(
+      const response = await secureQuery(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/analysis-history?${queryParams.toString()}`
       );
 

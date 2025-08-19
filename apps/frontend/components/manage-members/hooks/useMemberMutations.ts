@@ -1,19 +1,23 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useSecureApi } from "@/hooks/useSecureApi";
 
 export function useMemberMutations(slug: string) {
   const queryClient = useQueryClient();
+  const { secureMutation } = useSecureApi();
 
   const deleteMutation = useMutation({
     mutationFn: async (userId: number) => {
-      const res = await fetch(
+      const res = await secureMutation(
         `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000/api"}/communities/${slug}/learners/${userId}`,
         {
           method: "DELETE",
-          credentials: "include",
         }
       );
-      if (!res.ok) throw new Error("Erreur lors de la suppression");
-      return res.json();
+      if (!res.ok) {
+        const errorMessage = res.data?.message || "Erreur lors de la suppression";
+        throw new Error(errorMessage);
+      }
+      return res.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["learners", slug] });
@@ -28,17 +32,19 @@ export function useMemberMutations(slug: string) {
       userId: number;
       isContributor: boolean;
     }) => {
-      const res = await fetch(
+      const res = await secureMutation(
         `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000/api"}/communities/${slug}/learners/${userId}`,
         {
           method: "PATCH",
-          credentials: "include",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ isContributor }),
         }
       );
-      if (!res.ok) throw new Error("Erreur lors de la modification du statut");
-      return res.json();
+      if (!res.ok) {
+        const errorMessage = res.data?.message || "Erreur lors de la modification du statut";
+        throw new Error(errorMessage);
+      }
+      return res.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["learners", slug] });

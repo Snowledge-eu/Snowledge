@@ -6,11 +6,12 @@ import {
   Input,
 } from "@repo/ui";
 import { useAuth } from "@/contexts/auth-context";
+import { useSecureApi } from "@/hooks/useSecureApi";
 import { useState } from "react";
 import { toast } from "sonner";
 
 export default function ChangePasswordForm() {
-  const { fetcher } = useAuth();
+  const { secureMutation } = useSecureApi();
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -28,7 +29,7 @@ export default function ChangePasswordForm() {
         return;
       }
       
-      const res = await fetcher(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/change-password`, {
+      const res = await secureMutation(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/change-password`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ currentPassword, newPassword, confirmPassword }),
@@ -38,7 +39,8 @@ export default function ChangePasswordForm() {
         if (res?.status === 400) {
           throw new Error("Mot de passe actuel incorrect");
         } else {
-          throw new Error("Erreur lors de la mise à jour du mot de passe");
+          const errorMessage = res?.data?.message || "Erreur lors de la mise à jour du mot de passe";
+          throw new Error(errorMessage);
         }
       }
       

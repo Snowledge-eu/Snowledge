@@ -87,6 +87,7 @@ export async function middleware(request: NextRequest) {
         new URL(`/${currentLocale}/sign-in`, request.url)
       );
       res.cookies.delete("access-token");
+      res.cookies.delete("refresh-token");
       return res;
     }
   }

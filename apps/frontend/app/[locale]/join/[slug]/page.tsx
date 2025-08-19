@@ -9,12 +9,14 @@ import { useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/auth-context";
 import { toast } from "sonner";
 import { useCommunity } from "@/hooks/useCommunity";
+import { useSecureApi } from "@/hooks/useSecureApi";
 
 export default function JoinPage() {
   const { slug } = useParams();
   const t = useTranslations("join");
   const communityName = fromSlug(slug as string);
-  const { user, fetcher } = useAuth();
+  const { user } = useAuth();
+  const { secureMutation } = useSecureApi();
 
   //il faut vérifier que la communauté existe avant d'afficher  quoi que ce soit
   const { data: community, isLoading, isError } = useCommunity(slug as string);
@@ -22,13 +24,12 @@ export default function JoinPage() {
   const joinMutation = useMutation({
     mutationFn: async () => {
       if (!user) throw new Error("Non authentifié");
-      const res = await fetcher(
+      const res = await secureMutation(
         `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000/api"}/communities/${slug}/learners/${user.id}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ userId: user.id }),
-          credentials: "include",
         }
       );
       return res;

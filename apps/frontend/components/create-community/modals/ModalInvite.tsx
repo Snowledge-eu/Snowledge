@@ -16,14 +16,16 @@ import { X, Copy } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { User } from "@/types/user";
+import { useAuth } from "@/contexts/auth-context";
+import { useSecureApi } from "@/hooks/useSecureApi";
 
 async function fetchUsers(search: string): Promise<User[]> {
-  const res = await fetch(
+  const { secureQuery } = useSecureApi();
+  const res = await secureQuery(
     `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000/api"}/user/all?search=${encodeURIComponent(search)}`,
-    { credentials: "include" }
   );
   if (!res.ok) throw new Error("Erreur lors de la recherche d'utilisateurs");
-  return res.json();
+  return res?.data;
 }
 
 const ModalInvite = ({
@@ -48,7 +50,7 @@ const ModalInvite = ({
   });
 
   const t = useTranslations("inviteModal");
-
+  const { secureMutation } = useSecureApi();
   const [copied, setCopied] = useState(false);
 
   const inviteMutation = useMutation({
@@ -57,18 +59,17 @@ const ModalInvite = ({
       console.log(communitySlug);
       await Promise.all(
         userIds.map(async (userId) => {
-          const res = await fetch(
+          const res = await secureMutation(
             `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000/api"}/communities/${communitySlug}/learners/invite`,
             {
               method: "POST",
-              credentials: "include",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ userId }),
             }
           );
           if (!res.ok) {
             // On récupère le message d'erreur du backend
-            const errorData = await res.json();
+            const errorData = await res?.data;
             throw new Error(errorData.message || "Erreur lors de l'invitation");
           }
         })

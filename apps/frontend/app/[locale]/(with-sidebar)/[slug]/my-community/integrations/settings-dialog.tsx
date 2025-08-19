@@ -27,6 +27,8 @@ import {
 import { useRouter } from "next/navigation";
 import { useChannelSections } from "@/components/manage-integrations/hooks/useChannelSections";
 import { useAuth } from "@/contexts/auth-context";
+import { useSecureApi } from "@/hooks/useSecureApi";
+import { toast } from "sonner";
 // ============
 // Type definitions
 // ============
@@ -119,7 +121,8 @@ function PlatformSettingsDialog({
   manageIntegrationsOpen: boolean;
   setManageIntegrationsOpen: (open: boolean) => void;
 }) {
-  const { fetchDataUser, fetcher } = useAuth();
+  const { fetchDataUser } = useAuth();
+  const { secureMutation } = useSecureApi();
   const router = useRouter();
   const [account, setAccount] = useState<AccountPlatform>(
     platform.accountPlatform
@@ -143,10 +146,15 @@ function PlatformSettingsDialog({
     router.push(platform.urlAuth);
   };
   const handleDisconnect = async () => {
-    setAccount((a) => ({ ...a, connected: false }));
-    await fetcher(`${process.env.NEXT_PUBLIC_BACKEND_URL}/discord/disconnect`, { method: 'DELETE' });
-    await fetchDataUser();
-  }
+    try {
+      setAccount((a) => ({ ...a, connected: false }));
+      await secureMutation(`${process.env.NEXT_PUBLIC_BACKEND_URL}/discord/disconnect`, { method: 'DELETE' });
+      await fetchDataUser();
+    } catch (error) {
+      console.error("Error disconnecting Discord:", error);
+      toast.error("Failed to disconnect Discord");
+    }
+  };
   // ============
   // Function: handleRecurrenceChange
   // ------------

@@ -28,10 +28,12 @@ import React, { useState } from "react";
 import DiscordAuthButton from "@/components/shared/DiscordAuthButton";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
+import { useSecureApi } from "@/hooks/useSecureApi";
 
 export default function SignUpForm() {
   const router = useRouter();
   const { setAccessToken, validateFormSignUp } = useAuth();
+  const { secureMutation } = useSecureApi();
   const [formData, setFormData] = useState<FormDataSignUp>({
     gender: undefined,
     firstname: "",
@@ -76,11 +78,10 @@ export default function SignUpForm() {
     try {
       const { confirmPwd, ...rest } = formData;
       const signUp: ISignUp = rest;
-      const response = await fetch(
+      const response = await secureMutation(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/sign-up`,
         {
           method: "POST",
-          credentials: "include",
           headers: {
             "Content-Type": "application/json",
           },
@@ -91,7 +92,7 @@ export default function SignUpForm() {
         setStep(0);
         throw new Error("Registration failed. Please try again.");
       }
-      const data = await response.json();
+      const data = await response?.data;
       console.log(data);
       setAccessToken(data.access_token);
       setStep(0);

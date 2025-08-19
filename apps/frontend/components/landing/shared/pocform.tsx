@@ -11,6 +11,8 @@ import { MultiSelectCombobox } from "@repo/ui/components/combobox";
 import { Separator } from "@repo/ui/components/separator";
 import { Button } from "@repo/ui/components/button";
 import { useState } from "react";
+import { useAuth } from "@/contexts/auth-context";
+import { useSecureApi } from "@/hooks/useSecureApi";
 interface FormPOC {
   firstname: string;
   lastname: string;
@@ -21,6 +23,7 @@ interface FormPOC {
 }
 export function PocForm() {
   const tForm = useTranslations("form");
+  const { secureMutation } = useSecureApi();
   const [formData, setFormData] = useState<FormPOC>({
     firstname: "",
     lastname: "",
@@ -52,11 +55,10 @@ export function PocForm() {
       return "All fields are required.";
     }
     try {
-      const response = await fetch(
+      const response = await secureMutation(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/snow-test-register`,
         {
           method: "POST",
-          credentials: "include",
           headers: {
             "Content-Type": "application/json",
           },
@@ -66,7 +68,7 @@ export function PocForm() {
       if (!response.ok) {
         throw new Error("Registration failed. Please try again.");
       }
-      // const data = await response.json();
+      // const data = await response?.data;
       setSuccess("Registration made");
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred.");

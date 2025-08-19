@@ -6,12 +6,14 @@ import {
   Input,
 } from "@repo/ui";
 import { useAuth } from "@/contexts/auth-context";
+import { useSecureApi } from "@/hooks/useSecureApi";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 
 export default function BasicInformationForm() {
-  const { user, fetchDataUser, fetcher } = useAuth();
+  const { user, fetchDataUser } = useAuth();
+  const { secureMutation } = useSecureApi();
   const [firstname, setFirstname] = useState("");
   const [lastname, setLastname] = useState("");
   const [email, setEmail] = useState("");
@@ -48,12 +50,15 @@ export default function BasicInformationForm() {
       if (lastname !== user?.lastname) payload.lastname = lastname;
       if (email !== user?.email) payload.email = email;
 
-      const res = await fetcher(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user`, {
+      const res = await secureMutation(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      if (!res?.ok) throw new Error("Update failed");
+      if (!res?.ok) {
+        const errorMessage = res?.data?.message || "Update failed";
+        throw new Error(errorMessage);
+      }
       toast.success("Informations mises à jour");
       // Optionnel: recharger les données utilisateur
       try { await fetchDataUser(); } catch {}

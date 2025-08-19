@@ -72,7 +72,7 @@ export class AuthController {
 			secure: process.env.NODE_ENV === 'production',
 			sameSite: 'lax',
 			path: '/',
-			maxAge: 15 * 60 * 1000, // 15 minutes
+			maxAge: 30 * 60 * 1000, // 30 minutes (cohérent avec le service)
 			domain: process.env.COOKIE_DOMAIN || undefined,
 		});
 		return { access_token, auth };
@@ -145,7 +145,7 @@ export class AuthController {
 	@Public()
 	@HttpCode(HttpStatus.OK)
 	@Post('refresh-token')
-	refreshToken(
+	async refreshToken(
 		@Req() req: Request,
 		@Body('refreshToken') refreshToken: string,
 	) {
@@ -156,8 +156,16 @@ export class AuthController {
 		if (!refreshToken && !req.cookies?.['refresh-token']) {
 			throw new UnauthorizedException('No refresh token provided');
 		}
+		
 		const token = refreshToken ?? req.cookies?.['refresh-token'];
-		return this.authProvider.refreshToken(token);
+		
+		try {
+			const result = await this.authProvider.refreshToken(token);
+			return result;
+		} catch (error) {
+			this.logger.error('Refresh token failed:', error);
+			throw new UnauthorizedException('Token refresh failed');
+		}
 	}
 
 	@Public()
@@ -210,7 +218,7 @@ export class AuthController {
 			secure: process.env.NODE_ENV === 'production',
 			sameSite: 'lax',
 			path: '/',
-			maxAge: 15 * 60 * 1000,
+			maxAge: 30 * 60 * 1000, // 30 minutes (cohérent avec le service)
 			domain: process.env.COOKIE_DOMAIN || undefined,
 		});
 		return res.redirect(`${process.env.FRONT_URL}/`);

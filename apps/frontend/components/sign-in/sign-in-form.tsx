@@ -7,10 +7,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import DiscordAuthButton from "@/components/shared/DiscordAuthButton";
+import { useSecureApi } from "@/hooks/useSecureApi";
 
 export default function SignInForm() {
   const router = useRouter();
   const { setAccessToken } = useAuth();
+  const { secureMutation } = useSecureApi();
   const [formData, setFormData] = useState<FormDataSignIn>({
     email: "",
     password: "",
@@ -30,11 +32,10 @@ export default function SignInForm() {
     setSuccess("");
 
     try {
-      const response = await fetch(
+      const response = await secureMutation(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/sign-in`,
         {
           method: "POST",
-          credentials: "include",
           headers: {
             "Content-Type": "application/json",
           },
@@ -44,7 +45,7 @@ export default function SignInForm() {
       if (!response.ok) {
         throw new Error("Login failed. Please try again.");
       }
-      const data = await response.json();
+      const data = await response?.data;
       setAccessToken(data.access_token);
       router.push("/");
     } catch (err: any) {

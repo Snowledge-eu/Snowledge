@@ -33,6 +33,7 @@ import {
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/auth-context";
+import { useSecureApi } from "@/hooks/useSecureApi";
 
 export default function NavUser({
   user,
@@ -45,6 +46,8 @@ export default function NavUser({
 }) {
   const { isMobile } = useSidebar();
   const { user: authUser } = useAuth();
+  const { secureQuery } = useSecureApi();
+  const { secureMutation } = useSecureApi();
   const [balance, setBalance] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
@@ -55,12 +58,11 @@ export default function NavUser({
       setLoading(true);
       setError(false);
       try {
-        const res = await fetch(
+        const res = await secureQuery(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/xrpl/balance/${authUser.id}`,
-          { credentials: "include" }
         );
         if (res.ok) {
-          const data = await res.json();
+          const data = await res?.data;
           if (typeof data === "number" || typeof data === "string") {
             const num = Number(data);
             setBalance(!isNaN(num) ? num.toFixed(3) : "0.000");
@@ -86,11 +88,10 @@ export default function NavUser({
 
   const signOut = async () => {
     try {
-      const response = await fetch(
+      const response = await secureMutation(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/session`,
         {
           method: "DELETE",
-          credentials: "include",
         }
       );
       if (response.status === 204) {

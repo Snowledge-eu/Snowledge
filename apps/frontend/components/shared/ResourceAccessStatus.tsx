@@ -1,6 +1,7 @@
 import { Loader2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import React from "react";
+import { useSecureApi } from "@/hooks/useSecureApi";
 
 interface ResourceAccessStatusProps {
   resourcesId: string;
@@ -18,6 +19,8 @@ export function ResourceAccessStatus({
   children,
 }: ResourceAccessStatusProps) {
   //TODO: gérer le cas où c'est un contributeur ayant créé la ressource (peut etre mint un nft pour lui, et pas avoir un bouton acheter, mais mint un nft pour lui, ou alors peut etre mint un nft pour tous les contrib au moment de la mis en vente)
+  const { secureQuery } = useSecureApi();
+  
   const {
     data: nftStatus,
     isLoading: loadingNft,
@@ -26,12 +29,21 @@ export function ResourceAccessStatus({
   } = useQuery({
     queryKey: ["has-nft", resourcesId],
     queryFn: async () => {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000/api"}/resources/${resourcesId}/has-nft`,
-        { credentials: "include" }
+      const res = await secureQuery(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000/api"}/resources/${resourcesId}/has-nft`
       );
-      if (!res.ok) throw new Error(await res.text());
-      return res.json();
+      if (!res.ok) {
+        const errorMessage = res.data?.message || "Erreur lors de la vérification";
+        throw new Error(errorMessage);
+      }
+      return res.data;
+    },
+    enabled: !!resourcesId,
+    retry: (failureCount, error) => {
+      if (error instanceof Error && error.message === "Authentication failed") {
+        return false;
+      }
+      return failureCount < 3;
     },
   });
 

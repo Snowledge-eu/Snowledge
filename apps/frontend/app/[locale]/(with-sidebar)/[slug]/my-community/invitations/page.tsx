@@ -24,6 +24,7 @@ import ModalInvite from "@/components/create-community/modals/ModalInvite";
 import { Learner } from "@/types/learner";
 import { features } from "@/config/features";
 import { notFound } from "next/navigation";
+import { useSecureApi } from "@/hooks/useSecureApi";
 
 export default function Page() {
   const { slug } = useParams();
@@ -32,7 +33,8 @@ export default function Page() {
   }
   const [modalOpen, setModalOpen] = useState(false);
   const communityUrl = `${window.location.origin}/join/${slug}`;
-
+  const { secureQuery } = useSecureApi();
+  
   // Récupère les invitations en attente
   const {
     data: invited = [],
@@ -41,12 +43,11 @@ export default function Page() {
   } = useQuery({
     queryKey: ["invited", slug],
     queryFn: async () => {
-      const res = await fetch(
+      const res = await secureQuery(
         `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000/api"}/communities/${slug}/learners/invited`,
-        { credentials: "include" }
       );
       if (!res.ok) throw new Error("Erreur lors du chargement des invitations");
-      return res.json();
+      return res?.data;
     },
   });
 

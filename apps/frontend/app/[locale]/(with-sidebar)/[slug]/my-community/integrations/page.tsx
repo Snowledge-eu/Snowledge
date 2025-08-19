@@ -9,6 +9,8 @@ import { DiscordHarvestJob } from "@/shared/interfaces/IDiscordHarvestJob";
 import { initialPlatforms } from "@/shared/constants/initial-platforms";
 import CardPlatform from "@/components/my-community/integrations/card-platform";
 import { useChannelSections } from "@/components/manage-integrations/hooks/useChannelSections";
+import { useSecureApi } from "@/hooks/useSecureApi";
+import { toast } from "sonner";
 
 export default function Page() {
   const { user, fetcher } = useAuth();
@@ -42,6 +44,8 @@ export default function Page() {
   });
   const [isCollecting, setIsCollecting] = useState(false);
 
+  const { secureQuery, secureMutation } = useSecureApi();
+
   useEffect(() => {
     if (user?.discordId || activeCommunity?.discordServerId) {
       setEnabled((prev) => ({ ...prev, discord: true }));
@@ -63,7 +67,7 @@ export default function Page() {
       channels: selected.discord.map((ch) => ch.value),
       after: afterDate,
     };
-    await fetcher(`${process.env.NEXT_PUBLIC_BACKEND_URL}/discord/harvest`, {
+    await secureMutation(`${process.env.NEXT_PUBLIC_BACKEND_URL}/discord/harvest`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -172,6 +176,24 @@ export default function Page() {
   useEffect(() => {
     console.log("selected", selected);
   }, [selected]);
+
+  // Récupérer la dernière récolte
+  useEffect(() => {
+    const fetchLastHarvest = async () => {
+      if (!activeCommunity?.discordServerId) return;
+      
+      try {
+        const raw: unknown = await secureQuery(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000/api"}/discord/last-harvest/${activeCommunity.discordServerId}`
+        );
+        // Traitement des données...
+      } catch (error) {
+        console.error("Error fetching last harvest:", error);
+      }
+    };
+
+    fetchLastHarvest();
+  }, [activeCommunity?.discordServerId, secureQuery]);
   return (
     <section className="w-full flex flex-col gap-8 p-4">
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">

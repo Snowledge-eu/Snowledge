@@ -9,8 +9,10 @@ import React, {
   useState,
   useCallback,
   useEffect,
+  useRef,
 } from "react";
 import { toast } from "sonner";
+import { tokenValidator } from "@/utils/token-validator";
 
 type AuthContextType = {
   accessToken: string | null;
@@ -33,6 +35,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [fetchDataUserInProgress, setFetchDataUserInProgress] = useState(false);
   const [user, setUser] = useState(null);
   const [accessToken, setAccessToken] = useState<string | null>(null);
+  
+  // Verrou pour éviter les refresh multiples simultanés
+  const isRefreshing = useRef(false);
+  const refreshPromise = useRef<Promise<string | null> | null>(null);
 
   // Vérifie l'état de l'authentification au chargement
   const checkAuth = async () => {
@@ -54,49 +60,67 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.error("Error checking auth status:", error);
     }
   };
+
   const isJwtValid = (token: string) => {
-    try {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      return payload.exp * 1000 > Date.now();
-    } catch {
-      return false;
-    }
+    return tokenValidator.isValid(token);
   };
 
   const refreshAccessToken = useCallback(async () => {
-    try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/refresh-token`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-internal-call": "true",
-          },
-          credentials: "include",
-        }
-      );
-      if (!res.ok && !pathname.split("/").includes("sign-in")) {
-        toast.error("Votre accès a expiré, veuillez vous reconnecter.", {
-          position: "top-center",
-        });
-
-        if (typeof window !== "undefined") {
-          setTimeout(() => {
-            router.push("/sign-in");
-          }, 4000);
-        }
-      }
-
-      const data = await res.json();
-
-      setAccessToken(data.access_token);
-      return data.access_token;
-    } catch (err) {
-      setAccessToken(null);
-      return null;
+    // Si un refresh est déjà en cours, attendre qu'il se termine
+    if (isRefreshing.current && refreshPromise.current) {
+      return await refreshPromise.current;
     }
-  }, []);
+
+    // Démarrer un nouveau refresh
+    isRefreshing.current = true;
+    const promise = (async () => {
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/refresh-token`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-internal-call": "true",
+            },
+            credentials: "include",
+          }
+        );
+
+        if (!res.ok && !pathname.split("/").includes("sign-in")) {
+          toast.error("Votre accès a expiré, veuillez vous reconnecter.", {
+            position: "top-center",
+          });
+
+          if (typeof window !== "undefined") {
+            setTimeout(() => {
+              router.push("/sign-in");
+            }, 4000);
+          }
+          throw new Error("Refresh failed");
+        }
+
+        const data = await res.json();
+        
+        // Synchroniser avec les cookies (comme dans le middleware)
+        if (typeof document !== "undefined") {
+          document.cookie = `access-token=${data.access_token}; path=/; max-age=${30 * 60}; SameSite=Lax`;
+        }
+        
+        setAccessToken(data.access_token);
+        return data.access_token;
+      } catch (err) {
+        setAccessToken(null);
+        return null;
+      } finally {
+        isRefreshing.current = false;
+        refreshPromise.current = null;
+      }
+    })();
+
+    refreshPromise.current = promise;
+    return await promise;
+  }, [pathname, router]);
 
   const fetcher = useCallback(
     async (input: RequestInfo, init: RequestInit = {}) => {
@@ -134,17 +158,49 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         data: null as any,
       };
 
-      if (!res.ok) {
-        if (res.status === 401) {
-          toast.error("Votre session a expiré, veuillez vous reconnecter.", {
-            position: "top-center",
+      // Gérer les erreurs d'authentification
+      if (res.status === 401 || res.status === 403) {
+        // Essayer de rafraîchir le token et retenter
+        const newToken = await refreshAccessToken();
+        if (newToken) {
+          // Retenter la requête avec le nouveau token
+          const retryRes = await fetch(input, {
+            ...init,
+            headers: {
+              ...(init.headers || {}),
+            },
+            credentials: "include",
           });
-          if (typeof window !== "undefined") {
-            setTimeout(() => {
-              router.push("/sign-in");
-            }, 4000);
+          
+          if (retryRes.ok) {
+            try {
+              const text = await retryRes.text();
+              if (!text || text.trim() === "") {
+                return responseWrapper;
+              }
+              responseWrapper.data = JSON.parse(text);
+              responseWrapper.status = retryRes.status;
+              responseWrapper.ok = retryRes.ok;
+              return responseWrapper;
+            } catch (parseError) {
+              throw new Error("Invalid JSON response from server");
+            }
           }
-        } else throw new Error("Failed. Please try again.");
+        }
+        
+        toast.error("Votre session a expiré, veuillez vous reconnecter.", {
+          position: "top-center",
+        });
+        if (typeof window !== "undefined") {
+          setTimeout(() => {
+            router.push("/sign-in");
+          }, 4000);
+        }
+        throw new Error("Authentication failed");
+      }
+
+      if (!res.ok) {
+        throw new Error("Failed. Please try again.");
       }
 
       // Essayer de parser le JSON directement
@@ -161,7 +217,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         throw new Error("Invalid JSON response from server");
       }
     },
-    [accessToken, refreshAccessToken]
+    [accessToken, refreshAccessToken, pathname, router]
   );
 
   const fetchDataUser = async () => {
@@ -171,7 +227,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/user`,
         {
           method: "GET",
-          credentials: "include",
         }
       );
 
@@ -261,6 +316,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
       }
     }
+  }, []);
+
+  // Nettoyer le cache des tokens périodiquement
+  useEffect(() => {
+    const cleanupInterval = setInterval(() => {
+      tokenValidator.cleanupCache();
+    }, 5 * 60 * 1000); // Toutes les 5 minutes
+
+    return () => clearInterval(cleanupInterval);
   }, []);
 
   return (

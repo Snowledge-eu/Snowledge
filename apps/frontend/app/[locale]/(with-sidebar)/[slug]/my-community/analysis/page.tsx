@@ -20,6 +20,8 @@ import { Card } from "@repo/ui";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
+import { useParams } from "next/navigation";
+import { useSecureApi } from "@/hooks/useSecureApi";
 
 export default function Page() {
   const { user, fetcher } = useAuth();
@@ -27,6 +29,8 @@ export default function Page() {
   const { isLoading, meta } = useChannelSections(activeCommunity?.id || 0);
   const { data: prompts, isLoading: promptsLoading } = usePrompts(user?.id);
   const queryClient = useQueryClient();
+  const { slug } = useParams();
+  const { secureQuery, secureMutation } = useSecureApi();
 
   // États partagés
   const [selectedPlatform, setSelectedPlatform] = useState("discord");
@@ -54,10 +58,9 @@ export default function Page() {
   const [topP, setTopP] = useState(0.9);
 
   // Fonction pour gérer la création de nouveaux prompts
-
   const handlePromptCreated = async (promptData: any) => {
     try {
-      const response = await fetcher(
+      const response = await secureMutation(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/prompts`,
         {
           method: "POST",
@@ -136,7 +139,7 @@ export default function Page() {
     }
 
     try {
-      const response = await fetcher(
+      const response = await secureMutation(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/discord/count-message`,
         {
           method: "POST",
@@ -198,7 +201,7 @@ export default function Page() {
         body.startDate = customStartDate.toISOString();
         body.endDate = customEndDate.toISOString();
       }
-      const res = await fetcher(
+      const res = await secureMutation(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/analysis/discord`,
         {
           method: "POST",
@@ -213,7 +216,7 @@ export default function Page() {
 
       if (res.status === 200 || res.status === 201) {
         console.log(res);
-        const analysisResponse = await fetcher(
+        const analysisResponse = await secureMutation(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/analysis`,
           {
             method: "POST",
@@ -466,7 +469,7 @@ export default function Page() {
       creator_id: Number(user?.id),
     };
 
-    const analysisResponse = await fetcher(
+    const analysisResponse = await secureMutation(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/analysis`,
       {
         method: "POST",
