@@ -7,7 +7,7 @@ export interface Platform {
     options: Array<{ label: string, value: string }>,
     estimatedVolume: number,
     lastFetched: {
-        date: Date,
+        date: Date | null,
         channels: Array<
             {
                 name: string,

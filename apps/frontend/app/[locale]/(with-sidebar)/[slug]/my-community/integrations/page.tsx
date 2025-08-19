@@ -105,29 +105,28 @@ export default function Page() {
   }
   const fetchChannels = async (guildId: string) => {
     try {
-      // const data = await fetch(
-      //   `${process.env.NEXT_PUBLIC_ANALYSER_URL}/discord/channels/${guildId}`,
-      //   {
-      //     method: "GET",
-      //   }
-      // );
-      // console.log("data", data);
-      const harvest: {data: DiscordHarvestJob & {
-        lastFetched: {
-          date: Date;
-          channels: Array<{ name: string; qty: number }>;
-        }};
-      } = await fetcher(
+      const raw: unknown = await fetcher(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/discord/last-harvest/${guildId}`
-      ).catch((err) => console.error(err));
-      // const info: {
-      //   server_id: string;
-      //   server_name: string;
-      //   channels: { id: string; name: string }[];
-      // } = await data.json();
+      ).catch((err) => {
+        console.error(err);
+        return null;
+      });
+      
+      type LastFetchedResponse = {
+        data?: {
+          lastFetched?: {
+            date: string | null;
+            channels?: Array<{ name: string; qty: number }>;
+          };
+        };
+      };
+      
+      const resp = (raw as LastFetchedResponse) ?? {};
+      const lf = resp.data?.lastFetched ?? { date: null, channels: [] };
+      const lastFetchedDate = lf.date ? new Date(lf.date) : null;     
 
       const options: Array<{ label: string; value: string }> = [];
-      if (Array.isArray(meta.listData)) {
+      if (Array.isArray(meta?.listData)) {
         for (const channel of meta.listData) {
           options.push({ label: `#${channel.name}`, value: channel.id });
         }
@@ -141,11 +140,11 @@ export default function Page() {
                 account: {
                   id: guildId,
                   name: "",
-                  connected: user.discordId != "",
+                  connected: !!user?.discordId,
                 },
-                lastFetched: harvest?.data.lastFetched || {
-                  date: null,
-                  channels: [],
+                lastFetched: {
+                  date: lastFetchedDate,
+                  channels: lf.channels ?? [],
                 },
               }
             : platform
