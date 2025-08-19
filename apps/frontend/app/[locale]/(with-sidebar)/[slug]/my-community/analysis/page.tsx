@@ -39,6 +39,12 @@ export default function Page() {
   >([]);
   const [timeRange, setTimeRange] = useState("last_week");
   const [customDate, setCustomDate] = useState<Date | undefined>(undefined);
+  const [customStartDate, setCustomStartDate] = useState<Date | undefined>(
+    undefined
+  );
+  const [customEndDate, setCustomEndDate] = useState<Date | undefined>(
+    undefined
+  );
   const [loading, setLoading] = useState(false);
   const [messageCount, setMessageCount] = useState(0);
 
@@ -91,7 +97,8 @@ export default function Page() {
   const canLaunch = Boolean(
     selectedPrompt &&
       messageCount > 0 &&
-      (scope === "all" || selectedChannels.length > 0)
+      (scope === "all" || selectedChannels.length > 0) &&
+      (timeRange !== "custom" || (customStartDate && customEndDate))
   );
 
   // Fonction pour récupérer les canaux Discord (exactement comme dans les anciennes pages)
@@ -117,10 +124,17 @@ export default function Page() {
     channels: Array<{ label: string; value: string }>,
     interval: string
   ) => {
-    const body = {
+    const body: any = {
       channelId: channels.map((chan) => chan.value),
       interval: interval,
     };
+
+    // Ajouter les dates personnalisées si l'intervalle est custom
+    if (interval === "custom" && customStartDate && customEndDate) {
+      body.startDate = customStartDate.toISOString();
+      body.endDate = customEndDate.toISOString();
+    }
+
     try {
       const response = await fetcher(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/discord/count-message`,
@@ -141,9 +155,16 @@ export default function Page() {
   // Effet pour récupérer le nombre de messages (exactement comme dans les anciennes pages)
   useEffect(() => {
     if (selectedChannels.length > 0 && timeRange) {
-      fetchMessageCount(selectedChannels, timeRange);
+      // Pour l'intervalle custom, attendre que les deux dates soient sélectionnées
+      if (timeRange === "custom") {
+        if (customStartDate && customEndDate) {
+          fetchMessageCount(selectedChannels, timeRange);
+        }
+      } else {
+        fetchMessageCount(selectedChannels, timeRange);
+      }
     }
-  }, [selectedChannels, timeRange]);
+  }, [selectedChannels, timeRange, customStartDate, customEndDate]);
 
   // Effet pour initialiser (exactement comme dans les anciennes pages)
   useEffect(() => {
@@ -611,6 +632,10 @@ export default function Page() {
           onTimeRangeChange={setTimeRange}
           customDate={customDate}
           onCustomDateChange={setCustomDate}
+          customStartDate={customStartDate}
+          onCustomStartDateChange={setCustomStartDate}
+          customEndDate={customEndDate}
+          onCustomEndDateChange={setCustomEndDate}
           messageCount={messageCount}
           canLaunch={canLaunch}
           loading={loading}

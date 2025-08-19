@@ -112,7 +112,10 @@ export class DiscordProvider {
 				});
 			}
 		} else {
-			this.logger.error('Error client information', data && data.error ? data.error : data);
+			this.logger.error(
+				'Error client information',
+				data && data.error ? data.error : data,
+			);
 		}
 		return community;
 	}
@@ -123,15 +126,15 @@ export class DiscordProvider {
 			discordId: '',
 			discordAccess: null,
 		});
-		if(findUser.discordAccess) {
+		if (findUser.discordAccess) {
 			await this.discordService.delete(findUser.discordAccess.id);
 		}
-		// TODO enelver le bot discord du serveur si c'est le créateur 
+		// TODO enelver le bot discord du serveur si c'est le créateur
 	}
 
 	async listDiscordServers(): Promise<Array<{ id: string; name: string }>> {
 		const client = this.discordClientHelper.getClient();
-		const guilds = client.guilds.cache.map(guild => ({
+		const guilds = client.guilds.cache.map((guild) => ({
 			id: guild.id,
 			name: guild.name,
 		}));
@@ -141,7 +144,9 @@ export class DiscordProvider {
 	async getHarvestJobStatus(jobId: string): Promise<any> {
 		let job;
 		try {
-			job = await this.discordHarvestJobService['harvestJobModel'].findById(new Types.ObjectId(jobId)).lean();
+			job = await this.discordHarvestJobService['harvestJobModel']
+				.findById(new Types.ObjectId(jobId))
+				.lean();
 		} catch (e) {
 			throw new Error('Invalid job_id format');
 		}
@@ -158,14 +163,23 @@ export class DiscordProvider {
 	}
 
 	async getLastHarvest(guildId: string): Promise<any> {
-		const last = await this.discordHarvestJobService.findLastHarvestJobByDiscordServerId(guildId);
+		const last =
+			await this.discordHarvestJobService.findLastHarvestJobByDiscordServerId(
+				guildId,
+			);
 		if (!last) {
 			return null;
 		}
 		const arrInfo: Array<{ name: string; qty: number }> = [];
 		for (const channel of last.channels) {
-			const channelInfo = await this.discordChannelService.findOne(channel.toString());
-			const countMess = await this.discordMessageService.countMessageForDate(channel, last.created_at);
+			const channelInfo = await this.discordChannelService.findOne(
+				channel.toString(),
+			);
+			const countMess =
+				await this.discordMessageService.countMessageForDate(
+					channel,
+					last.created_at,
+				);
 			arrInfo.push({
 				name: channelInfo.name,
 				qty: countMess,
@@ -178,10 +192,17 @@ export class DiscordProvider {
 		return { ...last, lastFetched };
 	}
 
-	async countMessageInterval(info: { channelId: string[]; interval: 'last_day' | 'last_week' | 'last_month' }): Promise<number> {
+	async countMessageInterval(info: {
+		channelId: string[];
+		interval: 'last_day' | 'last_week' | 'last_month' | 'custom';
+		startDate?: string;
+		endDate?: string;
+	}): Promise<number> {
 		const now = new Date();
 		let startDate: Date;
+		let endDate: Date = now;
 		let count = 0;
+
 		switch (info.interval) {
 			case 'last_day':
 				startDate = new Date(now);
@@ -195,17 +216,43 @@ export class DiscordProvider {
 				startDate = new Date(now);
 				startDate.setMonth(now.getMonth() - 1);
 				break;
+			case 'custom':
+				if (!info.startDate || !info.endDate) {
+					throw new Error(
+						'startDate and endDate are required for custom interval',
+					);
+				}
+				startDate = new Date(info.startDate);
+				endDate = new Date(info.endDate);
+				break;
 			default:
 				throw new Error(`Invalid interval: ${info.interval}`);
 		}
+
 		for (const id of info.channelId) {
-			const tmpcount = await this.discordMessageService.countMessageForPeriod(id, startDate);
+			let tmpcount: number;
+			if (info.interval === 'custom') {
+				tmpcount =
+					await this.discordMessageService.countMessageForCustomPeriod(
+						id,
+						startDate,
+						endDate,
+					);
+			} else {
+				tmpcount =
+					await this.discordMessageService.countMessageForPeriod(
+						id,
+						startDate,
+					);
+			}
 			count += tmpcount;
 		}
 		return count;
 	}
 
-	async harvestDiscord(dto: any): Promise<{ job_id: string, status: string } | undefined> {
+	async harvestDiscord(
+		dto: any,
+	): Promise<{ job_id: string; status: string } | undefined> {
 		try {
 			this.logger.verbose(JSON.stringify(dto));
 			const jobId = await this.discordHarvestJobService.addJob(dto);

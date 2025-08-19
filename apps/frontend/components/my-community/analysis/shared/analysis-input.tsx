@@ -64,6 +64,10 @@ export interface AnalysisInputBaseProps {
   onTimeRangeChange: (v: string) => void;
   customDate: Date | undefined;
   onCustomDateChange: (date: Date | undefined) => void;
+  customStartDate: Date | undefined;
+  onCustomStartDateChange: (date: Date | undefined) => void;
+  customEndDate: Date | undefined;
+  onCustomEndDateChange: (date: Date | undefined) => void;
   messageCount: number;
   canLaunch: boolean;
   loading: boolean;
@@ -97,6 +101,10 @@ export function AnalysisInput({
   onTimeRangeChange,
   customDate,
   onCustomDateChange,
+  customStartDate,
+  onCustomStartDateChange,
+  customEndDate,
+  onCustomEndDateChange,
   messageCount,
   canLaunch,
   loading,
@@ -570,33 +578,66 @@ export function AnalysisInput({
           </SelectContent>
         </Select>
         {timeRange === "custom" && (
-          <div className="mt-2">
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant={"outline"}
-                  className={cn(
-                    "w-64 justify-start text-left font-normal",
-                    customDate && "text-muted-foreground"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {customDate ? (
-                    format(customDate, "PPP")
-                  ) : (
-                    <span>Pick a date</span>
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
-                <Calendar
-                  mode="single"
-                  selected={customDate}
-                  onSelect={onCustomDateChange}
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
+          <div className="mt-2 space-y-2">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium">From:</span>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-48 justify-start text-left font-normal",
+                      !customStartDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {customStartDate ? (
+                      format(customStartDate, "PPP")
+                    ) : (
+                      <span>Start date</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={customStartDate}
+                    onSelect={onCustomStartDateChange}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium">To:</span>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-48 justify-start text-left font-normal",
+                      !customEndDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {customEndDate ? (
+                      format(customEndDate, "PPP")
+                    ) : (
+                      <span>End date</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={customEndDate}
+                    onSelect={onCustomEndDateChange}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
           </div>
         )}
       </Card>

@@ -79,6 +79,19 @@ export class DiscordMessageService {
 			.exec();
 	}
 
+	countMessageForCustomPeriod(
+		channelId: string,
+		startDate: Date,
+		endDate: Date,
+	): Promise<number> {
+		return this.messageModel
+			.countDocuments({
+				channel_id: Long.fromString(channelId),
+				created_at_by_discord: { $gte: startDate, $lte: endDate },
+			})
+			.exec();
+	}
+
 	async findHarvestedChannelIds(channelIds: string[]): Promise<string[]> {
 		const longIds = channelIds.map((id) => Long.fromString(id));
 

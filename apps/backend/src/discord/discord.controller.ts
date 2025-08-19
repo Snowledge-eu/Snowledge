@@ -86,7 +86,9 @@ export class DiscordController {
 		@Body()
 		info: {
 			channelId: string[];
-			interval: 'last_day' | 'last_week' | 'last_month';
+			interval: 'last_day' | 'last_week' | 'last_month' | 'custom';
+			startDate?: string;
+			endDate?: string;
 		},
 	): Promise<number> {
 		return this.discordProvider.countMessageInterval(info);
