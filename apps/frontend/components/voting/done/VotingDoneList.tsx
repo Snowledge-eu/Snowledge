@@ -20,7 +20,10 @@ const VotingDoneList = ({ communitySlug }: { communitySlug: string }) => {
       const res = await secureQuery(
         `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000/api"}/communities/${communitySlug}/proposals`
       );
-      return res;
+      if (!res.ok) {
+        throw new Error("Failed to fetch proposals");
+      }
+      return res.data;
     },
     retry: (failureCount, error) => {
       if (error instanceof Error && error.message === "Authentication failed") {
