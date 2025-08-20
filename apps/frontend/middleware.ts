@@ -49,6 +49,16 @@ export async function middleware(request: NextRequest) {
     }
 
     if (!accessToken && refreshToken) {
+      // Vérifier si le refresh token n'est pas expiré avant de tenter le refresh
+      if (isJwtExpired(refreshToken)) {
+        const res = NextResponse.redirect(
+          new URL(`/${currentLocale}/sign-in`, request.url)
+        );
+        res.cookies.delete("access-token");
+        res.cookies.delete("refresh-token");
+        return res;
+      }
+
       try {
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/refresh-token`,
@@ -85,9 +95,24 @@ export async function middleware(request: NextRequest) {
           });
 
           return res;
+        } else {
+          // Si le refresh échoue, supprimer les cookies et rediriger
+          const res = NextResponse.redirect(
+            new URL(`/${currentLocale}/sign-in`, request.url)
+          );
+          res.cookies.delete("access-token");
+          res.cookies.delete("refresh-token");
+          return res;
         }
       } catch (e) {
         console.error("Token refresh failed:", e);
+        // En cas d'erreur, supprimer les cookies et rediriger
+        const res = NextResponse.redirect(
+          new URL(`/${currentLocale}/sign-in`, request.url)
+        );
+        res.cookies.delete("access-token");
+        res.cookies.delete("refresh-token");
+        return res;
       }
     }
 
