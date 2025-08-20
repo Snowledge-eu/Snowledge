@@ -55,6 +55,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (response.ok) {
         const data = await response.json();
         setAccessToken(data.access_token);
+        
+        // Debug: Vérifier les cookies côté client
+        // if (typeof document !== "undefined") {
+        //   const cookies = document.cookie.split(';').reduce((acc, cookie) => {
+        //     const [key, value] = cookie.trim().split('=');
+        //     acc[key] = value;
+        //     return acc;
+        //   }, {} as Record<string, string>);
+          
+        // }
       }
     } catch (error) {
       console.error("Error checking auth status:", error);
@@ -101,12 +111,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
 
         const data = await res.json();
-        
-        // Synchroniser avec les cookies (comme dans le middleware)
-        if (typeof document !== "undefined") {
-          document.cookie = `access-token=${data.access_token}; path=/; max-age=${30 * 60}; SameSite=Lax`;
-        }
-        
+                
         setAccessToken(data.access_token);
         return data.access_token;
       } catch (err) {

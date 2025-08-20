@@ -75,7 +75,9 @@ export class AuthController {
 			maxAge: 30 * 60 * 1000, // 30 minutes (cohérent avec le service)
 			domain: process.env.COOKIE_DOMAIN || undefined,
 		});
-		return { access_token, auth };
+		
+		// Retourner les deux tokens pour debug
+		return { access_token, refresh_token, auth };
 	}
 
 	@Public()
@@ -89,6 +91,7 @@ export class AuthController {
 		// return this.authProvider.signUp(signUpDto);
 		const { access_token, refresh_token, auth, nftId } =
 			await this.authProvider.signUp(signUpDto);
+			
 		res.cookie('refresh-token', refresh_token, {
 			httpOnly: true,
 			secure: process.env.NODE_ENV === 'production',
@@ -107,7 +110,8 @@ export class AuthController {
 			domain: process.env.COOKIE_DOMAIN || undefined,
 		});
 
-		return { access_token, auth, nftId };
+		// Retourner les deux tokens pour debug
+		return { access_token, refresh_token, auth, nftId };
 	}
 
 	@Public()

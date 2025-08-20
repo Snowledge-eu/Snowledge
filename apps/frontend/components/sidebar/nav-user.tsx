@@ -96,12 +96,16 @@ export default function NavUser({
       );
       if (response.status === 204) {
         localStorage.removeItem("activeCommunityId");
-        window.location.href = "/";
+        
+        // Attendre un peu avant la redirection pour laisser le temps aux cookies d'être supprimés
+        setTimeout(() => {
+          window.location.href = "/";
+        }, 100);
       } else {
-        console.error("Failed to sign out");
+        console.error("Failed to sign out - Status:", response.status);
       }
     } catch (err: any) {
-      console.error(err.message || "An unexpected error occurred.");
+      console.error("Logout error:", err.message || "An unexpected error occurred.");
     }
   };
   return (
